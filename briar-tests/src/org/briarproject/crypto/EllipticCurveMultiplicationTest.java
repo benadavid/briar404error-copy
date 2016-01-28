@@ -2,10 +2,10 @@ package org.briarproject.crypto;
 
 import org.briarproject.BriarTestCase;
 import org.junit.Test;
-import org.spongycastle.asn1.teletrust.TeleTrusTNamedCurves;
 import org.spongycastle.asn1.x9.X9ECParameters;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
+import org.spongycastle.crypto.ec.CustomNamedCurves;
 import org.spongycastle.crypto.generators.ECKeyPairGenerator;
 import org.spongycastle.crypto.params.ECDomainParameters;
 import org.spongycastle.crypto.params.ECKeyGenerationParameters;
@@ -26,7 +26,7 @@ public class EllipticCurveMultiplicationTest extends BriarTestCase {
 	public void testMultiplierProducesSameResultsAsDefault() throws Exception {
 		// Instantiate the default implementation of the curve
 		X9ECParameters defaultX9Parameters =
-				TeleTrusTNamedCurves.getByName("brainpoolp256r1");
+				CustomNamedCurves.getByName("curve25519");
 		ECCurve defaultCurve = defaultX9Parameters.getCurve();
 		ECPoint defaultG = defaultX9Parameters.getG();
 		BigInteger defaultN = defaultX9Parameters.getN();

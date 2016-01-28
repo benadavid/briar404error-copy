@@ -1,11 +1,5 @@
 package org.briarproject.crypto;
 
-import static java.util.logging.Level.INFO;
-
-import java.math.BigInteger;
-import java.security.GeneralSecurityException;
-import java.util.logging.Logger;
-
 import org.briarproject.api.crypto.KeyParser;
 import org.briarproject.api.crypto.PrivateKey;
 import org.briarproject.api.crypto.PublicKey;
@@ -14,6 +8,13 @@ import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;
 import org.spongycastle.math.ec.ECCurve;
 import org.spongycastle.math.ec.ECPoint;
+import org.spongycastle.math.ec.custom.djb.Curve25519;
+
+import java.math.BigInteger;
+import java.security.GeneralSecurityException;
+import java.util.logging.Logger;
+
+import static java.util.logging.Level.INFO;
 
 /**
  * A key parser that uses the encoding defined in "SEC 1: Elliptic Curve
@@ -32,7 +33,7 @@ class Sec1KeyParser implements KeyParser {
 	Sec1KeyParser(ECDomainParameters params, int keyBits) {
 		this.params = params;
 		this.keyBits = keyBits;
-		modulus = ((ECCurve.Fp) params.getCurve()).getQ();
+		modulus = ((Curve25519) params.getCurve()).getQ();
 		bytesPerInt = (keyBits + 7) / 8;
 		publicKeyBytes = 1 + 2 * bytesPerInt;
 		privateKeyBytes = bytesPerInt;

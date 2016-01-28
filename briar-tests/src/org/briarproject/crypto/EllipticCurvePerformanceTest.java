@@ -6,6 +6,7 @@ import org.spongycastle.asn1.x9.X9ECParameters;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
+import org.spongycastle.crypto.ec.CustomNamedCurves;
 import org.spongycastle.crypto.generators.ECKeyPairGenerator;
 import org.spongycastle.crypto.params.ECDomainParameters;
 import org.spongycastle.crypto.params.ECKeyGenerationParameters;
@@ -37,6 +38,8 @@ public class EllipticCurvePerformanceTest {
 			"secp256k1", "secp256r1", "secp384r1", "secp521r1");
 	private static final List<String> BRAINPOOL_NAMES = Arrays.asList(
 			"brainpoolp256r1", "brainpoolp384r1", "brainpoolp512r1");
+	private static final List<String> CUSTOM_NAMES = Arrays.asList(
+			"curve25519", "secp256k1", "secp256r1", "secp384r1", "secp521r1");
 
 	public static void main(String[] args) {
 		for (String name : SEC_NAMES) {
@@ -48,6 +51,12 @@ public class EllipticCurvePerformanceTest {
 		for (String name : BRAINPOOL_NAMES) {
 			ECDomainParameters params =
 					convertParams(TeleTrusTNamedCurves.getByName(name));
+			runTest(name + " default", params);
+			runTest(name + " constant", constantTime(params));
+		}
+		for (String name : CUSTOM_NAMES) {
+			ECDomainParameters params =
+					convertParams(CustomNamedCurves.getByName(name));
 			runTest(name + " default", params);
 			runTest(name + " constant", constantTime(params));
 		}
