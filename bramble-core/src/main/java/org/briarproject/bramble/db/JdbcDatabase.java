@@ -269,7 +269,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private int openConnections = 0; // Locking: connectionsLock
 	private boolean closed = false; // Locking: connectionsLock
 
-	@Nullable
 	protected abstract Connection createConnection() throws SQLException;
 
 	private final Lock connectionsLock = new ReentrantLock();
@@ -404,7 +403,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (txn == null) {
 				// Open a new connection
 				txn = createConnection();
-				if (txn == null) throw new DbException();
 				txn.setAutoCommit(false);
 				connectionsLock.lock();
 				try {
