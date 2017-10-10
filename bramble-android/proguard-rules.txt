@@ -1,8 +1,8 @@
 -keep,includedescriptorclasses class org.briarproject.** { *; }
 
--keep class org.h2.** { *; }
--dontwarn org.h2.**
--dontnote org.h2.**
+-keep class org.hsqldb.** { *; }
+-dontwarn org.hsqldb.**
+-dontnote org.hsqldb.**
 
 -keep class dagger.** { *; }
 -dontwarn dagger.**
