@@ -1,9 +1,9 @@
 package org.briarproject.briar.privategroup.invitation;
 
+import org.briarproject.bramble.api.client.ProtocolStateException;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.test.TestDatabaseModule;
-import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;

@@ -1,4 +1,4 @@
-package org.briarproject.briar.api.client;
+package org.briarproject.bramble.api.client;
 
 import org.briarproject.bramble.api.db.DbException;
 

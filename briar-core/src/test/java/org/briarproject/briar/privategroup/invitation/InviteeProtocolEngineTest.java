@@ -1,5 +1,6 @@
 package org.briarproject.briar.privategroup.invitation;
 
+import org.briarproject.bramble.api.client.ProtocolStateException;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
@@ -7,7 +8,6 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.jmock.Expectations;
 import org.junit.Test;

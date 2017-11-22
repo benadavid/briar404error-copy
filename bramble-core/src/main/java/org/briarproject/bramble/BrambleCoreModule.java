@@ -10,6 +10,7 @@ import org.briarproject.bramble.event.EventModule;
 import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.keyagreement.KeyAgreementModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
+import org.briarproject.bramble.migration.MigrationModule;
 import org.briarproject.bramble.plugin.PluginModule;
 import org.briarproject.bramble.properties.PropertiesModule;
 import org.briarproject.bramble.reliability.ReliabilityModule;
@@ -33,6 +34,7 @@ import dagger.Module;
 		IdentityModule.class,
 		KeyAgreementModule.class,
 		LifecycleModule.class,
+		MigrationModule.class,
 		PluginModule.class,
 		PropertiesModule.class,
 		ReliabilityModule.class,
@@ -51,6 +53,7 @@ public class BrambleCoreModule {
 		c.inject(new DatabaseExecutorModule.EagerSingletons());
 		c.inject(new IdentityModule.EagerSingletons());
 		c.inject(new LifecycleModule.EagerSingletons());
+		c.inject(new MigrationModule.EagerSingletons());
 		c.inject(new PluginModule.EagerSingletons());
 		c.inject(new PropertiesModule.EagerSingletons());
 		c.inject(new SyncModule.EagerSingletons());

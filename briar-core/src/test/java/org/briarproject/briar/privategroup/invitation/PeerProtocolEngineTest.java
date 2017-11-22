@@ -1,7 +1,7 @@
 package org.briarproject.briar.privategroup.invitation;
 
+import org.briarproject.bramble.api.client.ProtocolStateException;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.api.client.ProtocolStateException;
 import org.jmock.Expectations;
 import org.junit.Test;
 

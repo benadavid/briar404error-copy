@@ -6,6 +6,8 @@ import java.io.UnsupportedEncodingException;
 
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+
 /**
  * A pseudonym for a user.
  */
@@ -28,7 +30,7 @@ public class Author {
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
-		if (length == 0 || length > AuthorConstants.MAX_AUTHOR_NAME_LENGTH)
+		if (length == 0 || length > MAX_AUTHOR_NAME_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;
 		this.name = name;

@@ -5,6 +5,7 @@ import org.briarproject.bramble.crypto.CryptoModule;
 import org.briarproject.bramble.db.DatabaseExecutorModule;
 import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
+import org.briarproject.bramble.migration.MigrationModule;
 import org.briarproject.bramble.plugin.PluginModule;
 import org.briarproject.bramble.properties.PropertiesModule;
 import org.briarproject.bramble.sync.SyncModule;
@@ -22,6 +23,8 @@ public interface BrambleCoreEagerSingletons {
 	void inject(IdentityModule.EagerSingletons init);
 
 	void inject(LifecycleModule.EagerSingletons init);
+
+	void inject(MigrationModule.EagerSingletons init);
 
 	void inject(PluginModule.EagerSingletons init);
 
