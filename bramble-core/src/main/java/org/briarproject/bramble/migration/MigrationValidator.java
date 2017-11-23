@@ -39,6 +39,7 @@ class MigrationValidator implements MessageValidator {
 			MigrationMessage mm = messageParser.parse(m);
 			switch (mm.getType()) {
 				case READY:
+					// No further validation needed
 					break;
 				case CERT:
 					validateCertificate(((CertMessage) mm).getCertificate());

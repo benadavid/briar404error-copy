@@ -87,7 +87,7 @@ class ProtocolEngineImpl implements ProtocolEngine {
 
 	private Session onRemoteReadySecond(Session s) {
 		// Move to the FINISHED state
-		return new Session(s.getGroupId(), AWAIT_CERT);
+		return new Session(s.getGroupId(), FINISHED);
 	}
 
 	@Override
