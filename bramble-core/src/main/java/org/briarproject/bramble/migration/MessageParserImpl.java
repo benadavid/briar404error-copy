@@ -72,7 +72,6 @@ class MessageParserImpl implements MessageParser {
 		try {
 			oldPublicKey = oldKeyParser.parsePublicKey(oldPublicKeyBytes);
 			newPublicKey = newKeyParser.parsePublicKey(newPublicKeyBytes);
-
 		} catch (GeneralSecurityException e) {
 			throw new FormatException();
 		}

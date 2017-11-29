@@ -188,13 +188,15 @@ class MigrationManagerImpl implements MigrationManager, Client, AddContactHook,
 			throws DbException, FormatException {
 		// Check that the cert was created by the contact
 		Certificate cert = m.getCertificate();
-		Author a = authorFactory.createAuthor(cert.getName(),
+		Author certAuthor = authorFactory.createAuthor(cert.getName(),
 				cert.getOldPublicKey().getEncoded());
 		BdfDictionary meta =
 				clientHelper.getGroupMetadataAsDictionary(txn, m.getGroupId());
-		byte[] b = meta.getRaw(GROUP_KEY_AUTHOR_ID);
-		if (b.length != UniqueId.LENGTH) throw new FormatException();
-		if (!a.getId().equals(new AuthorId(b))) throw new FormatException();
+		byte[] authorIdBytes = meta.getRaw(GROUP_KEY_AUTHOR_ID);
+		if (authorIdBytes.length != UniqueId.LENGTH)
+			throw new FormatException();
+		if (!certAuthor.getId().equals(new AuthorId(authorIdBytes)))
+			throw new FormatException();
 		// Update the session
 		Session s = getSession(m.getGroupId(), meta);
 		s = protocolEngine.onCertMessage(txn, s, m);
