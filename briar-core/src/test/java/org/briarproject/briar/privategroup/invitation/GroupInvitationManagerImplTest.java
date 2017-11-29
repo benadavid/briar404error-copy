@@ -46,6 +46,7 @@ import javax.annotation.Nullable;
 import static junit.framework.TestCase.fail;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -93,12 +94,9 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 	private final Transaction txn = new Transaction(null, false);
 	private final ContactId contactId = new ContactId(0);
-	private final Author author =
-			new Author(new AuthorId(getRandomId()), getRandomString(5),
-					getRandomBytes(5));
-	private final Contact contact =
-			new Contact(contactId, author, new AuthorId(getRandomId()), true,
-					true);
+	private final Author author = getAuthor();
+	private final Contact contact = new Contact(contactId, author,
+			new AuthorId(getRandomId()), true, true);
 	private final Group contactGroup =
 			new Group(new GroupId(getRandomId()), CLIENT_ID, getRandomBytes(5));
 	private final Group privateGroup =

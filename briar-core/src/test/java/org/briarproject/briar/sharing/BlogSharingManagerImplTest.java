@@ -34,8 +34,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
@@ -60,19 +61,15 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 
 	private final AuthorId localAuthorId = new AuthorId(getRandomId());
 	private final ContactId contactId = new ContactId(0);
-	private final AuthorId authorId = new AuthorId(getRandomId());
-	private final Author author = new Author(authorId, "Author",
-			getRandomBytes(MAX_PUBLIC_KEY_LENGTH));
+	private final Author author = getAuthor();
 	private final Contact contact =
 			new Contact(contactId, author, localAuthorId, true, true);
 	private final Collection<Contact> contacts =
 			Collections.singletonList(contact);
-	private final Group contactGroup =
-			new Group(new GroupId(getRandomId()), CLIENT_ID,
-					getRandomBytes(42));
-	private final Group blogGroup =
-			new Group(new GroupId(getRandomId()), BlogManager.CLIENT_ID,
-					getRandomBytes(42));
+	private final Group contactGroup = new Group(new GroupId(getRandomId()),
+			CLIENT_ID, getRandomBytes(42));
+	private final Group blogGroup = new Group(new GroupId(getRandomId()),
+			BlogManager.CLIENT_ID, getRandomBytes(42));
 	private final Blog blog = new Blog(blogGroup, author, false);
 	@SuppressWarnings("unchecked")
 	private final ProtocolEngine<Blog> engine =
@@ -85,12 +82,10 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 		MessageParser<Blog> messageParser = context.mock(MessageParser.class);
 		InvitationFactory<Blog, BlogInvitationResponse> invitationFactory =
 				context.mock(InvitationFactory.class);
-		blogSharingManager =
-				new BlogSharingManagerImpl(db, clientHelper, metadataParser,
-						messageParser, sessionEncoder, sessionParser,
-						messageTracker, contactGroupFactory,
-						engine, invitationFactory, identityManager,
-						blogManager);
+		blogSharingManager = new BlogSharingManagerImpl(db, clientHelper,
+				metadataParser, messageParser, sessionEncoder, sessionParser,
+				messageTracker, contactGroupFactory, engine, invitationFactory,
+				identityManager, blogManager);
 	}
 
 	@Test
@@ -138,16 +133,11 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	private void testAddingContact(Map<MessageId, BdfDictionary> sessions)
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
-		LocalAuthor localAuthor =
-				new LocalAuthor(localAuthorId, "Local Author",
-						getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-						getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-						System.currentTimeMillis());
-		BdfDictionary meta = BdfDictionary
-				.of(new BdfEntry(GROUP_KEY_CONTACT_ID, contactId.getInt()));
-		Group localBlogGroup =
-				new Group(new GroupId(getRandomId()), BlogManager.CLIENT_ID,
-						getRandomBytes(42));
+		LocalAuthor localAuthor = getLocalAuthor();
+		BdfDictionary meta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_CONTACT_ID, contactId.getInt()));
+		Group localBlogGroup = new Group(new GroupId(getRandomId()),
+				BlogManager.CLIENT_ID, getRandomBytes(42));
 		Blog localBlog = new Blog(localBlogGroup, localAuthor, false);
 
 		context.checking(new Expectations() {{
@@ -179,13 +169,11 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	private void expectPreShareShareable(Transaction txn, Contact contact,
 			Blog blog, Map<MessageId, BdfDictionary> sessions)
 			throws Exception {
-		Group contactGroup =
-				new Group(new GroupId(getRandomId()), CLIENT_ID,
-						getRandomBytes(42));
+		Group contactGroup = new Group(new GroupId(getRandomId()), CLIENT_ID,
+				getRandomBytes(42));
 		BdfDictionary sessionDict = new BdfDictionary();
-		Message message =
-				new Message(new MessageId(getRandomId()), contactGroup.getId(),
-						42L, getRandomBytes(1337));
+		Message message = new Message(new MessageId(getRandomId()),
+				contactGroup.getId(), 42L, getRandomBytes(1337));
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					CLIENT_VERSION, contact);
@@ -193,9 +181,8 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 			oneOf(sessionParser)
 					.getSessionQuery(new SessionId(blog.getId().getBytes()));
 			will(returnValue(sessionDict));
-			oneOf(clientHelper)
-					.getMessageMetadataAsDictionary(txn, contactGroup.getId(),
-							sessionDict);
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId(), sessionDict);
 			will(returnValue(sessions));
 			if (sessions.size() == 0) {
 				oneOf(db).addGroup(txn, blog.getGroup());
@@ -228,9 +215,8 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 			oneOf(sessionParser)
 					.getSessionQuery(new SessionId(blog.getId().getBytes()));
 			will(returnValue(sessionDict));
-			oneOf(clientHelper)
-					.getMessageMetadataAsDictionary(txn, contactGroup.getId(),
-							sessionDict);
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId(), sessionDict);
 			will(returnValue(sessions));
 			if (sessions.size() == 1) {
 				oneOf(sessionParser)
