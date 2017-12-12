@@ -326,7 +326,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		mergeSettings(txn, s, DB_SETTINGS_NAMESPACE);
 	}
 
-	private void tryToClose(@Nullable ResultSet rs) {
+	void tryToClose(@Nullable ResultSet rs) {
 		try {
 			if (rs != null) rs.close();
 		} catch (SQLException e) {
@@ -334,7 +334,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	private void tryToClose(@Nullable Statement s) {
+	void tryToClose(@Nullable Statement s) {
 		try {
 			if (s != null) s.close();
 		} catch (SQLException e) {
