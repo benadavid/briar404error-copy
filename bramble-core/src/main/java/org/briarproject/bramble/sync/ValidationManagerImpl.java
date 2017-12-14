@@ -188,9 +188,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 					// Check if dependencies are valid and delivered
 					Map<MessageId, State> states =
 							db.getMessageDependencies(txn, id);
-					for (Entry<MessageId, State> e : states.entrySet()) {
-						if (e.getValue() == INVALID) anyInvalid = true;
-						if (e.getValue() != DELIVERED) allDelivered = false;
+					for (State s : states.values()) {
+						if (s == INVALID) anyInvalid = true;
+						if (s != DELIVERED) allDelivered = false;
 					}
 					if (anyInvalid) {
 						invalidateMessage(txn, id);
@@ -280,9 +280,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 					// Check if dependencies are valid and delivered
 					Map<MessageId, State> states =
 							db.getMessageDependencies(txn, id);
-					for (Entry<MessageId, State> e : states.entrySet()) {
-						if (e.getValue() == INVALID) anyInvalid = true;
-						if (e.getValue() != DELIVERED) allDelivered = false;
+					for (State s : states.values()) {
+						if (s == INVALID) anyInvalid = true;
+						if (s != DELIVERED) allDelivered = false;
 					}
 				}
 				if (anyInvalid) {
