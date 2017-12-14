@@ -345,6 +345,16 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 	}
 
 	@Test
+	public void testGetMessageIds() throws Exception {
+		String name = "getMessageIds(T, GroupId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getMessageIds(txn, pickRandom(groups).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
 	public void testGetMessageIdsWithMatchingQuery() throws Exception {
 		String name = "getMessageIds(T, GroupId, Metadata) [match]";
 		benchmark(name, db -> {
