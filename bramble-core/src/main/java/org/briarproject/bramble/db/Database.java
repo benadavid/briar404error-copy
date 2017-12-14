@@ -105,17 +105,13 @@ interface Database<T> {
 	void addOfferedMessage(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
-	 * Initialises the status of the given message with respect to the given
-	 * contact.
+	 * Initialises the status of a message with respect to the given contact.
 	 *
-	 * @param shared whether the message is shared.
-	 * @param deleted whether the message has been deleted.
 	 * @param ack whether the message needs to be acknowledged.
 	 * @param seen whether the contact has seen the message.
 	 */
-	void addStatus(T txn, ContactId c, MessageId m, GroupId g, State state,
-			boolean shared, boolean deleted, boolean ack, boolean seen)
-			throws DbException;
+	void addStatus(T txn, ContactId c, GroupId g, LocalStatus s,
+			boolean ack, boolean seen) throws DbException;
 
 	/**
 	 * Stores a transport.
@@ -293,6 +289,14 @@ interface Database<T> {
 	Collection<LocalAuthor> getLocalAuthors(T txn) throws DbException;
 
 	/**
+	 * Returns the IDs and sharing statuses of all messages in the given group.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<LocalStatus> getLocalStatus(T txn, GroupId g)
+			throws DbException;
+
+	/**
 	 * Returns the IDs and states of all dependencies of the given message.
 	 * Missing dependencies have the state {@link State UNKNOWN}.
 	 * Dependencies in other groups have the state {@link State INVALID}.
@@ -315,12 +319,11 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the IDs and sharing statuses of all messages in the given group.
+	 * Returns the IDs of all messages in the given group.
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<LocalStatus> getLocalStatus(T txn, GroupId g)
-			throws DbException;
+	Collection<MessageId> getMessageIds(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns the IDs of any messages in the given group with metadata

@@ -98,6 +98,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	private final int maxLatency;
 	private final ContactId contactId;
 	private final Contact contact;
+	private final LocalStatus deliveredStatus, unknownStatus;
 
 	public DatabaseComponentImplTest() {
 		clientId = new ClientId(StringUtils.getRandomString(5));
@@ -121,6 +122,10 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		maxLatency = Integer.MAX_VALUE;
 		contactId = new ContactId(234);
 		contact = new Contact(contactId, author, localAuthorId, true, true);
+		deliveredStatus = new LocalStatus(messageId, timestamp, size,
+				DELIVERED, true, false);
+		unknownStatus = new LocalStatus(messageId, timestamp, size,
+				UNKNOWN, false, false);
 	}
 
 	private DatabaseComponent createDatabaseComponent(Database<Object> database,
@@ -261,8 +266,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, messageId, groupId,
-					DELIVERED, true, false, false, false);
+			oneOf(database).addStatus(txn, contactId, groupId, deliveredStatus,
+					false, false);
 			oneOf(database).commitTransaction(txn);
 			// The message was added, so the listeners should be called
 			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
@@ -1048,8 +1053,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, messageId, groupId,
-					UNKNOWN, false, false, true, true);
+			oneOf(database).addStatus(txn, contactId, groupId,
+					unknownStatus, true, true);
 			// Second time
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -1221,12 +1226,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(INVISIBLE)); // Not yet visible
 			oneOf(database).addGroupVisibility(txn, contactId, groupId, false);
 			oneOf(database).getLocalStatus(txn, groupId);
-			will(returnValue(Collections.singletonList(
-					new LocalStatus(messageId, DELIVERED, true, false))));
+			will(returnValue(Collections.singletonList(deliveredStatus)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, messageId, groupId,
-					DELIVERED, true, false, false, false);
+			oneOf(database).addStatus(txn, contactId, groupId,
+					deliveredStatus, false, false);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(
 					GroupVisibilityUpdatedEvent.class)));
@@ -1256,9 +1260,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).getGroupVisibility(txn, contactId, groupId);
 			will(returnValue(VISIBLE)); // Not yet visible
 			oneOf(database).removeGroupVisibility(txn, contactId, groupId);
-			oneOf(database).getLocalStatus(txn, groupId);
-			will(returnValue(Collections.singletonList(
-					new LocalStatus(messageId, DELIVERED, true, false))));
+			oneOf(database).getMessageIds(txn, groupId);
+			will(returnValue(Collections.singletonList(messageId)));
 			oneOf(database).removeStatus(txn, contactId, messageId);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(
@@ -1520,8 +1523,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).mergeMessageMetadata(txn, messageId, metadata);
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, messageId, groupId,
-					DELIVERED, true, false, false, false);
+			oneOf(database).addStatus(txn, contactId, groupId,
+					deliveredStatus, false, false);
 			// addMessageDependencies()
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(true));

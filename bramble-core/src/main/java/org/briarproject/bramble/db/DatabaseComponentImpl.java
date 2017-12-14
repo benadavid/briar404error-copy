@@ -225,11 +225,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	private void addMessage(T txn, Message m, State state, boolean shared,
 			@Nullable ContactId sender) throws DbException {
 		db.addMessage(txn, m, state, shared);
+		LocalStatus s = new LocalStatus(m.getId(), m.getTimestamp(),
+				m.getLength(), state, shared, false);
 		for (ContactId c : db.getGroupVisibility(txn, m.getGroupId())) {
 			boolean offered = db.removeOfferedMessage(txn, c, m.getId());
 			boolean seen = offered || (sender != null && c.equals(sender));
-			db.addStatus(txn, c, m.getId(), m.getGroupId(), state,
-					shared, false, seen, seen);
+			db.addStatus(txn, c, m.getGroupId(), s, seen, seen);
 		}
 	}
 
@@ -817,13 +818,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			for (LocalStatus s : db.getLocalStatus(txn, g)) {
 				MessageId m = s.getMessageId();
 				boolean seen = db.removeOfferedMessage(txn, c, m);
-				db.addStatus(txn, c, m, g, s.getState(),
-						s.isShared(), s.isDeleted(), seen, seen);
+				db.addStatus(txn, c, g, s, seen, seen);
 			}
 		} else if (v == INVISIBLE) {
 			db.removeGroupVisibility(txn, c, g);
-			for (LocalStatus s : db.getLocalStatus(txn, g))
-				db.removeStatus(txn, c, s.getMessageId());
+			for (MessageId m : db.getMessageIds(txn, g))
+				db.removeStatus(txn, c, m);
 		} else {
 			db.setGroupVisibility(txn, c, g, v == SHARED);
 		}

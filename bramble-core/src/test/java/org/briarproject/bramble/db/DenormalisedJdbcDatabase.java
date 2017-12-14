@@ -186,6 +186,8 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 					+ " (messageId _HASH NOT NULL,"
 					+ " contactId INT NOT NULL,"
 					+ " groupId _HASH NOT NULL," // Denormalised
+					+ " timestamp BIGINT NOT NULL," // Denormalised
+					+ " length INT NOT NULL," // Denormalised
 					+ " state INT NOT NULL," // Denormalised
 					+ " messageShared BOOLEAN NOT NULL," // Denormalised
 					+ " deleted BOOLEAN NOT NULL," // Denormalised
@@ -275,6 +277,10 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 	private static final String INDEX_STATUSES_BY_CONTACT_ID_GROUP_ID =
 			"CREATE INDEX IF NOT EXISTS statusesByContactIdGroupId"
 					+ " ON statuses (contactId, groupId)";
+
+	private static final String INDEX_STATUSES_BY_CONTACT_ID_TIMESTAMP =
+			"CREATE INDEX IF NOT EXISTS statusesByContactIdTimestamp"
+					+ " ON statuses (contactId, timestamp)";
 
 	private static final Logger LOG =
 			Logger.getLogger(JdbcDatabase.class.getName());
@@ -400,6 +406,7 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 			s.executeUpdate(INDEX_MESSAGE_METADATA_BY_GROUP_ID_STATE);
 			s.executeUpdate(INDEX_GROUP_METADATA_BY_GROUP_ID);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_GROUP_ID);
+			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_TIMESTAMP);
 			s.close();
 		} catch (SQLException e) {
 			tryToClose(s);
@@ -678,24 +685,25 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void addStatus(Connection txn, ContactId c, MessageId m, GroupId g,
-			State state, boolean shared, boolean deleted, boolean ack,
-			boolean seen) throws DbException {
+	public void addStatus(Connection txn, ContactId c, GroupId g,
+			LocalStatus s, boolean ack, boolean seen) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO statuses (messageId, contactId, groupId,"
-					+ " state, messageShared, deleted, ack, seen, requested,"
-					+ " expiry, txCount)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, FALSE, 0, 0)";
+					+ " timestamp, length, state, messageShared, deleted,"
+					+ " ack, seen, requested, expiry, txCount)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE, 0, 0)";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
+			ps.setBytes(1, s.getMessageId().getBytes());
 			ps.setInt(2, c.getInt());
 			ps.setBytes(3, g.getBytes());
-			ps.setInt(4, state.getValue());
-			ps.setBoolean(5, shared);
-			ps.setBoolean(6, deleted);
-			ps.setBoolean(7, ack);
-			ps.setBoolean(8, seen);
+			ps.setLong(4, s.getTimestamp());
+			ps.setInt(5, s.getLength());
+			ps.setInt(6, s.getState().getValue());
+			ps.setBoolean(7, s.isShared());
+			ps.setBoolean(8, s.isDeleted());
+			ps.setBoolean(9, ack);
+			ps.setBoolean(10, seen);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -1318,7 +1326,8 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT messageId, state, shared, raw IS NULL"
+			String sql = "SELECT messageId, timestamp, state, shared,"
+					+ " length, raw IS NULL"
 					+ " FROM messages"
 					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1327,14 +1336,39 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 			List<LocalStatus> statuses = new ArrayList<>();
 			while (rs.next()) {
 				MessageId id = new MessageId(rs.getBytes(1));
-				State state = State.fromValue(rs.getInt(2));
-				boolean shared = rs.getBoolean(3);
-				boolean deleted = rs.getBoolean(4);
-				statuses.add(new LocalStatus(id, state, shared, deleted));
+				long timestamp = rs.getLong(2);
+				State state = State.fromValue(rs.getInt(3));
+				boolean shared = rs.getBoolean(4);
+				int length = rs.getInt(5);
+				boolean deleted = rs.getBoolean(6);
+				statuses.add(new LocalStatus(id, timestamp, length, state,
+						shared, deleted));
 			}
 			rs.close();
 			ps.close();
 			return statuses;
+		} catch (SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public Collection<MessageId> getMessageIds(Connection txn, GroupId g)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT messageId FROM messages WHERE groupId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, g.getBytes());
+			rs = ps.executeQuery();
+			List<MessageId> ids = new ArrayList<>();
+			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
+			rs.close();
+			ps.close();
+			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1699,14 +1733,13 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT m.messageId FROM messages AS m"
+			String sql = "SELECT messageId FROM statuses AS s"
 					+ " JOIN groupVisibilities AS gv"
-					+ " ON m.groupId = gv.groupId"
-					+ " JOIN statuses AS s"
-					+ " ON m.messageId = s.messageId"
-					+ " AND gv.contactId = s.contactId"
-					+ " WHERE gv.contactId = ? AND gv.shared = TRUE"
-					+ " AND m.state = ? AND m.shared = TRUE AND deleted = FALSE"
+					+ " ON s.groupId = gv.groupId"
+					+ " AND s.contactId = gv.contactId"
+					+ " WHERE s.contactId = ? AND shared = TRUE"
+					+ " AND state = ? AND messageShared = TRUE"
+					+ " AND deleted = FALSE"
 					+ " AND seen = FALSE AND requested = FALSE"
 					+ " AND expiry < ?"
 					+ " ORDER BY timestamp LIMIT ?";
@@ -1760,14 +1793,13 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT length, m.messageId FROM messages AS m"
+			String sql = "SELECT length, messageId FROM statuses AS s"
 					+ " JOIN groupVisibilities AS gv"
-					+ " ON m.groupId = gv.groupId"
-					+ " JOIN statuses AS s"
-					+ " ON m.messageId = s.messageId"
-					+ " AND gv.contactId = s.contactId"
-					+ " WHERE gv.contactId = ? AND gv.shared = TRUE"
-					+ " AND m.state = ? AND m.shared = TRUE AND deleted = FALSE"
+					+ " ON s.groupId = gv.groupId"
+					+ " AND s.contactId = gv.contactId"
+					+ " WHERE s.contactId = ? AND shared = TRUE"
+					+ " AND state = ? AND messageShared = TRUE"
+					+ " AND deleted = FALSE"
 					+ " AND seen = FALSE"
 					+ " AND expiry < ?"
 					+ " ORDER BY timestamp";
@@ -1831,8 +1863,8 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Collection<MessageId> getMessagesToShare(
-			Connection txn, ClientId c) throws DbException {
+	public Collection<MessageId> getMessagesToShare(Connection txn, ClientId c)
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -1891,14 +1923,13 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT length, m.messageId FROM messages AS m"
+			String sql = "SELECT length, messageId FROM statuses AS s"
 					+ " JOIN groupVisibilities AS gv"
-					+ " ON m.groupId = gv.groupId"
-					+ " JOIN statuses AS s"
-					+ " ON m.messageId = s.messageId"
-					+ " AND gv.contactId = s.contactId"
-					+ " WHERE gv.contactId = ? AND gv.shared = TRUE"
-					+ " AND m.state = ? AND m.shared = TRUE AND deleted = FALSE"
+					+ " ON s.groupId = gv.groupId"
+					+ " AND s.contactId = gv.contactId"
+					+ " WHERE s.contactId = ? AND shared = TRUE"
+					+ " AND state = ? AND messageShared = TRUE"
+					+ " AND deleted = FALSE"
 					+ " AND seen = FALSE AND requested = TRUE"
 					+ " AND expiry < ?"
 					+ " ORDER BY timestamp";
