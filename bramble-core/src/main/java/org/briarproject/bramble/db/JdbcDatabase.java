@@ -24,7 +24,6 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.TransportKeys;
-import org.briarproject.bramble.sync.SharingStatus;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -657,8 +656,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public void addStatus(Connection txn, ContactId c, MessageId m, GroupId g,
-			boolean shared, boolean deleted, boolean ack, boolean seen)
-			throws DbException {
+			State state, boolean shared, boolean deleted, boolean ack,
+			boolean seen) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO statuses (messageId, contactId, ack,"
@@ -1282,20 +1281,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Collection<SharingStatus> getSharingStatus(Connection txn, GroupId g)
+	public Collection<LocalStatus> getLocalStatus(Connection txn, GroupId g)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT messageId, shared, raw IS NULL FROM messages"
+			String sql = "SELECT messageId, state, shared, raw IS NULL"
+					+ " FROM messages"
 					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
-			List<SharingStatus> statuses = new ArrayList<>();
+			List<LocalStatus> statuses = new ArrayList<>();
 			while (rs.next()) {
-				statuses.add(new SharingStatus(new MessageId(rs.getBytes(1)),
-						rs.getBoolean(2), rs.getBoolean(3)));
+				MessageId id = new MessageId(rs.getBytes(1));
+				State state = State.fromValue(rs.getInt(2));
+				boolean shared = rs.getBoolean(3);
+				boolean deleted = rs.getBoolean(4);
+				statuses.add(new LocalStatus(id, state, shared, deleted));
 			}
 			rs.close();
 			ps.close();

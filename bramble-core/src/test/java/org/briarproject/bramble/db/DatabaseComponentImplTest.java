@@ -47,7 +47,6 @@ import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
 import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.TransportKeys;
-import org.briarproject.bramble.sync.SharingStatus;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.StringUtils;
@@ -263,7 +262,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
 			oneOf(database).addStatus(txn, contactId, messageId, groupId,
-					true, false, false, false);
+					DELIVERED, true, false, false, false);
 			oneOf(database).commitTransaction(txn);
 			// The message was added, so the listeners should be called
 			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
@@ -1050,7 +1049,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
 			oneOf(database).addStatus(txn, contactId, messageId, groupId,
-					false, false, true, true);
+					UNKNOWN, false, false, true, true);
 			// Second time
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -1221,13 +1220,13 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).getGroupVisibility(txn, contactId, groupId);
 			will(returnValue(INVISIBLE)); // Not yet visible
 			oneOf(database).addGroupVisibility(txn, contactId, groupId, false);
-			oneOf(database).getSharingStatus(txn, groupId);
+			oneOf(database).getLocalStatus(txn, groupId);
 			will(returnValue(Collections.singletonList(
-					new SharingStatus(messageId, true, false))));
+					new LocalStatus(messageId, DELIVERED, true, false))));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
 			oneOf(database).addStatus(txn, contactId, messageId, groupId,
-					true, false, false, false);
+					DELIVERED, true, false, false, false);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(
 					GroupVisibilityUpdatedEvent.class)));
@@ -1257,9 +1256,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).getGroupVisibility(txn, contactId, groupId);
 			will(returnValue(VISIBLE)); // Not yet visible
 			oneOf(database).removeGroupVisibility(txn, contactId, groupId);
-			oneOf(database).getSharingStatus(txn, groupId);
+			oneOf(database).getLocalStatus(txn, groupId);
 			will(returnValue(Collections.singletonList(
-					new SharingStatus(messageId, true, false))));
+					new LocalStatus(messageId, DELIVERED, true, false))));
 			oneOf(database).removeStatus(txn, contactId, messageId);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(
@@ -1522,7 +1521,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
 			oneOf(database).addStatus(txn, contactId, messageId, groupId,
-					true, false, false, false);
+					DELIVERED, true, false, false, false);
 			// addMessageDependencies()
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(true));

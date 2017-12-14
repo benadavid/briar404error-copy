@@ -24,7 +24,6 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.TransportKeys;
-import org.briarproject.bramble.sync.SharingStatus;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -187,6 +186,7 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 					+ " (messageId _HASH NOT NULL,"
 					+ " contactId INT NOT NULL,"
 					+ " groupId _HASH NOT NULL," // Denormalised
+					+ " state INT NOT NULL," // Denormalised
 					+ " messageShared BOOLEAN NOT NULL," // Denormalised
 					+ " deleted BOOLEAN NOT NULL," // Denormalised
 					+ " ack BOOLEAN NOT NULL,"
@@ -679,22 +679,23 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 
 	@Override
 	public void addStatus(Connection txn, ContactId c, MessageId m, GroupId g,
-			boolean shared, boolean deleted, boolean ack, boolean seen)
-			throws DbException {
+			State state, boolean shared, boolean deleted, boolean ack,
+			boolean seen) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO statuses (messageId, contactId, groupId,"
-					+ " messageShared, deleted, ack, seen, requested, expiry,"
-					+ " txCount)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?, FALSE, 0, 0)";
+					+ " state, messageShared, deleted, ack, seen, requested,"
+					+ " expiry, txCount)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, FALSE, 0, 0)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
 			ps.setBytes(3, g.getBytes());
-			ps.setBoolean(4, shared);
-			ps.setBoolean(5, deleted);
-			ps.setBoolean(6, ack);
-			ps.setBoolean(7, seen);
+			ps.setInt(4, state.getValue());
+			ps.setBoolean(5, shared);
+			ps.setBoolean(6, deleted);
+			ps.setBoolean(7, ack);
+			ps.setBoolean(8, seen);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -1000,6 +1001,7 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 			if (affected < 0) throw new DbStateException();
 			if (affected > 1) throw new DbStateException();
 			ps.close();
+			// Update denormalised column in statuses
 			sql = "UPDATE statuses SET deleted = TRUE WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
@@ -1311,20 +1313,24 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Collection<SharingStatus> getSharingStatus(Connection txn, GroupId g)
+	public Collection<LocalStatus> getLocalStatus(Connection txn, GroupId g)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT messageId, shared, raw IS NULL FROM messages"
+			String sql = "SELECT messageId, state, shared, raw IS NULL"
+					+ " FROM messages"
 					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
-			List<SharingStatus> statuses = new ArrayList<>();
+			List<LocalStatus> statuses = new ArrayList<>();
 			while (rs.next()) {
-				statuses.add(new SharingStatus(new MessageId(rs.getBytes(1)),
-						rs.getBoolean(2), rs.getBoolean(3)));
+				MessageId id = new MessageId(rs.getBytes(1));
+				State state = State.fromValue(rs.getInt(2));
+				boolean shared = rs.getBoolean(3);
+				boolean deleted = rs.getBoolean(4);
+				statuses.add(new LocalStatus(id, state, shared, deleted));
 			}
 			rs.close();
 			ps.close();
@@ -1700,7 +1706,7 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 					+ " ON m.messageId = s.messageId"
 					+ " AND gv.contactId = s.contactId"
 					+ " WHERE gv.contactId = ? AND gv.shared = TRUE"
-					+ " AND state = ? AND m.shared = TRUE AND deleted = FALSE"
+					+ " AND m.state = ? AND m.shared = TRUE AND deleted = FALSE"
 					+ " AND seen = FALSE AND requested = FALSE"
 					+ " AND expiry < ?"
 					+ " ORDER BY timestamp LIMIT ?";
@@ -1761,7 +1767,7 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 					+ " ON m.messageId = s.messageId"
 					+ " AND gv.contactId = s.contactId"
 					+ " WHERE gv.contactId = ? AND gv.shared = TRUE"
-					+ " AND state = ? AND m.shared = TRUE AND deleted = FALSE"
+					+ " AND m.state = ? AND m.shared = TRUE AND deleted = FALSE"
 					+ " AND seen = FALSE"
 					+ " AND expiry < ?"
 					+ " ORDER BY timestamp";
@@ -1892,7 +1898,7 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 					+ " ON m.messageId = s.messageId"
 					+ " AND gv.contactId = s.contactId"
 					+ " WHERE gv.contactId = ? AND gv.shared = TRUE"
-					+ " AND state = ? AND m.shared = TRUE AND deleted = FALSE"
+					+ " AND m.state = ? AND m.shared = TRUE AND deleted = FALSE"
 					+ " AND seen = FALSE AND requested = TRUE"
 					+ " AND expiry < ?"
 					+ " ORDER BY timestamp";
@@ -2604,6 +2610,7 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
+			// Update denormalised column in statuses
 			sql = "UPDATE statuses SET messageShared = TRUE"
 					+ " WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
@@ -2631,6 +2638,14 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Update denormalised column in messageMetadata
 			sql = "UPDATE messageMetadata SET state = ? WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, state.getValue());
+			ps.setBytes(2, m.getBytes());
+			affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
+			// Update denormalised column in statuses
+			sql = "UPDATE statuses SET state = ? WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, state.getValue());
 			ps.setBytes(2, m.getBytes());

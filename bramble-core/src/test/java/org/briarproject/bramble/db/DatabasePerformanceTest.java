@@ -335,11 +335,11 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testGetSharingStatus() throws Exception {
-		String name = "getSharingStatus(T, GroupId)";
+	public void testGetLocalStatus() throws Exception {
+		String name = "getLocalStatus(T, GroupId)";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
-			db.getSharingStatus(txn, pickRandom(groups).getId());
+			db.getLocalStatus(txn, pickRandom(groups).getId());
 			db.commitTransaction(txn);
 		});
 	}
@@ -565,8 +565,8 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 					State state = State.fromValue(random.nextInt(4));
 					boolean shared = random.nextBoolean();
 					db.addMessage(txn, m, state, shared);
-					db.addStatus(txn, c, m.getId(), g.getId(), shared, false,
-							random.nextBoolean(), random.nextBoolean());
+					db.addStatus(txn, c, m.getId(), g.getId(), state, shared,
+							false, random.nextBoolean(), random.nextBoolean());
 					if (random.nextBoolean())
 						db.raiseRequestedFlag(txn, c, m.getId());
 					Metadata mm = getMetadata(METADATA_KEYS_PER_MESSAGE);

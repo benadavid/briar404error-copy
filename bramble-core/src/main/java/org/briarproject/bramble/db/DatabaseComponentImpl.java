@@ -51,7 +51,6 @@ import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
 import org.briarproject.bramble.api.transport.TransportKeys;
-import org.briarproject.bramble.sync.SharingStatus;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -229,8 +228,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		for (ContactId c : db.getGroupVisibility(txn, m.getGroupId())) {
 			boolean offered = db.removeOfferedMessage(txn, c, m.getId());
 			boolean seen = offered || (sender != null && c.equals(sender));
-			db.addStatus(txn, c, m.getId(), m.getGroupId(), shared, false,
-					seen, seen);
+			db.addStatus(txn, c, m.getId(), m.getGroupId(), state,
+					shared, false, seen, seen);
 		}
 	}
 
@@ -815,15 +814,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (old == v) return;
 		if (old == INVISIBLE) {
 			db.addGroupVisibility(txn, c, g, v == SHARED);
-			for (SharingStatus s : db.getSharingStatus(txn, g)) {
+			for (LocalStatus s : db.getLocalStatus(txn, g)) {
 				MessageId m = s.getMessageId();
 				boolean seen = db.removeOfferedMessage(txn, c, m);
-				db.addStatus(txn, c, m, g, s.isShared(), s.isDeleted(),
-						seen, seen);
+				db.addStatus(txn, c, m, g, s.getState(),
+						s.isShared(), s.isDeleted(), seen, seen);
 			}
 		} else if (v == INVISIBLE) {
 			db.removeGroupVisibility(txn, c, g);
-			for (SharingStatus s : db.getSharingStatus(txn, g))
+			for (LocalStatus s : db.getLocalStatus(txn, g))
 				db.removeStatus(txn, c, s.getMessageId());
 		} else {
 			db.setGroupVisibility(txn, c, g, v == SHARED);
