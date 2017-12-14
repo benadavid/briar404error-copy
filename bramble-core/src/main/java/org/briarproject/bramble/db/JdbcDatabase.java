@@ -656,7 +656,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public void addStatus(Connection txn, ContactId c, GroupId g,
-			LocalStatus s, boolean ack, boolean seen) throws DbException {
+			boolean groupShared, LocalStatus s, boolean ack, boolean seen)
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO statuses (messageId, contactId, ack,"
@@ -1197,18 +1198,19 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Collection<ContactId> getGroupVisibility(Connection txn, GroupId g)
+	public Map<ContactId, Boolean> getGroupVisibility(Connection txn, GroupId g)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT contactId FROM groupVisibilities"
+			String sql = "SELECT contactId, shared FROM groupVisibilities"
 					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
-			List<ContactId> visible = new ArrayList<>();
-			while (rs.next()) visible.add(new ContactId(rs.getInt(1)));
+			Map<ContactId, Boolean> visible = new HashMap<>();
+			while (rs.next())
+				visible.put(new ContactId(rs.getInt(1)), rs.getBoolean(2));
 			rs.close();
 			ps.close();
 			return visible;

@@ -107,11 +107,13 @@ interface Database<T> {
 	/**
 	 * Initialises the status of a message with respect to the given contact.
 	 *
+	 * @param groupShared whether the group is {@link Visibility SHARED} or
+	 * {@link Visibility VISIBLE}.
 	 * @param ack whether the message needs to be acknowledged.
 	 * @param seen whether the contact has seen the message.
 	 */
-	void addStatus(T txn, ContactId c, GroupId g, LocalStatus s,
-			boolean ack, boolean seen) throws DbException;
+	void addStatus(T txn, ContactId c, GroupId g, boolean groupShared,
+			LocalStatus s, boolean ack, boolean seen) throws DbException;
 
 	/**
 	 * Stores a transport.
@@ -271,7 +273,7 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<ContactId> getGroupVisibility(T txn, GroupId g)
+	Map<ContactId, Boolean> getGroupVisibility(T txn, GroupId g)
 			throws DbException;
 
 	/**

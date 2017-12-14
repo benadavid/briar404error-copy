@@ -181,7 +181,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).containsGroup(txn, groupId);
 			will(returnValue(true));
 			oneOf(database).getGroupVisibility(txn, groupId);
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(Collections.emptyMap()));
 			oneOf(database).removeGroup(txn, groupId);
 			oneOf(eventBus).broadcast(with(any(GroupRemovedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(
@@ -263,11 +263,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).addMessage(txn, message, DELIVERED, true);
 			oneOf(database).mergeMessageMetadata(txn, messageId, metadata);
 			oneOf(database).getGroupVisibility(txn, groupId);
-			will(returnValue(Collections.singletonList(contactId)));
+			will(returnValue(Collections.singletonMap(contactId, true)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, groupId, deliveredStatus,
-					false, false);
+			oneOf(database).addStatus(txn, contactId, groupId, true,
+					deliveredStatus, false, false);
 			oneOf(database).commitTransaction(txn);
 			// The message was added, so the listeners should be called
 			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
@@ -1050,10 +1050,10 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(false));
 			oneOf(database).addMessage(txn, message, UNKNOWN, false);
 			oneOf(database).getGroupVisibility(txn, groupId);
-			will(returnValue(Collections.singletonList(contactId)));
+			will(returnValue(Collections.singletonMap(contactId, true)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, groupId,
+			oneOf(database).addStatus(txn, contactId, groupId, true,
 					unknownStatus, true, true);
 			// Second time
 			oneOf(database).containsContact(txn, contactId);
@@ -1229,7 +1229,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(Collections.singletonList(deliveredStatus)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, groupId,
+			oneOf(database).addStatus(txn, contactId, groupId, false,
 					deliveredStatus, false, false);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(
@@ -1519,11 +1519,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(false));
 			oneOf(database).addMessage(txn, message, DELIVERED, true);
 			oneOf(database).getGroupVisibility(txn, groupId);
-			will(returnValue(Collections.singletonList(contactId)));
+			will(returnValue(Collections.singletonMap(contactId, true)));
 			oneOf(database).mergeMessageMetadata(txn, messageId, metadata);
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, groupId,
+			oneOf(database).addStatus(txn, contactId, groupId, true,
 					deliveredStatus, false, false);
 			// addMessageDependencies()
 			oneOf(database).containsMessage(txn, messageId);

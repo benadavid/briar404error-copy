@@ -568,8 +568,8 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 					LocalStatus ls = new LocalStatus(m.getId(),
 							m.getTimestamp(), m.getLength(), state,
 							shared, false);
-					db.addStatus(txn, c, g.getId(), ls, random.nextBoolean(),
-							random.nextBoolean());
+					db.addStatus(txn, c, g.getId(), true, ls,
+							random.nextBoolean(), random.nextBoolean());
 					if (random.nextBoolean())
 						db.raiseRequestedFlag(txn, c, m.getId());
 					Metadata mm = getMetadata(METADATA_KEYS_PER_MESSAGE);

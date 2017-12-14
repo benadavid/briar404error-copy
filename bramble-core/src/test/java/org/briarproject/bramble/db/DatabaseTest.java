@@ -197,7 +197,7 @@ public abstract class DatabaseTest<T> extends BrambleTestCase {
 		// Adding a status with seen = false should make the message sendable
 		LocalStatus ls = new LocalStatus(messageId, timestamp, size, DELIVERED,
 				true, false);
-		db.addStatus(txn, contactId, groupId, ls, false, false);
+		db.addStatus(txn, contactId, groupId, true, ls, false, false);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
 		assertEquals(Collections.singletonList(messageId), ids);
 		ids = db.getMessagesToOffer(txn, contactId, 100);
@@ -228,7 +228,7 @@ public abstract class DatabaseTest<T> extends BrambleTestCase {
 		db.addMessage(txn, message, UNKNOWN, true);
 		LocalStatus ls = new LocalStatus(messageId, timestamp, size, UNKNOWN,
 				true, false);
-		db.addStatus(txn, contactId, groupId, ls, false, false);
+		db.addStatus(txn, contactId, groupId, true, ls, false, false);
 
 		// The message has not been validated, so it should not be sendable
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
@@ -275,7 +275,6 @@ public abstract class DatabaseTest<T> extends BrambleTestCase {
 		db.addMessage(txn, message, DELIVERED, true);
 		LocalStatus ls = new LocalStatus(messageId, timestamp, size, DELIVERED,
 				true, false);
-		db.addStatus(txn, contactId, groupId, ls, false, false);
 
 		// The group is invisible, so the message should not be sendable
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
@@ -286,6 +285,7 @@ public abstract class DatabaseTest<T> extends BrambleTestCase {
 
 		// Making the group visible should not make the message sendable
 		db.addGroupVisibility(txn, contactId, groupId, false);
+		db.addStatus(txn, contactId, groupId, false, ls, false, false);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE);
 		assertTrue(ids.isEmpty());
 		ids = db.getMessagesToOffer(txn, contactId, 100);
@@ -330,7 +330,7 @@ public abstract class DatabaseTest<T> extends BrambleTestCase {
 		db.addMessage(txn, message, DELIVERED, false);
 		LocalStatus ls = new LocalStatus(messageId, timestamp, size, DELIVERED,
 				false, false);
-		db.addStatus(txn, contactId, groupId, ls, false, false);
+		db.addStatus(txn, contactId, groupId, true, ls, false, false);
 
 		// The message is not shared, so it should not be sendable
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
@@ -364,7 +364,7 @@ public abstract class DatabaseTest<T> extends BrambleTestCase {
 		db.addMessage(txn, message, DELIVERED, true);
 		LocalStatus ls = new LocalStatus(messageId, timestamp, size, DELIVERED,
 				true, false);
-		db.addStatus(txn, contactId, groupId, ls, false, false);
+		db.addStatus(txn, contactId, groupId, true, ls, false, false);
 
 		// The message is sendable, but too large to send
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
@@ -397,12 +397,12 @@ public abstract class DatabaseTest<T> extends BrambleTestCase {
 		db.addMessage(txn, message, DELIVERED, true);
 		LocalStatus ls = new LocalStatus(messageId, timestamp, size, DELIVERED,
 				true, false);
-		db.addStatus(txn, contactId, groupId, ls, false, true);
+		db.addStatus(txn, contactId, groupId, false, ls, false, true);
 		db.raiseAckFlag(txn, contactId, messageId);
 		db.addMessage(txn, message1, DELIVERED, true);
 		LocalStatus ls1 = new LocalStatus(messageId1, timestamp, size,
 				DELIVERED, true, false);
-		db.addStatus(txn, contactId, groupId, ls1, false, true);
+		db.addStatus(txn, contactId, groupId, false, ls1, false, true);
 		db.raiseAckFlag(txn, contactId, messageId1);
 
 		// Both message IDs should be returned
@@ -434,7 +434,7 @@ public abstract class DatabaseTest<T> extends BrambleTestCase {
 		db.addMessage(txn, message, DELIVERED, true);
 		LocalStatus ls = new LocalStatus(messageId, timestamp, size, DELIVERED,
 				true, false);
-		db.addStatus(txn, contactId, groupId, ls, false, false);
+		db.addStatus(txn, contactId, groupId, true, ls, false, false);
 
 		// Retrieve the message from the database and mark it as sent
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
@@ -651,31 +651,31 @@ public abstract class DatabaseTest<T> extends BrambleTestCase {
 
 		// The group should not be visible to the contact
 		assertEquals(INVISIBLE, db.getGroupVisibility(txn, contactId, groupId));
-		assertEquals(Collections.emptyList(),
+		assertEquals(Collections.emptyMap(),
 				db.getGroupVisibility(txn, groupId));
 
 		// Make the group visible to the contact
 		db.addGroupVisibility(txn, contactId, groupId, false);
 		assertEquals(VISIBLE, db.getGroupVisibility(txn, contactId, groupId));
-		assertEquals(Collections.singletonList(contactId),
+		assertEquals(Collections.singletonMap(contactId, false),
 				db.getGroupVisibility(txn, groupId));
 
 		// Share the group with the contact
 		db.setGroupVisibility(txn, contactId, groupId, true);
 		assertEquals(SHARED, db.getGroupVisibility(txn, contactId, groupId));
-		assertEquals(Collections.singletonList(contactId),
+		assertEquals(Collections.singletonMap(contactId, true),
 				db.getGroupVisibility(txn, groupId));
 
 		// Unshare the group with the contact
 		db.setGroupVisibility(txn, contactId, groupId, false);
 		assertEquals(VISIBLE, db.getGroupVisibility(txn, contactId, groupId));
-		assertEquals(Collections.singletonList(contactId),
+		assertEquals(Collections.singletonMap(contactId, false),
 				db.getGroupVisibility(txn, groupId));
 
 		// Make the group invisible again
 		db.removeGroupVisibility(txn, contactId, groupId);
 		assertEquals(INVISIBLE, db.getGroupVisibility(txn, contactId, groupId));
-		assertEquals(Collections.emptyList(),
+		assertEquals(Collections.emptyMap(),
 				db.getGroupVisibility(txn, groupId));
 
 		db.commitTransaction(txn);
@@ -1465,7 +1465,7 @@ public abstract class DatabaseTest<T> extends BrambleTestCase {
 		db.addMessage(txn, message, DELIVERED, true);
 		LocalStatus ls = new LocalStatus(messageId, timestamp, size, DELIVERED,
 				true, false);
-		db.addStatus(txn, contactId, groupId, ls, false, false);
+		db.addStatus(txn, contactId, groupId, true, ls, false, false);
 
 		// The message should not be sent or seen
 		MessageStatus status = db.getMessageStatus(txn, contactId, messageId);
@@ -1570,7 +1570,7 @@ public abstract class DatabaseTest<T> extends BrambleTestCase {
 		db.addMessage(txn, message, DELIVERED, true);
 		LocalStatus ls = new LocalStatus(messageId, timestamp, size, DELIVERED,
 				true, false);
-		db.addStatus(txn, contactId, groupId, ls, false, false);
+		db.addStatus(txn, contactId, groupId, true, ls, false, false);
 
 		// The message should be visible to the contact
 		assertTrue(db.containsVisibleMessage(txn, contactId, messageId));

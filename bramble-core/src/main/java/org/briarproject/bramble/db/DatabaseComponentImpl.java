@@ -227,10 +227,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		db.addMessage(txn, m, state, shared);
 		LocalStatus s = new LocalStatus(m.getId(), m.getTimestamp(),
 				m.getLength(), state, shared, false);
-		for (ContactId c : db.getGroupVisibility(txn, m.getGroupId())) {
+		GroupId g = m.getGroupId();
+		Map<ContactId, Boolean> visibility = db.getGroupVisibility(txn, g);
+		for (Entry<ContactId, Boolean> e : visibility.entrySet()) {
+			ContactId c = e.getKey();
 			boolean offered = db.removeOfferedMessage(txn, c, m.getId());
 			boolean seen = offered || (sender != null && c.equals(sender));
-			db.addStatus(txn, c, m.getGroupId(), s, seen, seen);
+			db.addStatus(txn, c, g, e.getValue(), s, seen, seen);
 		}
 	}
 
@@ -743,7 +746,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		GroupId id = g.getId();
 		if (!db.containsGroup(txn, id))
 			throw new NoSuchGroupException();
-		Collection<ContactId> affected = db.getGroupVisibility(txn, id);
+		Collection<ContactId> affected =
+				db.getGroupVisibility(txn, id).keySet();
 		db.removeGroup(txn, id);
 		transaction.attach(new GroupRemovedEvent(g));
 		transaction.attach(new GroupVisibilityUpdatedEvent(affected));
@@ -818,7 +822,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			for (LocalStatus s : db.getLocalStatus(txn, g)) {
 				MessageId m = s.getMessageId();
 				boolean seen = db.removeOfferedMessage(txn, c, m);
-				db.addStatus(txn, c, g, s, seen, seen);
+				db.addStatus(txn, c, g, v == SHARED, s, seen, seen);
 			}
 		} else if (v == INVISIBLE) {
 			db.removeGroupVisibility(txn, c, g);
