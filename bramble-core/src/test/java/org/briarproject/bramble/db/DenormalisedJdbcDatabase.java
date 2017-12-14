@@ -1345,17 +1345,13 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 		try {
 			// Retrieve the message IDs for each query term and intersect
 			Set<MessageId> intersection = null;
-			String sql = "SELECT m.messageId"
-					+ " FROM messages AS m"
-					+ " JOIN messageMetadata AS md"
-					+ " ON m.messageId = md.messageId"
-					+ " AND m.groupId = md.groupId"
-					+ " WHERE m.state = ? AND m.groupId = ?"
+			String sql = "SELECT messageId FROM messageMetadata"
+					+ " WHERE groupId = ? AND state = ?"
 					+ " AND metaKey = ? AND value = ?";
 			for (Entry<String, byte[]> e : query.entrySet()) {
 				ps = txn.prepareStatement(sql);
-				ps.setInt(1, DELIVERED.getValue());
-				ps.setBytes(2, g.getBytes());
+				ps.setBytes(1, g.getBytes());
+				ps.setInt(2, DELIVERED.getValue());
 				ps.setString(3, e.getKey());
 				ps.setBytes(4, e.getValue());
 				rs = ps.executeQuery();
@@ -1385,21 +1381,18 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT messageId, metaKey, value"
 					+ " FROM messageMetadata"
-					+ " WHERE groupId = ? AND state = ?"
-					+ " ORDER BY messageId";
+					+ " WHERE groupId = ? AND state = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			ps.setInt(2, DELIVERED.getValue());
 			rs = ps.executeQuery();
 			Map<MessageId, Metadata> all = new HashMap<>();
-			Metadata metadata = null;
-			MessageId lastMessageId = null;
 			while (rs.next()) {
 				MessageId messageId = new MessageId(rs.getBytes(1));
-				if (lastMessageId == null || !messageId.equals(lastMessageId)) {
+				Metadata metadata = all.get(messageId);
+				if (metadata == null) {
 					metadata = new Metadata();
 					all.put(messageId, metadata);
-					lastMessageId = messageId;
 				}
 				metadata.put(rs.getString(2), rs.getBytes(3));
 			}
