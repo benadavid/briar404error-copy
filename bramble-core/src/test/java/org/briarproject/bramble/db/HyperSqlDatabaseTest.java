@@ -3,14 +3,17 @@ package org.briarproject.bramble.db;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.system.Clock;
 
-public class HyperSqlDatabaseTest extends JdbcDatabaseTest {
+import java.sql.Connection;
+
+public class HyperSqlDatabaseTest extends DatabaseTest<Connection> {
 
 	public HyperSqlDatabaseTest() throws Exception {
 		super();
 	}
 
 	@Override
-	protected JdbcDatabase createDatabase(DatabaseConfig config, Clock clock) {
+	protected Database<Connection> createDatabase(DatabaseConfig config,
+			Clock clock) {
 		return new HyperSqlDatabase(config, clock);
 	}
 }

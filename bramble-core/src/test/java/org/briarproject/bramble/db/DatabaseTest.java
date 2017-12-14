@@ -32,7 +32,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -65,7 +64,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public abstract class JdbcDatabaseTest extends BrambleTestCase {
+public abstract class DatabaseTest<T> extends BrambleTestCase {
 
 	private static final int ONE_MEGABYTE = 1024 * 1024;
 	private static final int MAX_SIZE = 5 * ONE_MEGABYTE;
@@ -85,7 +84,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private final TransportId transportId;
 	private final ContactId contactId;
 
-	JdbcDatabaseTest() throws Exception {
+	DatabaseTest() throws Exception {
 		groupId = new GroupId(TestUtils.getRandomId());
 		clientId = new ClientId(StringUtils.getRandomString(5));
 		byte[] descriptor = new byte[MAX_GROUP_DESCRIPTOR_LENGTH];
@@ -104,7 +103,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		contactId = new ContactId(1);
 	}
 
-	protected abstract JdbcDatabase createDatabase(DatabaseConfig config,
+	protected abstract Database<T> createDatabase(DatabaseConfig config,
 			Clock clock);
 
 	@Before
@@ -115,8 +114,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@Test
 	public void testPersistence() throws Exception {
 		// Store some records
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthorId,
@@ -159,8 +158,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testRemovingGroupRemovesMessage() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a group and a message
 		db.addGroup(txn, group);
@@ -177,8 +176,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testSendableMessagesMustHaveSeenFlagFalse() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
@@ -215,8 +214,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testSendableMessagesMustBeDelivered() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared but unvalidated message
 		db.addLocalAuthor(txn, localAuthor);
@@ -261,8 +260,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testSendableMessagesMustHaveSharedGroup() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a contact, an invisible group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
@@ -313,8 +312,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testSendableMessagesMustBeShared() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a contact, a shared group and an unshared message
 		db.addLocalAuthor(txn, localAuthor);
@@ -345,8 +344,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testSendableMessagesMustFitCapacity() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
@@ -372,8 +371,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testMessagesToAck() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a contact and a visible group
 		db.addLocalAuthor(txn, localAuthor);
@@ -409,8 +408,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testOutstandingMessageAcked() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
@@ -447,7 +446,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		byte[] largeBody = new byte[MAX_MESSAGE_LENGTH];
 		for (int i = 0; i < largeBody.length; i++) largeBody[i] = (byte) i;
 		Message message = new Message(messageId, groupId, timestamp, largeBody);
-		Database<Connection> db = open(false);
+		Database<T> db = open(false);
 
 		// Sanity check: there should be enough space on disk for this test
 		assertTrue(testDir.getFreeSpace() > MAX_SIZE);
@@ -458,7 +457,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(free > 0);
 
 		// Storing a message should reduce the free space
-		Connection txn = db.startTransaction();
+		T txn = db.startTransaction();
 		db.addGroup(txn, group);
 		db.addMessage(txn, message, DELIVERED, true);
 		db.commitTransaction(txn);
@@ -473,10 +472,10 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		CountDownLatch closed = new CountDownLatch(1);
 		AtomicBoolean transactionFinished = new AtomicBoolean(false);
 		AtomicBoolean error = new AtomicBoolean(false);
-		Database<Connection> db = open(false);
+		Database<T> db = open(false);
 
 		// Start a transaction
-		Connection txn = db.startTransaction();
+		T txn = db.startTransaction();
 		// In another thread, close the database
 		Thread close = new Thread(() -> {
 			try {
@@ -507,10 +506,10 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		CountDownLatch closed = new CountDownLatch(1);
 		AtomicBoolean transactionFinished = new AtomicBoolean(false);
 		AtomicBoolean error = new AtomicBoolean(false);
-		Database<Connection> db = open(false);
+		Database<T> db = open(false);
 
 		// Start a transaction
-		Connection txn = db.startTransaction();
+		T txn = db.startTransaction();
 		// In another thread, close the database
 		Thread close = new Thread(() -> {
 			try {
@@ -537,8 +536,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testUpdateSettings() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Store some settings
 		Settings s = new Settings();
@@ -567,8 +566,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@Test
 	public void testContainsVisibleMessageRequiresMessageInDatabase()
 			throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a contact and a shared group
 		db.addLocalAuthor(txn, localAuthor);
@@ -587,8 +586,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@Test
 	public void testContainsVisibleMessageRequiresGroupInDatabase()
 			throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a contact
 		db.addLocalAuthor(txn, localAuthor);
@@ -605,8 +604,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@Test
 	public void testContainsVisibleMessageRequiresVisibileGroup()
 			throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a contact, a group and a message
 		db.addLocalAuthor(txn, localAuthor);
@@ -625,8 +624,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testGroupVisibility() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a contact and a group
 		db.addLocalAuthor(txn, localAuthor);
@@ -671,8 +670,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	public void testTransportKeys() throws Exception {
 		TransportKeys keys = createTransportKeys();
 
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Initially there should be no transport keys in the database
 		assertEquals(Collections.emptyMap(),
@@ -737,8 +736,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		long rotationPeriod = keys.getCurrentOutgoingKeys().getRotationPeriod();
 		long streamCounter = keys.getCurrentOutgoingKeys().getStreamCounter();
 
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add the contact, transport and transport keys
 		db.addLocalAuthor(txn, localAuthor);
@@ -773,8 +772,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		long base = keys.getCurrentIncomingKeys().getWindowBase();
 		byte[] bitmap = keys.getCurrentIncomingKeys().getWindowBitmap();
 
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add the contact, transport and transport keys
 		db.addLocalAuthor(txn, localAuthor);
@@ -806,8 +805,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testGetContactsByAuthorId() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a local author - no contacts should be associated
 		db.addLocalAuthor(txn, localAuthor);
@@ -833,8 +832,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testGetContactsByLocalAuthorId() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a local author - no contacts should be associated
 		db.addLocalAuthor(txn, localAuthor);
@@ -859,8 +858,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testOfferedMessages() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a contact - initially there should be no offered messages
 		db.addLocalAuthor(txn, localAuthor);
@@ -889,8 +888,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testGroupMetadata() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a group
 		db.addGroup(txn, group);
@@ -927,8 +926,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testMessageMetadata() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a group and a message
 		db.addGroup(txn, group);
@@ -998,8 +997,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testMessageMetadataOnlyForDeliveredMessages() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a group and a message
 		db.addGroup(txn, group);
@@ -1059,8 +1058,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		Message message1 = new Message(messageId1, groupId, timestamp, raw);
 
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a group and two messages
 		db.addGroup(txn, group);
@@ -1163,8 +1162,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
 		Message message1 = new Message(messageId1, groupId, timestamp, raw);
 
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a group and two messages
 		db.addGroup(txn, group);
@@ -1238,8 +1237,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Message message1 = new Message(messageId1, groupId, timestamp, raw);
 		Message message2 = new Message(messageId2, groupId, timestamp, raw);
 
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a group and some messages
 		db.addGroup(txn, group);
@@ -1307,8 +1306,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testMessageDependenciesAcrossGroups() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a group and a message
 		db.addGroup(txn, group);
@@ -1373,8 +1372,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Message m3 = new Message(mId3, groupId, timestamp, raw);
 		Message m4 = new Message(mId4, groupId, timestamp, raw);
 
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a group and some messages with different states
 		db.addGroup(txn, group);
@@ -1410,8 +1409,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Message m3 = new Message(mId3, groupId, timestamp, raw);
 		Message m4 = new Message(mId4, groupId, timestamp, raw);
 
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a group and some messages
 		db.addGroup(txn, group);
@@ -1438,8 +1437,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testGetMessageStatus() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
@@ -1516,8 +1515,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		LocalAuthor localAuthor1 = new LocalAuthor(localAuthorId1, "Carol",
 				new byte[MAX_PUBLIC_KEY_LENGTH], new byte[123], timestamp);
 
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add two local authors
 		db.addLocalAuthor(txn, localAuthor);
@@ -1541,8 +1540,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testDeleteMessage() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
 		db.addLocalAuthor(txn, localAuthor);
@@ -1587,8 +1586,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testSetContactActive() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a contact
 		db.addLocalAuthor(txn, localAuthor);
@@ -1620,8 +1619,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@Test
 	public void testSetMessageState() throws Exception {
 
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 
 		// Add a group and a message
 		db.addGroup(txn, group);
@@ -1642,8 +1641,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testExceptionHandling() throws Exception {
-		Database<Connection> db = open(false);
-		Connection txn = db.startTransaction();
+		Database<T> db = open(false);
+		T txn = db.startTransaction();
 		try {
 			// Ask for a nonexistent message - an exception should be thrown
 			db.getRawMessage(txn, messageId);
@@ -1656,8 +1655,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
-	private Database<Connection> open(boolean resume) throws Exception {
-		Database<Connection> db = createDatabase(
+	private Database<T> open(boolean resume) throws Exception {
+		Database<T> db = createDatabase(
 				new TestDatabaseConfig(testDir, MAX_SIZE), new SystemClock());
 		if (!resume) TestUtils.deleteTestDirectory(testDir);
 		db.open();
