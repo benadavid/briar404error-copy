@@ -228,7 +228,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		for (ContactId c : db.getGroupVisibility(txn, m.getGroupId())) {
 			boolean offered = db.removeOfferedMessage(txn, c, m.getId());
 			boolean seen = offered || (sender != null && c.equals(sender));
-			db.addStatus(txn, c, m.getId(), seen, seen);
+			db.addStatus(txn, c, m.getId(), m.getGroupId(), seen, seen);
 		}
 	}
 
@@ -815,7 +815,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			db.addGroupVisibility(txn, c, g, v == SHARED);
 			for (MessageId m : db.getMessageIds(txn, g)) {
 				boolean seen = db.removeOfferedMessage(txn, c, m);
-				db.addStatus(txn, c, m, seen, seen);
+				db.addStatus(txn, c, m, g, seen, seen);
 			}
 		} else if (v == INVISIBLE) {
 			db.removeGroupVisibility(txn, c, g);

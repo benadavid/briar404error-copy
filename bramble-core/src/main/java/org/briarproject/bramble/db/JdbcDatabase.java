@@ -655,8 +655,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void addStatus(Connection txn, ContactId c, MessageId m, boolean ack,
-			boolean seen) throws DbException {
+	public void addStatus(Connection txn, ContactId c, MessageId m, GroupId g,
+			boolean ack, boolean seen) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO statuses (messageId, contactId, ack,"

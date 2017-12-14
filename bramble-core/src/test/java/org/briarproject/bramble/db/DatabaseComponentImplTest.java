@@ -261,7 +261,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, messageId, false, false);
+			oneOf(database).addStatus(txn, contactId, messageId, groupId,
+					false, false);
 			oneOf(database).commitTransaction(txn);
 			// The message was added, so the listeners should be called
 			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
@@ -1047,7 +1048,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(Collections.singletonList(contactId)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, messageId, true, true);
+			oneOf(database).addStatus(txn, contactId, messageId, groupId,
+					true, true);
 			// Second time
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -1221,7 +1223,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(Collections.singletonList(messageId)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, messageId, false, false);
+			oneOf(database).addStatus(txn, contactId, messageId, groupId,
+					false, false);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(
 					GroupVisibilityUpdatedEvent.class)));
@@ -1482,7 +1485,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).mergeMessageMetadata(txn, messageId, metadata);
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
-			oneOf(database).addStatus(txn, contactId, messageId, false, false);
+			oneOf(database).addStatus(txn, contactId, messageId, groupId,
+					false, false);
 			// addMessageDependencies()
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(true));

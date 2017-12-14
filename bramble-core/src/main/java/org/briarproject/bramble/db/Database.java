@@ -111,8 +111,8 @@ interface Database<T> {
 	 * @param ack whether the message needs to be acknowledged.
 	 * @param seen whether the contact has seen the message.
 	 */
-	void addStatus(T txn, ContactId c, MessageId m, boolean ack, boolean seen)
-			throws DbException;
+	void addStatus(T txn, ContactId c, MessageId m, GroupId g, boolean ack,
+			boolean seen) throws DbException;
 
 	/**
 	 * Stores a transport.

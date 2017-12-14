@@ -564,8 +564,8 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 					messages.add(m);
 					State state = State.fromValue(random.nextInt(4));
 					db.addMessage(txn, m, state, random.nextBoolean());
-					db.addStatus(txn, c, m.getId(), random.nextBoolean(),
-							random.nextBoolean());
+					db.addStatus(txn, c, m.getId(), g.getId(),
+							random.nextBoolean(), random.nextBoolean());
 					if (random.nextBoolean())
 						db.raiseRequestedFlag(txn, c, m.getId());
 					Metadata mm = getMetadata(METADATA_KEYS_PER_MESSAGE);
