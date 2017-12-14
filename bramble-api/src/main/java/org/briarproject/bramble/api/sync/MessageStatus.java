@@ -2,6 +2,9 @@ package org.briarproject.bramble.api.sync;
 
 import org.briarproject.bramble.api.contact.ContactId;
 
+/**
+ * Represents the status of a message with respect to a contact.
+ */
 public class MessageStatus {
 
 	private final MessageId messageId;

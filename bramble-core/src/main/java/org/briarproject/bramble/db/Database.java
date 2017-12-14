@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.ValidationManager.State;
 import org.briarproject.bramble.api.transport.TransportKeys;
+import org.briarproject.bramble.sync.SharingStatus;
 
 import java.util.Collection;
 import java.util.Map;
@@ -109,11 +110,12 @@ interface Database<T> {
 	 * contact.
 	 *
 	 * @param shared whether the message is shared.
+	 * @param deleted whether the message has been deleted.
 	 * @param ack whether the message needs to be acknowledged.
 	 * @param seen whether the contact has seen the message.
 	 */
 	void addStatus(T txn, ContactId c, MessageId m, GroupId g, boolean shared,
-			boolean ack, boolean seen) throws DbException;
+			boolean deleted, boolean ack, boolean seen) throws DbException;
 
 	/**
 	 * Stores a transport.
@@ -317,7 +319,8 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
-	Map<MessageId, Boolean> getMessageIds(T txn, GroupId g) throws DbException;
+	Collection<SharingStatus> getSharingStatus(T txn, GroupId g)
+			throws DbException;
 
 	/**
 	 * Returns the IDs of any messages in the given group with metadata
