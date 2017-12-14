@@ -186,6 +186,7 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 					+ " (messageId _HASH NOT NULL,"
 					+ " contactId INT NOT NULL,"
 					+ " groupId _HASH NOT NULL," // Denormalised
+					+ " messageShared BOOLEAN NOT NULL," // Denormalised
 					+ " ack BOOLEAN NOT NULL,"
 					+ " seen BOOLEAN NOT NULL,"
 					+ " requested BOOLEAN NOT NULL,"
@@ -676,18 +677,19 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 
 	@Override
 	public void addStatus(Connection txn, ContactId c, MessageId m, GroupId g,
-			boolean ack, boolean seen) throws DbException {
+			boolean shared, boolean ack, boolean seen) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO statuses (messageId, contactId, groupId,"
-					+ " ack, seen, requested, expiry, txCount)"
-					+ " VALUES (?, ?, ?, ?, ?, FALSE, 0, 0)";
+					+ " messageShared, ack, seen, requested, expiry, txCount)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, FALSE, 0, 0)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
 			ps.setBytes(3, g.getBytes());
-			ps.setBoolean(4, ack);
-			ps.setBoolean(5, seen);
+			ps.setBoolean(4, shared);
+			ps.setBoolean(5, ack);
+			ps.setBoolean(6, seen);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -939,12 +941,9 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT NULL FROM messages AS m"
-					+ " JOIN groupVisibilities AS gv"
-					+ " ON m.groupId = gv.groupId"
-					+ " WHERE messageId = ?"
-					+ " AND contactId = ?"
-					+ " AND m.shared = TRUE";
+			String sql = "SELECT NULL FROM statuses"
+					+ " WHERE messageId = ? AND contactId = ?"
+					+ " AND messageShared = TRUE";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
@@ -1301,17 +1300,19 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Collection<MessageId> getMessageIds(Connection txn, GroupId g)
+	public Map<MessageId, Boolean> getMessageIds(Connection txn, GroupId g)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT messageId FROM messages WHERE groupId = ?";
+			String sql = "SELECT messageId, shared FROM messages"
+					+ " WHERE groupId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<>();
-			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
+			Map<MessageId, Boolean> ids = new HashMap<>();
+			while (rs.next())
+				ids.put(new MessageId(rs.getBytes(1)), rs.getBoolean(2));
 			rs.close();
 			ps.close();
 			return ids;
@@ -2589,6 +2590,13 @@ abstract class DenormalisedJdbcDatabase implements Database<Connection> {
 			ps.setBytes(1, m.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+			sql = "UPDATE statuses SET messageShared = TRUE"
+					+ " WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
+			affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps);

@@ -563,8 +563,9 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 					Message m = getMessage(g.getId());
 					messages.add(m);
 					State state = State.fromValue(random.nextInt(4));
-					db.addMessage(txn, m, state, random.nextBoolean());
-					db.addStatus(txn, c, m.getId(), g.getId(),
+					boolean shared = random.nextBoolean();
+					db.addMessage(txn, m, state, shared);
+					db.addStatus(txn, c, m.getId(), g.getId(), shared,
 							random.nextBoolean(), random.nextBoolean());
 					if (random.nextBoolean())
 						db.raiseRequestedFlag(txn, c, m.getId());

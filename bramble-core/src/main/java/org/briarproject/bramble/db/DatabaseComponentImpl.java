@@ -228,7 +228,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		for (ContactId c : db.getGroupVisibility(txn, m.getGroupId())) {
 			boolean offered = db.removeOfferedMessage(txn, c, m.getId());
 			boolean seen = offered || (sender != null && c.equals(sender));
-			db.addStatus(txn, c, m.getId(), m.getGroupId(), seen, seen);
+			db.addStatus(txn, c, m.getId(), m.getGroupId(), shared, seen, seen);
 		}
 	}
 
@@ -813,13 +813,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (old == v) return;
 		if (old == INVISIBLE) {
 			db.addGroupVisibility(txn, c, g, v == SHARED);
-			for (MessageId m : db.getMessageIds(txn, g)) {
-				boolean seen = db.removeOfferedMessage(txn, c, m);
-				db.addStatus(txn, c, m, g, seen, seen);
+			for (Entry<MessageId, Boolean> e :
+					db.getMessageIds(txn, g).entrySet()) {
+				boolean seen = db.removeOfferedMessage(txn, c, e.getKey());
+				db.addStatus(txn, c, e.getKey(), g, e.getValue(), seen, seen);
 			}
 		} else if (v == INVISIBLE) {
 			db.removeGroupVisibility(txn, c, g);
-			for (MessageId m : db.getMessageIds(txn, g))
+			for (MessageId m : db.getMessageIds(txn, g).keySet())
 				db.removeStatus(txn, c, m);
 		} else {
 			db.setGroupVisibility(txn, c, g, v == SHARED);

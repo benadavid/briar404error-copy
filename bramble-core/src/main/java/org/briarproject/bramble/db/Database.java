@@ -108,11 +108,12 @@ interface Database<T> {
 	 * Initialises the status of the given message with respect to the given
 	 * contact.
 	 *
+	 * @param shared whether the message is shared.
 	 * @param ack whether the message needs to be acknowledged.
 	 * @param seen whether the contact has seen the message.
 	 */
-	void addStatus(T txn, ContactId c, MessageId m, GroupId g, boolean ack,
-			boolean seen) throws DbException;
+	void addStatus(T txn, ContactId c, MessageId m, GroupId g, boolean shared,
+			boolean ack, boolean seen) throws DbException;
 
 	/**
 	 * Stores a transport.
@@ -312,11 +313,11 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the IDs of all messages in the given group.
+	 * Returns the IDs and sharing statuses of all messages in the given group.
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<MessageId> getMessageIds(T txn, GroupId g) throws DbException;
+	Map<MessageId, Boolean> getMessageIds(T txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns the IDs of any messages in the given group with metadata

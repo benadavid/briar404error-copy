@@ -262,7 +262,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
 			oneOf(database).addStatus(txn, contactId, messageId, groupId,
-					false, false);
+					true, false, false);
 			oneOf(database).commitTransaction(txn);
 			// The message was added, so the listeners should be called
 			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
@@ -1049,7 +1049,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
 			oneOf(database).addStatus(txn, contactId, messageId, groupId,
-					true, true);
+					false, true, true);
 			// Second time
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -1208,7 +1208,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testChangingVisibilityCallsListeners() throws Exception {
+	public void testChangingVisibilityFromInvisibleToVisibleCallsListeners()
+			throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1220,11 +1221,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(INVISIBLE)); // Not yet visible
 			oneOf(database).addGroupVisibility(txn, contactId, groupId, false);
 			oneOf(database).getMessageIds(txn, groupId);
-			will(returnValue(Collections.singletonList(messageId)));
+			will(returnValue(Collections.singletonMap(messageId, true)));
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
 			oneOf(database).addStatus(txn, contactId, messageId, groupId,
-					false, false);
+					true, false, false);
 			oneOf(database).commitTransaction(txn);
 			oneOf(eventBus).broadcast(with(any(
 					GroupVisibilityUpdatedEvent.class)));
@@ -1235,6 +1236,38 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		Transaction transaction = db.startTransaction(false);
 		try {
 			db.setGroupVisibility(transaction, contactId, groupId, VISIBLE);
+			db.commitTransaction(transaction);
+		} finally {
+			db.endTransaction(transaction);
+		}
+	}
+
+	@Test
+	public void testChangingVisibilityFromVisibleToInvisibleCallsListeners()
+			throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			oneOf(database).containsGroup(txn, groupId);
+			will(returnValue(true));
+			oneOf(database).getGroupVisibility(txn, contactId, groupId);
+			will(returnValue(VISIBLE)); // Not yet visible
+			oneOf(database).removeGroupVisibility(txn, contactId, groupId);
+			oneOf(database).getMessageIds(txn, groupId);
+			will(returnValue(Collections.singletonMap(messageId, true)));
+			oneOf(database).removeStatus(txn, contactId, messageId);
+			oneOf(database).commitTransaction(txn);
+			oneOf(eventBus).broadcast(with(any(
+					GroupVisibilityUpdatedEvent.class)));
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				shutdown);
+
+		Transaction transaction = db.startTransaction(false);
+		try {
+			db.setGroupVisibility(transaction, contactId, groupId, INVISIBLE);
 			db.commitTransaction(transaction);
 		} finally {
 			db.endTransaction(transaction);
@@ -1486,7 +1519,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).removeOfferedMessage(txn, contactId, messageId);
 			will(returnValue(false));
 			oneOf(database).addStatus(txn, contactId, messageId, groupId,
-					false, false);
+					true, false, false);
 			// addMessageDependencies()
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(true));
