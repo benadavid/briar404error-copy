@@ -628,7 +628,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 		return System.nanoTime() - start;
 	}
 
-	private List<Double> measureBlock(Database<Connection> db,
+	List<Double> measureBlock(Database<Connection> db,
 			BenchmarkTask<Database<Connection>> task) throws Exception {
 		List<Double> durations = new ArrayList<>(ITERATIONS_PER_BLOCK);
 		for (int i = 0; i < ITERATIONS_PER_BLOCK; i++)
