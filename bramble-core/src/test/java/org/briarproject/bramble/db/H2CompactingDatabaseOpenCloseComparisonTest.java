@@ -3,11 +3,13 @@ package org.briarproject.bramble.db;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.system.Clock;
+import org.junit.Ignore;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+@Ignore
 public class H2CompactingDatabaseOpenCloseComparisonTest
 		extends DatabaseOpenCloseComparisonTest {
 
