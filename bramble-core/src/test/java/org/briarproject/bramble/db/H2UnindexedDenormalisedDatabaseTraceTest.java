@@ -1,0 +1,43 @@
+package org.briarproject.bramble.db;
+
+import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.system.Clock;
+import org.junit.Ignore;
+
+import java.io.File;
+import java.sql.Connection;
+
+import javax.annotation.Nonnull;
+
+@Ignore
+public class H2UnindexedDenormalisedDatabaseTraceTest
+		extends DatabaseTraceTest {
+
+	@Override
+	Database<Connection> createDatabase(DatabaseConfig databaseConfig,
+			Clock clock) {
+		return new DenormalisedH2Database(databaseConfig, clock) {
+
+			@Override
+			@Nonnull
+			String getUrl() {
+				return super.getUrl() + ";TRACE_LEVEL_FILE=3";
+			}
+
+			@Override
+			protected void createIndexes(@Nonnull Connection txn) {
+				// Not today, thank you
+			}
+		};
+	}
+
+	@Override
+	protected File getTraceFile() {
+		return new File(testDir, "db.trace.db");
+	}
+
+	@Override
+	protected String getTestName() {
+		return getClass().getSimpleName();
+	}
+}

@@ -367,7 +367,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	private void createIndexes(Connection txn) throws DbException {
+	protected void createIndexes(Connection txn) throws DbException {
 		Statement s = null;
 		try {
 			s = txn.createStatement();
