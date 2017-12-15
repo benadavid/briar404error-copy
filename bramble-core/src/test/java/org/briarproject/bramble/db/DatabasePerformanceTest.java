@@ -335,16 +335,6 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testGetLocalStatus() throws Exception {
-		String name = "getLocalStatus(T, GroupId)";
-		benchmark(name, db -> {
-			Connection txn = db.startTransaction();
-			db.getLocalStatus(txn, pickRandom(groups).getId());
-			db.commitTransaction(txn);
-		});
-	}
-
-	@Test
 	public void testGetMessageIds() throws Exception {
 		String name = "getMessageIds(T, GroupId)";
 		benchmark(name, db -> {
@@ -574,12 +564,8 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 					messages.add(m);
 					State state = State.fromValue(random.nextInt(4));
 					boolean shared = random.nextBoolean();
-					db.addMessage(txn, m, state, shared);
-					LocalStatus ls = new LocalStatus(m.getId(),
-							m.getTimestamp(), m.getLength(), state,
-							shared, false);
-					db.addStatus(txn, c, g.getId(), true, ls,
-							random.nextBoolean(), random.nextBoolean());
+					ContactId sender = random.nextBoolean() ? c : null;
+					db.addMessage(txn, m, state, shared, sender);
 					if (random.nextBoolean())
 						db.raiseRequestedFlag(txn, c, m.getId());
 					Metadata mm = getMetadata(METADATA_KEYS_PER_MESSAGE);
@@ -607,7 +593,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 			for (int j = 0; j < MESSAGES_PER_GROUP; j++) {
 				Message m = getMessage(g.getId());
 				messages.add(m);
-				db.addMessage(txn, m, DELIVERED, false);
+				db.addMessage(txn, m, DELIVERED, false, null);
 				Metadata mm = getMetadata(METADATA_KEYS_PER_MESSAGE);
 				messageMeta.get(g.getId()).add(mm);
 				db.mergeMessageMetadata(txn, m.getId(), mm);

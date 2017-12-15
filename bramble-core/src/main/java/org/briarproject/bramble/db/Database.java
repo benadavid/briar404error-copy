@@ -89,9 +89,12 @@ interface Database<T> {
 
 	/**
 	 * Stores a message.
+	 *
+	 * @param sender the contact from whom the message was received, or null
+	 * if the message was created locally.
 	 */
-	void addMessage(T txn, Message m, State state, boolean shared)
-			throws DbException;
+	void addMessage(T txn, Message m, State state, boolean shared,
+			@Nullable ContactId sender) throws DbException;
 
 	/**
 	 * Adds a dependency between two messages in the given group.
@@ -103,17 +106,6 @@ interface Database<T> {
 	 * Records that a message has been offered by the given contact.
 	 */
 	void addOfferedMessage(T txn, ContactId c, MessageId m) throws DbException;
-
-	/**
-	 * Initialises the status of a message with respect to the given contact.
-	 *
-	 * @param groupShared whether the group is {@link Visibility SHARED} or
-	 * {@link Visibility VISIBLE}.
-	 * @param ack whether the message needs to be acknowledged.
-	 * @param seen whether the contact has seen the message.
-	 */
-	void addStatus(T txn, ContactId c, GroupId g, boolean groupShared,
-			LocalStatus s, boolean ack, boolean seen) throws DbException;
 
 	/**
 	 * Stores a transport.
@@ -289,14 +281,6 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Collection<LocalAuthor> getLocalAuthors(T txn) throws DbException;
-
-	/**
-	 * Returns the IDs and sharing statuses of all messages in the given group.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<LocalStatus> getLocalStatus(T txn, GroupId g)
-			throws DbException;
 
 	/**
 	 * Returns the IDs and states of all dependencies of the given message.
@@ -576,24 +560,11 @@ interface Database<T> {
 	void removeMessage(T txn, MessageId m) throws DbException;
 
 	/**
-	 * Removes an offered message that was offered by the given contact, or
-	 * returns false if there is no such message.
-	 */
-	boolean removeOfferedMessage(T txn, ContactId c, MessageId m)
-			throws DbException;
-
-	/**
 	 * Removes the given offered messages that were offered by the given
 	 * contact.
 	 */
 	void removeOfferedMessages(T txn, ContactId c,
 			Collection<MessageId> requested) throws DbException;
-
-	/**
-	 * Removes the status of the given message with respect to the given
-	 * contact.
-	 */
-	void removeStatus(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
 	 * Removes a transport (and all associated state) from the database.

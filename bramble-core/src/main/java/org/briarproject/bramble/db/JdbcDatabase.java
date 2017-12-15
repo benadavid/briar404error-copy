@@ -568,6 +568,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
+			// Create a status row for each message in the group
+			for (MessageId m : getMessageIds(txn, g)) {
+				boolean seen = removeOfferedMessage(txn, c, m);
+				addStatus(txn, m, c, seen, seen);
+			}
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -599,7 +604,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public void addMessage(Connection txn, Message m, State state,
-			boolean shared) throws DbException {
+			boolean shared, @Nullable ContactId sender) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO messages (messageId, groupId, timestamp,"
@@ -617,6 +622,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
+			// Create a status row for each contact that can see the group
+			for (ContactId c :
+					getGroupVisibility(txn, m.getGroupId()).keySet()) {
+				boolean offered = removeOfferedMessage(txn, c, m.getId());
+				boolean seen = offered || (sender != null && c.equals(sender));
+				addStatus(txn, m.getId(), c, seen, seen);
+			}
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -654,17 +666,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	@Override
-	public void addStatus(Connection txn, ContactId c, GroupId g,
-			boolean groupShared, LocalStatus s, boolean ack, boolean seen)
-			throws DbException {
+	private void addStatus(Connection txn, MessageId m, ContactId c,
+			boolean ack, boolean seen) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO statuses (messageId, contactId, ack,"
 					+ " seen, requested, expiry, txCount)"
 					+ " VALUES (?, ?, ?, ?, FALSE, 0, 0)";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, s.getMessageId().getBytes());
+			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
 			ps.setBoolean(3, ack);
 			ps.setBoolean(4, seen);
@@ -1274,40 +1284,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return authors;
-		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
-			throw new DbException(e);
-		}
-	}
-
-	@Override
-	public Collection<LocalStatus> getLocalStatus(Connection txn, GroupId g)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT messageId, timestamp, state, shared,"
-					+ " length, raw IS NULL"
-					+ " FROM messages"
-					+ " WHERE groupId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, g.getBytes());
-			rs = ps.executeQuery();
-			List<LocalStatus> statuses = new ArrayList<>();
-			while (rs.next()) {
-				MessageId id = new MessageId(rs.getBytes(1));
-				long timestamp = rs.getLong(2);
-				State state = State.fromValue(rs.getInt(3));
-				boolean shared = rs.getBoolean(4);
-				int length = rs.getInt(5);
-				boolean deleted = rs.getBoolean(6);
-				statuses.add(new LocalStatus(id, timestamp, length, state,
-						shared, deleted));
-			}
-			rs.close();
-			ps.close();
-			return statuses;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -2335,6 +2311,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
+			// Remove status rows for the messages in the group
+			for (MessageId m : getMessageIds(txn, g)) removeStatus(txn, c, m);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2374,8 +2352,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	@Override
-	public boolean removeOfferedMessage(Connection txn, ContactId c,
+	private boolean removeOfferedMessage(Connection txn, ContactId c,
 			MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -2419,8 +2396,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	@Override
-	public void removeStatus(Connection txn, ContactId c, MessageId m)
+	private void removeStatus(Connection txn, ContactId c, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
