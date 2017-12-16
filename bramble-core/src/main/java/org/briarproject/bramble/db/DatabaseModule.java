@@ -19,7 +19,7 @@ public class DatabaseModule {
 	@Provides
 	@Singleton
 	Database<Connection> provideDatabase(DatabaseConfig config, Clock clock) {
-		return new H2Database(config, clock);
+		return new CachingH2Database(config, clock);
 	}
 
 	@Provides

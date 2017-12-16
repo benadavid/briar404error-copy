@@ -437,7 +437,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			// Try to close the connection
 			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			try {
-				txn.close();
+				closeConnection(txn);
 			} catch (SQLException e1) {
 				if (LOG.isLoggable(WARNING))
 					LOG.log(WARNING, e1.toString(), e1);
@@ -474,7 +474,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		connectionsLock.lock();
 		try {
 			closed = true;
-			for (Connection c : connections) c.close();
+			for (Connection c : connections) closeConnection(c);
 			openConnections -= connections.size();
 			connections.clear();
 			while (openConnections > 0) {
@@ -484,7 +484,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					LOG.warning("Interrupted while closing connections");
 					interrupted = true;
 				}
-				for (Connection c : connections) c.close();
+				for (Connection c : connections) closeConnection(c);
 				openConnections -= connections.size();
 				connections.clear();
 			}
@@ -493,6 +493,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 
 		if (interrupted) Thread.currentThread().interrupt();
+	}
+
+	protected void closeConnection(Connection txn) throws SQLException {
+		txn.close();
+	}
+
+	protected PreparedStatement prepareStatement(Connection txn, String sql)
+			throws SQLException {
+		return txn.prepareStatement(sql);
+	}
+
+	protected void close(PreparedStatement ps) throws SQLException {
+		ps.close();
+	}
+
+	protected void tryToClose(@Nullable PreparedStatement ps) {
+		try {
+			if (ps != null) ps.close();
+		} catch (SQLException e) {
+			if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+		}
 	}
 
 	@Override
@@ -506,7 +527,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " (authorId, name, publicKey, localAuthorId,"
 					+ " verified, active)"
 					+ " VALUES (?, ?, ?, ?, ?, ?)";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, remote.getId().getBytes());
 			ps.setString(2, remote.getName());
 			ps.setBytes(3, remote.getPublicKey());
@@ -515,17 +536,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBoolean(6, active);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 			// Get the new (highest) contact ID
 			sql = "SELECT contactId FROM contacts"
 					+ " ORDER BY contactId DESC LIMIT 1";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			rs = ps.executeQuery();
 			if (!rs.next()) throw new DbStateException();
 			ContactId c = new ContactId(rs.getInt(1));
 			if (rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
+			close(ps);
 			return c;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -540,13 +561,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "INSERT INTO groups (groupId, clientId, descriptor)"
 					+ " VALUES (?, ?, ?)";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, g.getId().getBytes());
 			ps.setString(2, g.getClientId().getString());
 			ps.setBytes(3, g.getDescriptor());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -561,13 +582,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "INSERT INTO groupVisibilities"
 					+ " (contactId, groupId, shared)"
 					+ " VALUES (?, ?, ?)";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, g.getBytes());
 			ps.setBoolean(3, shared);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -582,7 +603,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "INSERT INTO localAuthors"
 					+ " (authorId, name, publicKey, privateKey, created)"
 					+ " VALUES (?, ?, ?, ?, ?)";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, a.getId().getBytes());
 			ps.setString(2, a.getName());
 			ps.setBytes(3, a.getPublicKey());
@@ -590,7 +611,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(5, a.getTimeCreated());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -605,7 +626,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "INSERT INTO messages (messageId, groupId, timestamp,"
 					+ " state, shared, length, raw)"
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getId().getBytes());
 			ps.setBytes(2, m.getGroupId().getBytes());
 			ps.setLong(3, m.getTimestamp());
@@ -616,7 +637,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(7, raw);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -631,22 +652,22 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT NULL FROM offers"
 					+ " WHERE messageId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if (rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
+			close(ps);
 			if (found) return;
 			sql = "INSERT INTO offers (messageId, contactId) VALUES (?, ?)";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -662,14 +683,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "INSERT INTO statuses (messageId, contactId, ack,"
 					+ " seen, requested, expiry, txCount)"
 					+ " VALUES (?, ?, ?, ?, FALSE, 0, 0)";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
 			ps.setBoolean(3, ack);
 			ps.setBoolean(4, seen);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -684,13 +705,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "INSERT INTO messageDependencies"
 					+ " (groupId, messageId, dependencyId)"
 					+ " VALUES (?, ?, ?)";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, g.getBytes());
 			ps.setBytes(2, dependent.getBytes());
 			ps.setBytes(3, dependency.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -704,12 +725,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "INSERT INTO transports (transportId, maxLatency)"
 					+ " VALUES (?, ?)";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setString(1, t.getString());
 			ps.setLong(2, maxLatency);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -725,7 +746,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "INSERT INTO incomingKeys (contactId, transportId,"
 					+ " rotationPeriod, tagKey, headerKey, base, bitmap)"
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			ps.setString(2, k.getTransportId().getString());
 			// Previous rotation period
@@ -756,12 +777,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (batchAffected.length != 3) throw new DbStateException();
 			for (int rows : batchAffected)
 				if (rows != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 			// Store the outgoing keys
 			sql = "INSERT INTO outgoingKeys (contactId, transportId,"
 					+ " rotationPeriod, tagKey, headerKey, stream)"
 					+ " VALUES (?, ?, ?, ?, ?, ?)";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			ps.setString(2, k.getTransportId().getString());
 			OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
@@ -771,7 +792,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(6, outCurr.getStreamCounter());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -786,14 +807,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT NULL FROM contacts"
 					+ " WHERE authorId = ? AND localAuthorId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, remote.getBytes());
 			ps.setBytes(2, local.getBytes());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if (rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
+			close(ps);
 			return found;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -809,13 +830,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT NULL FROM contacts WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if (rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
+			close(ps);
 			return found;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -831,13 +852,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT NULL FROM groups WHERE groupId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if (rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
+			close(ps);
 			return found;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -853,13 +874,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT NULL FROM localAuthors WHERE authorId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, a.getBytes());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if (rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
+			close(ps);
 			return found;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -875,13 +896,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT NULL FROM messages WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if (rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
+			close(ps);
 			return found;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -897,13 +918,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT NULL FROM transports WHERE transportId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setString(1, t.getString());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if (rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
+			close(ps);
 			return found;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -924,14 +945,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE messageId = ?"
 					+ " AND contactId = ?"
 					+ " AND m.shared = TRUE";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if (rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
+			close(ps);
 			return found;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -948,14 +969,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT COUNT (messageId) FROM offers "
 					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
 			if (!rs.next()) throw new DbException();
 			int count = rs.getInt(1);
 			if (rs.next()) throw new DbException();
 			rs.close();
-			ps.close();
+			close(ps);
 			return count;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -969,12 +990,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE messages SET raw = NULL WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0) throw new DbStateException();
 			if (affected > 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -987,11 +1008,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "DELETE FROM messageMetadata WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -1007,7 +1028,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " localAuthorId, verified, active"
 					+ " FROM contacts"
 					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			rs = ps.executeQuery();
 			if (!rs.next()) throw new DbStateException();
@@ -1018,7 +1039,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			boolean verified = rs.getBoolean(5);
 			boolean active = rs.getBoolean(6);
 			rs.close();
-			ps.close();
+			close(ps);
 			Author author = new Author(authorId, name, publicKey);
 			return new Contact(c, author, localAuthorId, verified, active);
 		} catch (SQLException e) {
@@ -1037,7 +1058,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT contactId, authorId, name, publicKey,"
 					+ " localAuthorId, verified, active"
 					+ " FROM contacts";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			rs = ps.executeQuery();
 			List<Contact> contacts = new ArrayList<>();
 			while (rs.next()) {
@@ -1053,7 +1074,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 						verified, active));
 			}
 			rs.close();
-			ps.close();
+			close(ps);
 			return contacts;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1070,13 +1091,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT contactId FROM contacts"
 					+ " WHERE localAuthorId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, local.getBytes());
 			rs = ps.executeQuery();
 			List<ContactId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new ContactId(rs.getInt(1)));
 			rs.close();
-			ps.close();
+			close(ps);
 			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1095,7 +1116,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " localAuthorId, verified, active"
 					+ " FROM contacts"
 					+ " WHERE authorId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, remote.getBytes());
 			rs = ps.executeQuery();
 			List<Contact> contacts = new ArrayList<>();
@@ -1111,7 +1132,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 						active));
 			}
 			rs.close();
-			ps.close();
+			close(ps);
 			return contacts;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1127,14 +1148,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT clientId, descriptor FROM groups"
 					+ " WHERE groupId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
 			if (!rs.next()) throw new DbStateException();
 			ClientId clientId = new ClientId(rs.getString(1));
 			byte[] descriptor = rs.getBytes(2);
 			rs.close();
-			ps.close();
+			close(ps);
 			return new Group(g, clientId, descriptor);
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1151,7 +1172,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT groupId, descriptor FROM groups"
 					+ " WHERE clientId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setString(1, c.getString());
 			rs = ps.executeQuery();
 			List<Group> groups = new ArrayList<>();
@@ -1161,7 +1182,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				groups.add(new Group(id, c, descriptor));
 			}
 			rs.close();
-			ps.close();
+			close(ps);
 			return groups;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1178,7 +1199,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT shared FROM groupVisibilities"
 					+ " WHERE contactId = ? AND groupId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, g.getBytes());
 			rs = ps.executeQuery();
@@ -1187,7 +1208,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			else v = INVISIBLE;
 			if (rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
+			close(ps);
 			return v;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1204,13 +1225,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT contactId FROM groupVisibilities"
 					+ " WHERE groupId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
 			List<ContactId> visible = new ArrayList<>();
 			while (rs.next()) visible.add(new ContactId(rs.getInt(1)));
 			rs.close();
-			ps.close();
+			close(ps);
 			return visible;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1228,7 +1249,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT name, publicKey, privateKey, created"
 					+ " FROM localAuthors"
 					+ " WHERE authorId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, a.getBytes());
 			rs = ps.executeQuery();
 			if (!rs.next()) throw new DbStateException();
@@ -1240,7 +1261,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					privateKey, created);
 			if (rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
+			close(ps);
 			return localAuthor;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1257,7 +1278,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT authorId, name, publicKey, privateKey, created"
 					+ " FROM localAuthors";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			rs = ps.executeQuery();
 			List<LocalAuthor> authors = new ArrayList<>();
 			while (rs.next()) {
@@ -1270,7 +1291,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 						privateKey, created));
 			}
 			rs.close();
-			ps.close();
+			close(ps);
 			return authors;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1286,13 +1307,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT messageId FROM messages WHERE groupId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
-			ps.close();
+			close(ps);
 			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1308,14 +1329,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT messageId FROM messages"
 					+ " WHERE state = ? AND groupId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, state.getValue());
 			ps.setBytes(2, g.getBytes());
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
-			ps.close();
+			close(ps);
 			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1341,7 +1362,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " WHERE state = ? AND groupId = ?"
 					+ " AND metaKey = ? AND value = ?";
 			for (Entry<String, byte[]> e : query.entrySet()) {
-				ps = txn.prepareStatement(sql);
+				ps = prepareStatement(txn, sql);
 				ps.setInt(1, DELIVERED.getValue());
 				ps.setBytes(2, g.getBytes());
 				ps.setString(3, e.getKey());
@@ -1350,7 +1371,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				Set<MessageId> ids = new HashSet<>();
 				while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 				rs.close();
-				ps.close();
+				close(ps);
 				if (intersection == null) intersection = ids;
 				else intersection.retainAll(ids);
 				// Return early if there are no matches
@@ -1377,7 +1398,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON m.messageId = md.messageId"
 					+ " WHERE state = ? AND groupId = ?"
 					+ " ORDER BY m.messageId";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, DELIVERED.getValue());
 			ps.setBytes(2, g.getBytes());
 			rs = ps.executeQuery();
@@ -1394,7 +1415,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				metadata.put(rs.getString(2), rs.getBytes(3));
 			}
 			rs.close();
-			ps.close();
+			close(ps);
 			return all;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1423,13 +1444,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT metaKey, value FROM groupMetadata"
 					+ " WHERE groupId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, g.getBytes());
 			rs = ps.executeQuery();
 			Metadata metadata = new Metadata();
 			while (rs.next()) metadata.put(rs.getString(1), rs.getBytes(2));
 			rs.close();
-			ps.close();
+			close(ps);
 			return metadata;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1448,14 +1469,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN messages AS m"
 					+ " ON m.messageId = md.messageId"
 					+ " WHERE m.state = ? AND md.messageId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, DELIVERED.getValue());
 			ps.setBytes(2, m.getBytes());
 			rs = ps.executeQuery();
 			Metadata metadata = new Metadata();
 			while (rs.next()) metadata.put(rs.getString(1), rs.getBytes(2));
 			rs.close();
-			ps.close();
+			close(ps);
 			return metadata;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1475,7 +1496,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON m.messageId = md.messageId"
 					+ " WHERE (m.state = ? OR m.state = ?)"
 					+ " AND md.messageId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, DELIVERED.getValue());
 			ps.setInt(2, PENDING.getValue());
 			ps.setBytes(3, m.getBytes());
@@ -1483,7 +1504,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			Metadata metadata = new Metadata();
 			while (rs.next()) metadata.put(rs.getString(1), rs.getBytes(2));
 			rs.close();
-			ps.close();
+			close(ps);
 			return metadata;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1504,7 +1525,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON m.messageId = s.messageId"
 					+ " WHERE groupId = ?"
 					+ " AND contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, g.getBytes());
 			ps.setInt(2, c.getInt());
 			rs = ps.executeQuery();
@@ -1516,7 +1537,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				statuses.add(new MessageStatus(messageId, c, sent, seen));
 			}
 			rs.close();
-			ps.close();
+			close(ps);
 			return statuses;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1535,7 +1556,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " FROM statuses"
 					+ " WHERE messageId = ?"
 					+ " AND contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
 			rs = ps.executeQuery();
@@ -1544,7 +1565,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			boolean seen = rs.getBoolean(2);
 			if (rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
+			close(ps);
 			return new MessageStatus(m, c, sent, seen);
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1564,7 +1585,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " LEFT OUTER JOIN messages AS m"
 					+ " ON d.dependencyId = m.messageId"
 					+ " WHERE d.messageId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
 			Map<MessageId, State> dependencies = new HashMap<>();
@@ -1582,7 +1603,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				dependencies.put(dependency, state);
 			}
 			rs.close();
-			ps.close();
+			close(ps);
 			return dependencies;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1602,7 +1623,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " JOIN messages AS m"
 					+ " ON d.messageId = m.messageId"
 					+ " WHERE dependencyId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
 			Map<MessageId, State> dependents = new HashMap<>();
@@ -1612,7 +1633,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				dependents.put(dependent, state);
 			}
 			rs.close();
-			ps.close();
+			close(ps);
 			return dependents;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1628,14 +1649,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT state FROM messages WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
 			if (!rs.next()) throw new DbStateException();
 			State state = State.fromValue(rs.getInt(1));
 			if (rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
+			close(ps);
 			return state;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1653,14 +1674,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT messageId FROM statuses"
 					+ " WHERE contactId = ? AND ack = TRUE"
 					+ " LIMIT ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, maxMessages);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
-			ps.close();
+			close(ps);
 			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1687,7 +1708,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND seen = FALSE AND requested = FALSE"
 					+ " AND expiry < ?"
 					+ " ORDER BY timestamp LIMIT ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, DELIVERED.getValue());
 			ps.setLong(3, now);
@@ -1696,7 +1717,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
-			ps.close();
+			close(ps);
 			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1714,14 +1735,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT messageId FROM offers"
 					+ " WHERE contactId = ?"
 					+ " LIMIT ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, maxMessages);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
-			ps.close();
+			close(ps);
 			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1748,7 +1769,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND seen = FALSE"
 					+ " AND expiry < ?"
 					+ " ORDER BY timestamp";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, DELIVERED.getValue());
 			ps.setLong(3, now);
@@ -1762,7 +1783,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				total += length;
 			}
 			rs.close();
-			ps.close();
+			close(ps);
 			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1791,14 +1812,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT messageId FROM messages AS m"
 					+ " JOIN groups AS g ON m.groupId = g.groupId"
 					+ " WHERE state = ? AND clientId = ? AND raw IS NOT NULL";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, state.getValue());
 			ps.setString(2, c.getString());
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
-			ps.close();
+			close(ps);
 			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1822,13 +1843,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " ON m.groupId = g.groupId"
 					+ " WHERE m.shared = FALSE AND m1.shared = TRUE"
 					+ " AND g.clientId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setString(1, c.getString());
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<>();
 			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
 			rs.close();
-			ps.close();
+			close(ps);
 			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1845,14 +1866,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT raw FROM messages WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
 			if (!rs.next()) throw new DbStateException();
 			byte[] raw = rs.getBytes(1);
 			if (rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
+			close(ps);
 			return raw;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1879,7 +1900,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " AND seen = FALSE AND requested = TRUE"
 					+ " AND expiry < ?"
 					+ " ORDER BY timestamp";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			ps.setInt(2, DELIVERED.getValue());
 			ps.setLong(3, now);
@@ -1893,7 +1914,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				total += length;
 			}
 			rs.close();
-			ps.close();
+			close(ps);
 			return ids;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1910,13 +1931,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT settingKey, value FROM settings"
 					+ " WHERE namespace = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setString(1, namespace);
 			rs = ps.executeQuery();
 			Settings s = new Settings();
 			while (rs.next()) s.put(rs.getString(1), rs.getString(2));
 			rs.close();
-			ps.close();
+			close(ps);
 			return s;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1937,7 +1958,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " FROM incomingKeys"
 					+ " WHERE transportId = ?"
 					+ " ORDER BY contactId, rotationPeriod";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setString(1, t.getString());
 			rs = ps.executeQuery();
 			List<IncomingKeys> inKeys = new ArrayList<>();
@@ -1951,13 +1972,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 						windowBase, windowBitmap));
 			}
 			rs.close();
-			ps.close();
+			close(ps);
 			// Retrieve the outgoing keys in the same order
 			sql = "SELECT contactId, rotationPeriod, tagKey, headerKey, stream"
 					+ " FROM outgoingKeys"
 					+ " WHERE transportId = ?"
 					+ " ORDER BY contactId, rotationPeriod";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setString(1, t.getString());
 			rs = ps.executeQuery();
 			Map<ContactId, TransportKeys> keys = new HashMap<>();
@@ -1978,7 +1999,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 						inNext, outCurr));
 			}
 			rs.close();
-			ps.close();
+			close(ps);
 			return keys;
 		} catch (SQLException e) {
 			tryToClose(rs);
@@ -1995,13 +2016,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "UPDATE outgoingKeys SET stream = stream + 1"
 					+ " WHERE contactId = ? AND transportId = ?"
 					+ " AND rotationPeriod = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			ps.setString(2, t.getString());
 			ps.setLong(3, rotationPeriod);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2015,7 +2036,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "UPDATE statuses SET ack = FALSE"
 					+ " WHERE messageId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(2, c.getInt());
 			for (MessageId m : acked) {
 				ps.setBytes(1, m.getBytes());
@@ -2028,7 +2049,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (rows < 0) throw new DbStateException();
 				if (rows > 1) throw new DbStateException();
 			}
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2042,7 +2063,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "UPDATE statuses SET requested = FALSE"
 					+ " WHERE messageId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(2, c.getInt());
 			for (MessageId m : requested) {
 				ps.setBytes(1, m.getBytes());
@@ -2055,7 +2076,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (rows < 0) throw new DbStateException();
 				if (rows > 1) throw new DbStateException();
 			}
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2089,7 +2110,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (!removed.isEmpty()) {
 				String sql = "DELETE FROM " + tableName
 						+ " WHERE " + columnName + " = ? AND metaKey = ?";
-				ps = txn.prepareStatement(sql);
+				ps = prepareStatement(txn, sql);
 				ps.setBytes(1, id);
 				for (String key : removed) {
 					ps.setString(2, key);
@@ -2102,13 +2123,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 					if (rows < 0) throw new DbStateException();
 					if (rows > 1) throw new DbStateException();
 				}
-				ps.close();
+				close(ps);
 			}
 			if (retained.isEmpty()) return;
 			// Update any keys that already exist
 			String sql = "UPDATE " + tableName + " SET value = ?"
 					+ " WHERE " + columnName + " = ? AND metaKey = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(2, id);
 			for (Entry<String, byte[]> e : retained.entrySet()) {
 				ps.setBytes(1, e.getValue());
@@ -2126,7 +2147,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			sql = "INSERT INTO " + tableName
 					+ " (" + columnName + ", metaKey, value)"
 					+ " VALUES (?, ?, ?)";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, id);
 			int updateIndex = 0, inserted = 0;
 			for (Entry<String, byte[]> e : retained.entrySet()) {
@@ -2142,7 +2163,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (batchAffected.length != inserted) throw new DbStateException();
 			for (int rows : batchAffected)
 				if (rows != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2157,7 +2178,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			// Update any settings that already exist
 			String sql = "UPDATE settings SET value = ?"
 					+ " WHERE namespace = ? AND settingKey = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			for (Entry<String, String> e : s.entrySet()) {
 				ps.setString(1, e.getValue());
 				ps.setString(2, namespace);
@@ -2173,7 +2194,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			// Insert any settings that don't already exist
 			sql = "INSERT INTO settings (namespace, settingKey, value)"
 					+ " VALUES (?, ?, ?)";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			int updateIndex = 0, inserted = 0;
 			for (Entry<String, String> e : s.entrySet()) {
 				if (batchAffected[updateIndex] == 0) {
@@ -2189,7 +2210,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (batchAffected.length != inserted) throw new DbStateException();
 			for (int rows : batchAffected)
 				if (rows != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2203,12 +2224,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "UPDATE statuses SET ack = TRUE"
 					+ " WHERE messageId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2222,12 +2243,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "UPDATE statuses SET requested = TRUE"
 					+ " WHERE messageId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2241,12 +2262,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "UPDATE statuses SET seen = TRUE"
 					+ " WHERE messageId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2259,11 +2280,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "DELETE FROM contacts WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2275,11 +2296,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "DELETE FROM groups WHERE groupId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, g.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2293,12 +2314,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "DELETE FROM groupVisibilities"
 					+ " WHERE contactId = ? AND groupId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, g.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2311,11 +2332,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "DELETE FROM localAuthors WHERE authorId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, a.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2327,11 +2348,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "DELETE FROM messages WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2345,12 +2366,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "DELETE FROM offers"
 					+ " WHERE contactId = ? AND messageId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, m.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 			return affected == 1;
 		} catch (SQLException e) {
 			tryToClose(ps);
@@ -2365,7 +2386,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "DELETE FROM offers"
 					+ " WHERE contactId = ? AND messageId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			for (MessageId m : requested) {
 				ps.setBytes(2, m.getBytes());
@@ -2376,7 +2397,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				throw new DbStateException();
 			for (int rows : batchAffected)
 				if (rows != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2390,12 +2411,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "DELETE FROM statuses"
 					+ " WHERE contactId = ? AND messageId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, c.getInt());
 			ps.setBytes(2, m.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2408,11 +2429,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "DELETE FROM transports WHERE transportId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setString(1, t.getString());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2426,12 +2447,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "UPDATE statuses SET expiry = 0, txCount = 0"
 					+ " WHERE messageId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2444,12 +2465,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE contacts SET verified = ? WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBoolean(1, true);
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2462,12 +2483,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE contacts SET active = ? WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBoolean(1, active);
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2481,13 +2502,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "UPDATE groupVisibilities SET shared = ?"
 					+ " WHERE contactId = ? AND groupId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBoolean(1, shared);
 			ps.setInt(2, c.getInt());
 			ps.setBytes(3, g.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2500,11 +2521,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "UPDATE messages SET shared = TRUE"
 					+ " WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2517,12 +2538,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE messages SET state = ? WHERE messageId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setInt(1, state.getValue());
 			ps.setBytes(2, m.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2537,7 +2558,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "UPDATE incomingKeys SET base = ?, bitmap = ?"
 					+ " WHERE contactId = ? AND transportId = ?"
 					+ " AND rotationPeriod = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setLong(1, base);
 			ps.setBytes(2, bitmap);
 			ps.setInt(3, c.getInt());
@@ -2545,7 +2566,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setLong(5, rotationPeriod);
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
@@ -2560,7 +2581,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			String sql = "SELECT txCount FROM statuses"
 					+ " WHERE messageId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			ps.setBytes(1, m.getBytes());
 			ps.setInt(2, c.getInt());
 			rs = ps.executeQuery();
@@ -2568,17 +2589,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int txCount = rs.getInt(1);
 			if (rs.next()) throw new DbStateException();
 			rs.close();
-			ps.close();
+			close(ps);
 			sql = "UPDATE statuses SET expiry = ?, txCount = txCount + 1"
 					+ " WHERE messageId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			long now = clock.currentTimeMillis();
 			ps.setLong(1, calculateExpiry(now, maxLatency, txCount));
 			ps.setBytes(2, m.getBytes());
 			ps.setInt(3, c.getInt());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -2595,7 +2616,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "DELETE FROM incomingKeys"
 					+ " WHERE contactId = ?"
 					+ " AND transportId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			for (Entry<ContactId, TransportKeys> e : keys.entrySet()) {
 				ps.setInt(1, e.getKey().getInt());
 				ps.setString(2, e.getValue().getTransportId().getString());
@@ -2604,12 +2625,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int[] batchAffected = ps.executeBatch();
 			if (batchAffected.length != keys.size())
 				throw new DbStateException();
-			ps.close();
+			close(ps);
 			// Delete any existing outgoing keys
 			sql = "DELETE FROM outgoingKeys"
 					+ " WHERE contactId = ?"
 					+ " AND transportId = ?";
-			ps = txn.prepareStatement(sql);
+			ps = prepareStatement(txn, sql);
 			for (Entry<ContactId, TransportKeys> e : keys.entrySet()) {
 				ps.setInt(1, e.getKey().getInt());
 				ps.setString(2, e.getValue().getTransportId().getString());
@@ -2618,7 +2639,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			batchAffected = ps.executeBatch();
 			if (batchAffected.length != keys.size())
 				throw new DbStateException();
-			ps.close();
+			close(ps);
 		} catch (SQLException e) {
 			tryToClose(ps);
 			throw new DbException(e);
