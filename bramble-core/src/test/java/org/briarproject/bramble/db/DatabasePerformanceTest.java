@@ -26,6 +26,7 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -634,6 +635,31 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 				messageMetadata);
 	}
 
+	void replaceContactGroup(Database<Connection> db) throws DbException {
+		Contact contact = pickRandom(contacts);
+		Group group = pickRandom(contactGroups.get(contact.getId()));
+		// Discard state associated with the group
+		groups.remove(group);
+		Iterator<Message> it = messages.iterator();
+		while (it.hasNext())
+			if (it.next().getGroupId().equals(group.getId())) it.remove();
+		messageMetadata.remove(group.getId());
+		contactGroups.get(contact.getId()).remove(group);
+		groupMessageIds.remove(group.getId());
+		// Delete and replace the group
+		Connection txn = db.startTransaction();
+		db.removeGroup(txn, group.getId());
+		GroupState state = addContactGroup(db, txn, contact.getId(),
+				group.getClientId());
+		db.commitTransaction(txn);
+		// Create state associated with the new group
+		groups.add(state.group);
+		messages.addAll(state.messages);
+		messageMetadata.put(state.group.getId(), state.messageMetadata);
+		contactGroups.get(contact.getId()).add(state.group);
+		groupMessageIds.put(state.group.getId(), state.messageIds);
+	}
+
 	private ClientId getClientId() {
 		return new ClientId(getRandomString(CLIENT_ID_LENGTH));
 	}
@@ -655,7 +681,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 		return System.nanoTime() - start;
 	}
 
-	List<Double> measureBlock(Database<Connection> db,
+	private List<Double> measureBlock(Database<Connection> db,
 			BenchmarkTask<Database<Connection>> task) throws Exception {
 		List<Double> durations = new ArrayList<>(ITERATIONS_PER_BLOCK);
 		for (int i = 0; i < ITERATIONS_PER_BLOCK; i++)
