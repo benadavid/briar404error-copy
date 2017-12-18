@@ -15,7 +15,7 @@ import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 public abstract class DatabaseOpenCloseComparisonTest
 		extends DatabasePerformanceTest {
 
-	private static final int RUNS = 10;
+	private static final int RUNS = 30;
 
 	abstract Database<Connection> createDatabase(boolean conditionA,
 			DatabaseConfig databaseConfig, Clock clock);
@@ -51,6 +51,8 @@ public abstract class DatabaseOpenCloseComparisonTest
 		start = System.nanoTime();
 		task.run(db);
 		long run = System.nanoTime() - start;
+		// Replace a randomly chosen contact group
+		replaceContactGroup(db);
 		// Close the DB
 		start = System.nanoTime();
 		db.close();
