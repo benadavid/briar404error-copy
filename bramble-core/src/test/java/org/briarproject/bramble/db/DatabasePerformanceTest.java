@@ -105,9 +105,9 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 	private List<Contact> contacts;
 	private List<Group> groups;
 	private List<Message> messages;
-	private Map<GroupId, List<Metadata>> messageMeta;
+	private Map<GroupId, List<Metadata>> messageMetadata;
 	private Map<ContactId, List<Group>> contactGroups;
-	private Map<GroupId, List<MessageId>> groupMessages;
+	private Map<GroupId, List<MessageId>> groupMessageIds;
 
 	protected abstract String getTestName();
 
@@ -350,7 +350,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
 			GroupId g = pickRandom(groups).getId();
-			db.getMessageIds(txn, g, pickRandom(messageMeta.get(g)));
+			db.getMessageIds(txn, g, pickRandom(messageMetadata.get(g)));
 			db.commitTransaction(txn);
 		});
 	}
@@ -426,7 +426,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 			Connection txn = db.startTransaction();
 			ContactId c = pickRandom(contacts).getId();
 			GroupId g = pickRandom(contactGroups.get(c)).getId();
-			db.getMessageStatus(txn, c, pickRandom(groupMessages.get(g)));
+			db.getMessageStatus(txn, c, pickRandom(groupMessageIds.get(g)));
 			db.commitTransaction(txn);
 		});
 	}
@@ -536,75 +536,102 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 		contacts = new ArrayList<>();
 		groups = new ArrayList<>();
 		messages = new ArrayList<>();
-		messageMeta = new HashMap<>();
+		messageMetadata = new HashMap<>();
 		contactGroups = new HashMap<>();
-		groupMessages = new HashMap<>();
+		groupMessageIds = new HashMap<>();
 
 		for (int i = 0; i < CLIENTS; i++) clientIds.add(getClientId());
 
 		Connection txn = db.startTransaction();
 		db.addLocalAuthor(txn, localAuthor);
 		for (int i = 0; i < CONTACTS; i++) {
-			ContactId c = db.addContact(txn, getAuthor(), localAuthor.getId(),
-					random.nextBoolean(), true);
-			contacts.add(db.getContact(txn, c));
-			contactGroups.put(c, new ArrayList<>());
+			ContactId contactId = db.addContact(txn, getAuthor(),
+					localAuthor.getId(), random.nextBoolean(), true);
+			contacts.add(db.getContact(txn, contactId));
+			contactGroups.put(contactId, new ArrayList<>());
 			for (int j = 0; j < GROUPS_PER_CONTACT; j++) {
-				Group g = getGroup(clientIds.get(j % CLIENTS));
-				groups.add(g);
-				messageMeta.put(g.getId(), new ArrayList<>());
-				contactGroups.get(c).add(g);
-				groupMessages.put(g.getId(), new ArrayList<>());
-				db.addGroup(txn, g);
-				db.addGroupVisibility(txn, c, g.getId(), true);
-				Metadata gm = getMetadata(METADATA_KEYS_PER_GROUP);
-				db.mergeGroupMetadata(txn, g.getId(), gm);
-				for (int k = 0; k < MESSAGES_PER_GROUP; k++) {
-					Message m = getMessage(g.getId());
-					messages.add(m);
-					State state = State.fromValue(random.nextInt(4));
-					db.addMessage(txn, m, state, random.nextBoolean());
-					db.addStatus(txn, c, m.getId(), random.nextBoolean(),
-							random.nextBoolean());
-					if (random.nextBoolean())
-						db.raiseRequestedFlag(txn, c, m.getId());
-					Metadata mm = getMetadata(METADATA_KEYS_PER_MESSAGE);
-					messageMeta.get(g.getId()).add(mm);
-					db.mergeMessageMetadata(txn, m.getId(), mm);
-					if (k > 0) {
-						db.addMessageDependency(txn, g.getId(), m.getId(),
-								pickRandom(groupMessages.get(g.getId())));
-					}
-					groupMessages.get(g.getId()).add(m.getId());
-				}
+				ClientId clientId = clientIds.get(j % CLIENTS);
+				GroupState state =
+						addContactGroup(db, txn, contactId, clientId);
+				groups.add(state.group);
+				messages.addAll(state.messages);
+				messageMetadata.put(state.group.getId(), state.messageMetadata);
+				contactGroups.get(contactId).add(state.group);
+				groupMessageIds.put(state.group.getId(), state.messageIds);
 			}
 			for (int j = 0; j < OFFERED_MESSAGES_PER_CONTACT; j++) {
-				db.addOfferedMessage(txn, c, new MessageId(getRandomId()));
+				db.addOfferedMessage(txn, contactId,
+						new MessageId(getRandomId()));
 			}
 		}
 		for (int i = 0; i < LOCAL_GROUPS; i++) {
-			Group g = getGroup(clientIds.get(i % CLIENTS));
-			groups.add(g);
-			messageMeta.put(g.getId(), new ArrayList<>());
-			groupMessages.put(g.getId(), new ArrayList<>());
-			db.addGroup(txn, g);
-			Metadata gm = getMetadata(METADATA_KEYS_PER_GROUP);
-			db.mergeGroupMetadata(txn, g.getId(), gm);
-			for (int j = 0; j < MESSAGES_PER_GROUP; j++) {
-				Message m = getMessage(g.getId());
-				messages.add(m);
-				db.addMessage(txn, m, DELIVERED, false);
-				Metadata mm = getMetadata(METADATA_KEYS_PER_MESSAGE);
-				messageMeta.get(g.getId()).add(mm);
-				db.mergeMessageMetadata(txn, m.getId(), mm);
-				if (j > 0) {
-					db.addMessageDependency(txn, g.getId(), m.getId(),
-							pickRandom(groupMessages.get(g.getId())));
-				}
-				groupMessages.get(g.getId()).add(m.getId());
-			}
+			ClientId clientId = clientIds.get(i % CLIENTS);
+			GroupState state = addLocalGroup(db, txn, clientId);
+			groups.add(state.group);
+			messages.addAll(state.messages);
+			messageMetadata.put(state.group.getId(), state.messageMetadata);
+			groupMessageIds.put(state.group.getId(), state.messageIds);
 		}
 		db.commitTransaction(txn);
+	}
+
+	private GroupState addContactGroup(Database<Connection> db,
+			Connection txn, ContactId contactId, ClientId clientId)
+			throws DbException {
+		List<Message> messages = new ArrayList<>();
+		List<MessageId> messageIds = new ArrayList<>();
+		List<Metadata> messageMetadata = new ArrayList<>();
+		Group group = getGroup(clientId);
+		db.addGroup(txn, group);
+		db.addGroupVisibility(txn, contactId, group.getId(), true);
+		Metadata groupMetadata = getMetadata(METADATA_KEYS_PER_GROUP);
+		db.mergeGroupMetadata(txn, group.getId(), groupMetadata);
+		for (int i = 0; i < MESSAGES_PER_GROUP; i++) {
+			Message m = getMessage(group.getId());
+			messages.add(m);
+			messageIds.add(m.getId());
+			State state = State.fromValue(random.nextInt(4));
+			db.addMessage(txn, m, state, random.nextBoolean());
+			db.addStatus(txn, contactId, m.getId(), random.nextBoolean(),
+					random.nextBoolean());
+			if (random.nextBoolean())
+				db.raiseRequestedFlag(txn, contactId, m.getId());
+			Metadata mm = getMetadata(METADATA_KEYS_PER_MESSAGE);
+			messageMetadata.add(mm);
+			db.mergeMessageMetadata(txn, m.getId(), mm);
+			if (i > 0) {
+				db.addMessageDependency(txn, group.getId(), m.getId(),
+						pickRandom(messageIds));
+			}
+		}
+		return new GroupState(group, groupMetadata, messages, messageIds,
+				messageMetadata);
+	}
+
+	private GroupState addLocalGroup(Database<Connection> db, Connection txn,
+			ClientId clientId) throws DbException {
+		List<Message> messages = new ArrayList<>();
+		List<MessageId> messageIds = new ArrayList<>();
+		List<Metadata> messageMetadata = new ArrayList<>();
+		Group group = getGroup(clientId);
+		db.addGroup(txn, group);
+		Metadata groupMetadata = getMetadata(METADATA_KEYS_PER_GROUP);
+		db.mergeGroupMetadata(txn, group.getId(), groupMetadata);
+		for (int i = 0; i < MESSAGES_PER_GROUP; i++) {
+			Message m = getMessage(group.getId());
+			messages.add(m);
+			messageIds.add(m.getId());
+			db.addMessage(txn, m, DELIVERED, false);
+			Metadata mm = getMetadata(METADATA_KEYS_PER_MESSAGE);
+			messageMetadata.add(mm);
+			db.mergeMessageMetadata(txn, m.getId(), mm);
+			if (i > 0) {
+				db.addMessageDependency(txn, group.getId(), m.getId(),
+						pickRandom(messageIds));
+			}
+		}
+		return new GroupState(group, groupMetadata, messages, messageIds,
+				messageMetadata);
 	}
 
 	private ClientId getClientId() {
@@ -670,6 +697,25 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 		SteadyStateResult(int blocks, List<Double> durations) {
 			this.blocks = blocks;
 			this.durations = durations;
+		}
+	}
+
+	static class GroupState {
+
+		final Group group;
+		final Metadata groupMetadata;
+		final List<Message> messages;
+		final List<MessageId> messageIds;
+		final List<Metadata> messageMetadata;
+
+		GroupState(Group group, Metadata groupMetadata, List<Message> messages,
+				List<MessageId> messageIds,
+				List<Metadata> messageMetadata) {
+			this.group = group;
+			this.groupMetadata = groupMetadata;
+			this.messages = messages;
+			this.messageIds = messageIds;
+			this.messageMetadata = messageMetadata;
 		}
 	}
 }
