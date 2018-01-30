@@ -340,9 +340,13 @@
 	<string name="dialog_message_connect_panic_app">Are you sure that you want to allow %1$s to trigger destructive panic button actions?</string>
 	<string name="lock_setting_title">Sign Out</string>
 	<string name="lock_setting_summary">Sign out of Briar if a panic button is pressed</string>
+	<string name="lock_setting_transfer">Transfer panic button action to other users</string>
+	<string name="lock_setting_receive">Allow receiving panic button orders from other users</string>
 	<string name="purge_setting_title">Delete Account</string>
 	<string name="purge_setting_summary">Delete your Briar account if a panic button is pressed. Caution: This will permanently delete your identities, contacts and messages</string>
 	<string name="uninstall_setting_title">Uninstall Briar</string>
+	<string name="lock_setting_transfer_title">Transfer panic button</string>
+	<string name="lock_setting_receive_title">Receive panic button</string>
 	<string name="uninstall_setting_summary">This requires manual confirmation in a panic event</string>
 
 	<!-- Settings Notifications -->

@@ -32,12 +32,18 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 	public static final String KEY_PANIC_APP = "pref_key_panic_app";
 	public static final String KEY_PURGE = "pref_key_purge";
 	public static final String KEY_UNINSTALL = "pref_key_uninstall";
+	//To transfer and receive panic button orders
+	public static final String KEY_TRANSFER = "pref_key_transfer";
+	public static final String KEY_RECEIVE = "pref_key_receive";
 
 	private static final Logger LOG =
 			Logger.getLogger(PanicPreferencesFragment.class.getName());
 
 	private PackageManager pm;
 	private CheckBoxPreference lockPref, purgePref, uninstallPref;
+	//To transfer and receive panic button orders
+	private CheckBoxPreference keyTransfer, keyReceive;
+
 	private ListPreference panicAppPref;
 
 	@Override
@@ -50,6 +56,9 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 		panicAppPref = (ListPreference) findPreference(KEY_PANIC_APP);
 		purgePref = (CheckBoxPreference) findPreference(KEY_PURGE);
 		uninstallPref = (CheckBoxPreference) findPreference(KEY_UNINSTALL);
+		//To transfer and receive panic button orders
+		keyTransfer = (CheckBoxPreference) findPreference(KEY_TRANSFER);
+		keyReceive = (CheckBoxPreference) findPreference(KEY_RECEIVE);
 
 		// check for connect/disconnect intents from panic trigger apps
 		if (PanicResponder.checkForDisconnectIntent(getActivity())) {
@@ -102,11 +111,18 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 				purgePref.setEnabled(false);
 				uninstallPref.setChecked(false);
 				uninstallPref.setEnabled(false);
+
+				keyTransfer.setEnabled(false);
+				keyReceive.setEnabled(false);
+
 				getActivity().setResult(Activity.RESULT_CANCELED);
 			} else {
 				lockPref.setEnabled(true);
 				purgePref.setEnabled(true);
 				uninstallPref.setEnabled(true);
+
+				keyTransfer.setEnabled(true);
+				keyReceive.setEnabled(true);
 			}
 
 			return true;
