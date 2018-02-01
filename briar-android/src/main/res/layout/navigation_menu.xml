@@ -13,6 +13,11 @@
 		android:layout_height="wrap_content"
 		android:orientation="vertical">
 
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1"/>
+
 		<android.support.design.widget.NavigationView
 			android:id="@+id/navigation"
 			android:layout_width="wrap_content"
@@ -25,17 +30,12 @@
 			app:menu="@menu/navigation_drawer">
 
 			<ImageButton
-				android:id="@+id/imageButton"
+				android:id="@+id/imageButton1"
 				android:layout_width="wrap_content"
-				android:layout_gravity="right"
 				android:layout_height="wrap_content"
+				android:layout_gravity="right"
 				app:srcCompat="@android:drawable/ic_menu_gallery"/>
 		</android.support.design.widget.NavigationView>
-
-		<View
-			android:layout_width="match_parent"
-			android:layout_height="0dp"
-			android:layout_weight="1"/>
 
 		<include
 			layout="@layout/transports_list"

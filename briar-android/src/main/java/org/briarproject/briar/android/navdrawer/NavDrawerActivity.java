@@ -3,6 +3,7 @@ package org.briarproject.briar.android.navdrawer;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -17,7 +18,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -77,6 +80,12 @@ public class NavDrawerActivity extends BriarActivity implements
 	private DrawerLayout drawerLayout;
 	private NavigationView navigation;
 
+	ImageView imageView;
+	Button button;
+	private static final int IMAGE_UPLOAD_REQUEST=42;
+	Uri imageUri;
+	private ImageButton imgButton;
+
 	private List<Transport> transports;
 	private BaseAdapter transportsAdapter;
 
@@ -135,6 +144,19 @@ public class NavDrawerActivity extends BriarActivity implements
 		if (getIntent() != null) {
 			onNewIntent(getIntent());
 		}
+
+
+		//avatar button
+		imgButton = (ImageButton) navigation.findViewById(R.id.imageButton1);
+		          imgButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+             public void onClick(View v) {
+            	Intent intent = new Intent(Intent.ACTION_PICK);
+	            intent.setType("image/*");
+	            startActivityForResult(intent, IMAGE_UPLOAD_REQUEST);
+            }
+         });
+
 	}
 
 	@Override
