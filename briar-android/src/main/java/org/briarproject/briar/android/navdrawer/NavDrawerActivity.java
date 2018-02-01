@@ -3,13 +3,18 @@ package org.briarproject.briar.android.navdrawer;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
@@ -43,6 +48,7 @@ import org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarnin
 import org.briarproject.briar.android.privategroup.list.GroupListFragment;
 import org.briarproject.briar.android.settings.SettingsActivity;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -186,6 +192,27 @@ public class NavDrawerActivity extends BriarActivity implements
 							}
 						}
 					});
+		}
+
+		//avatar
+		if (request == IMAGE_UPLOAD_REQUEST) {
+			ParcelFileDescriptor fd;
+			try {
+				fd = getContentResolver().openFileDescriptor(data.getData(), "r");
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				return;
+			}
+
+			// Get the image file location
+			Bitmap bmp = BitmapFactory.decodeFileDescriptor(fd.getFileDescriptor());
+
+			// Make the image into a circle
+			RoundedBitmapDrawable roundedBitmapDrawable= RoundedBitmapDrawableFactory.create(getResources(), bmp);
+			roundedBitmapDrawable.setCircular(true);
+			imgButton.setImageDrawable(roundedBitmapDrawable);
+
+
 		}
 	}
 
