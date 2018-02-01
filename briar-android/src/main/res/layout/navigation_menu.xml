@@ -22,7 +22,15 @@
 			app:headerLayout="@layout/navigation_header"
 			app:itemIconTint="@color/briar_text_primary"
 			app:itemTextColor="@color/briar_text_primary"
-			app:menu="@menu/navigation_drawer"/>
+			app:menu="@menu/navigation_drawer">
+
+			<ImageButton
+				android:id="@+id/imageButton"
+				android:layout_width="wrap_content"
+				android:layout_gravity="right"
+				android:layout_height="wrap_content"
+				app:srcCompat="@android:drawable/ic_menu_gallery"/>
+		</android.support.design.widget.NavigationView>
 
 		<View
 			android:layout_width="match_parent"
