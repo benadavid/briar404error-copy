@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
@@ -195,6 +196,8 @@ public class NavDrawerActivity extends BriarActivity implements
 		}
 
 		//avatar
+		if(result == RESULT_CANCELED) return;
+
 		if (request == IMAGE_UPLOAD_REQUEST) {
 			ParcelFileDescriptor fd;
 			try {
