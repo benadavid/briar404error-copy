@@ -76,6 +76,8 @@ import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
 public class NavDrawerActivity extends BriarActivity implements
 		BaseFragmentListener, TransportStateListener,
 		OnNavigationItemSelectedListener {
+	/** Class name for log messages. */
+	private static final String LOG_TAG = NavDrawerActivity.class.getSimpleName();
 
 	public static final String INTENT_CONTACTS = "intent_contacts";
 	public static final String INTENT_GROUPS = "intent_groups";
@@ -581,4 +583,13 @@ public class NavDrawerActivity extends BriarActivity implements
 		private int iconId;
 		private int textId;
 	}
+
+	//******
+    //check if the picture exists in the internal memory before trying to load the picture to prevent crash
+	//******
+	public boolean fileExistance(String fname){
+		File file = getBaseContext().getFileStreamPath(fname);
+	    return file.exists();
+	}
+	//end of file existance code
 }
