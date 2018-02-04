@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -136,6 +137,9 @@ public class NavDrawerActivity extends BriarActivity implements
 		super.onCreate(state);
 		exitIfStartupFailed(getIntent());
 		setContentView(R.layout.activity_nav_drawer);
+
+		ImageButton button = (ImageButton) this.findViewById(R.id.imageButton1);
+		button.setColorFilter(Color.argb(255, 255, 255, 255));
 
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		drawerLayout = findViewById(R.id.drawer_layout);
