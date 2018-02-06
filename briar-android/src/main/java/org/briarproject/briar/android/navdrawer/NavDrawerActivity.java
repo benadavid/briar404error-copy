@@ -138,12 +138,10 @@ public class NavDrawerActivity extends BriarActivity implements
 		exitIfStartupFailed(getIntent());
 		setContentView(R.layout.activity_nav_drawer);
 
-		ImageButton button = (ImageButton) this.findViewById(R.id.imageButton1);
-		button.setColorFilter(Color.argb(255, 255, 255, 255));
 
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		drawerLayout = findViewById(R.id.drawer_layout);
-		navigation = findViewById(R.id.navigation);
+		navigation = (NavigationView)findViewById(R.id.navigation);
 		GridView transportsView = findViewById(R.id.transportsView);
 
 		setSupportActionBar(toolbar);
@@ -188,6 +186,7 @@ public class NavDrawerActivity extends BriarActivity implements
 			        imgButton.setImageDrawable(roundedBitmapDrawable);
 			        }
 		//********* end of load pic
+
 
 
 	}
