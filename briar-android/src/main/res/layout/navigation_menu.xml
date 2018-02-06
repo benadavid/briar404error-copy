@@ -13,11 +13,6 @@
 		android:layout_height="wrap_content"
 		android:orientation="vertical">
 
-		<View
-			android:layout_width="match_parent"
-			android:layout_height="0dp"
-			android:layout_weight="1"/>
-
 		<android.support.design.widget.NavigationView
 			android:id="@+id/navigation"
 			android:layout_width="wrap_content"
@@ -42,7 +37,7 @@
 			layout="@layout/transports_list"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_gravity="bottom"/>
+			/>
 
 	</LinearLayout>
 
