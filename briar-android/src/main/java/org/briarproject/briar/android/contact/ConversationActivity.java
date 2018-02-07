@@ -645,14 +645,31 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
+	/**
+	 * Triggered when the person clicks on the "Send message" button
+	 * @param text
+	 */
 	@Override
 	public void onSendClick(String text) {
+
 		if (text.equals("")) return;
+
 		text = StringUtils.truncateUtf8(text, MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+
+		//Timestamp
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
-		if (messagingGroupId == null) loadGroupId(text, timestamp);
-		else createMessage(text, timestamp);
+
+		//MessagingGroupId = ??
+		if (messagingGroupId == null) {
+			//loadGroupId will trigger createMessage tater on, if no exception is thrown
+			loadGroupId(text, timestamp);
+		}
+		else {
+			createMessage(text, timestamp);
+		}
+
+		//Reset the text field
 		textInputView.setText("");
 	}
 
@@ -667,6 +684,7 @@ public class ConversationActivity extends BriarActivity
 			try {
 				messagingGroupId =
 						messagingManager.getConversationId(contactId);
+
 				createMessage(body, timestamp);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -676,6 +694,8 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void createMessage(String body, long timestamp) {
+		//Cossin pour encrypter les communications. Apparemment, on peut envoyer une fonction en paramètre comme en JavaScript.
+		//Thing to encrypt communications. Apparently, we can send functions as a parameter, like in JavaScript
 		cryptoExecutor.execute(() -> {
 			try {
 				//noinspection ConstantConditions init in loadGroupId()
