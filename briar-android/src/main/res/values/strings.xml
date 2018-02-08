@@ -408,4 +408,11 @@
 	<string name="permission_camera_denied_body">You have denied access to the camera, but adding contacts requires using the camera.\n\nPlease consider granting access.</string>
 	<string name="permission_camera_denied_toast">Camera permission was not granted</string>
 
+	<!-- Walkthrough -->
+	<string name="Welcome">Welcome to Briar</string>
+	<string name="Briar_Description">Briar uses direct, encrypted connections between users to prevent surveillance and censorship.</string>
+	<string name="Connection_Description">If the internet\'s down, Briar can sync via Bluetooth or Wi-Fi, keeping the information flowing in a crisis. If the internet\'s up, Briar can sync via the Tor network, protecting users and their relationships from surveillance.</string>
+
+
+
 </resources>

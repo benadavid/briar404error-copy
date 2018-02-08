@@ -42,4 +42,34 @@
 
 	<color name="spinner_border">#61000000</color> <!-- 38% Black -->
 	<color name="forum_cell_highlight">#ffffff</color>
+
+	<!-- Walkthrough Screen colors -->
+	<color name= "colorPrimary">#2D3E50</color>
+	<color name= "colorPrimaryDark">#0F1720</color>
+	<color name="colorAccent">#06b9ff</color>
+
+	<color name="screen1">#cfcfcf</color>
+	<color name="screen2">#dabf35</color>
+	<color name="screen3">#da5e35</color>
+
+	<color name="dotDark1">#797979</color>
+	<color name="dotDark2">#867521</color>
+	<color name="dotDark3">#7b341d</color>
+
+	<color name="dotLight1">#e1e1e1</color>
+	<color name="dotLight2">#ffe878</color>
+	<color name="dotLight3">#ff8e69</color>
+
+	<array name="dot_active">
+		<item>@color/dotLight1</item>
+		<item>@color/dotLight2</item>
+		<item>@color/dotLight3</item>
+	</array>
+
+	<array name="dot_inactive">
+		<item>@color/dotDark1</item>
+		<item>@color/dotDark2</item>
+		<item>@color/dotDark3</item>
+	</array>
+
 </resources>
