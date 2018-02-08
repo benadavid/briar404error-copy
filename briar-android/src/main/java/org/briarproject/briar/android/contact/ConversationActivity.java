@@ -279,6 +279,10 @@ public class ConversationActivity extends BriarActivity
 				intent.putExtra(CONTACT_ID, contactId.getInt());
 				startActivityForResult(intent, REQUEST_INTRODUCTION);
 				return true;
+			case R.id.action_panic:
+				//Do something, send panic info to user
+				sendPanic();
+				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();
 				return true;
@@ -444,6 +448,10 @@ public class ConversationActivity extends BriarActivity
 				if (LOG.isLoggable(INFO))
 					LOG.info("Loading body took " + duration + " ms");
 				displayMessageBody(m, body);
+
+				//We can hook here for panic?
+
+
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -662,7 +670,7 @@ public class ConversationActivity extends BriarActivity
 
 		//MessagingGroupId = ??
 		if (messagingGroupId == null) {
-			//loadGroupId will trigger createMessage tater on, if no exception is thrown
+			//loadGroupId will call createMessage later on, if no exception is thrown
 			loadGroupId(text, timestamp);
 		}
 		else {
@@ -694,7 +702,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void createMessage(String body, long timestamp) {
-		//Cossin pour encrypter les communications. Apparemment, on peut envoyer une fonction en paramètre comme en JavaScript.
+		//Cossin pour encrypter les communications. Apparemment, on peut envoyer une fonction en paramètre avec l'opérateur flèche comme en JavaScript.
 		//Thing to encrypt communications. Apparently, we can send functions as a parameter, like in JavaScript
 		cryptoExecutor.execute(() -> {
 			try {
@@ -739,6 +747,24 @@ public class ConversationActivity extends BriarActivity
 		builder.setNegativeButton(R.string.delete, okListener);
 		builder.setPositiveButton(R.string.cancel, null);
 		builder.show();
+	}
+
+	private void sendPanic(){
+
+		String text = StringUtils.truncateUtf8("#PANIC#", MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+
+		//Timestamp
+		long timestamp = System.currentTimeMillis();
+		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
+
+		//MessagingGroupId = ??
+		if (messagingGroupId == null) {
+			//loadGroupId will call createMessage later on, if no exception is thrown
+			loadGroupId(text, timestamp);
+		}
+		else {
+			createMessage(text, timestamp);
+		}
 	}
 
 	private void removeContact() {
