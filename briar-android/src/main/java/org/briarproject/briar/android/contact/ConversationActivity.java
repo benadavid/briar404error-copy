@@ -2,11 +2,14 @@ package org.briarproject.briar.android.contact;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -449,8 +452,13 @@ public class ConversationActivity extends BriarActivity
 					LOG.info("Loading body took " + duration + " ms");
 				displayMessageBody(m, body);
 
-				//We can hook here for panic?
+				//We can hook here for panic
 
+				if(m.equals("#PANIC#")){
+					//We sign out
+					//Default action for foreign user panic button activation
+					signOut(true);
+				}
 
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -702,7 +710,15 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void createMessage(String body, long timestamp) {
-		//Cossin pour encrypter les communications. Apparemment, on peut envoyer une fonction en paramètre avec l'opérateur flèche comme en JavaScript.
+
+		/*
+		//If we send #TEST#, it does logout the user
+		if(body.equals("#TEST#")){
+			// Performing foreign user panic responses
+			//signOut(true);
+		}
+		*/
+
 		//Thing to encrypt communications. Apparently, we can send functions as a parameter, like in JavaScript
 		cryptoExecutor.execute(() -> {
 			try {
