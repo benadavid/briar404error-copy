@@ -85,6 +85,11 @@
 			android:theme="@style/BriarTheme.NoActionBar"
 		    android:launchMode="singleTop">
 		</activity>
+		<activity
+			android:name="org.briarproject.briar.android.navdrawer.AvatarActivity"
+			android:theme="@style/BriarTheme.NoActionBar"
+			android:launchMode="singleTop">
+		</activity>
 
 		<activity
 			android:name="org.briarproject.briar.android.contact.ConversationActivity"

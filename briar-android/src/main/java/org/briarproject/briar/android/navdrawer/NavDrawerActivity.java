@@ -96,6 +96,15 @@ public class NavDrawerActivity extends BriarActivity implements
 	private DrawerLayout drawerLayout;
 	private NavigationView navigation;
 
+	//Image request code
+	private int PICK_IMAGE_REQUEST = 1;
+	//storage permission code
+	private static final int STORAGE_PERMISSION_CODE = 123;
+	//Bitmap to get image from gallery
+	private Bitmap bitmap;
+	//Uri to store the image uri
+	private Uri filePath;
+
 	ImageView imageView;
 	Button button;
 	private static final int IMAGE_UPLOAD_REQUEST=42;
@@ -139,6 +148,7 @@ public class NavDrawerActivity extends BriarActivity implements
 		setContentView(R.layout.activity_nav_drawer);
 
 
+
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		drawerLayout = findViewById(R.id.drawer_layout);
 		navigation = (NavigationView)findViewById(R.id.navigation);
@@ -171,9 +181,8 @@ public class NavDrawerActivity extends BriarActivity implements
 		          imgButton.setOnClickListener(new View.OnClickListener() {
             @Override
              public void onClick(View v) {
-            	Intent intent = new Intent(Intent.ACTION_PICK);
-	            intent.setType("image/*");
-	            startActivityForResult(intent, IMAGE_UPLOAD_REQUEST);
+            	Intent intent = new Intent(NavDrawerActivity.this, AvatarActivity.class);
+	            startActivity(intent);
             }
          });
 
