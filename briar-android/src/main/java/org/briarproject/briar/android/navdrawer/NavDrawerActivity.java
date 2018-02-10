@@ -144,24 +144,27 @@ public class NavDrawerActivity extends BriarActivity implements
 				showcaseView = new ShowcaseView.Builder(NavDrawerActivity.this)
 						.setTarget(Target.NONE)
 						.setContentTitle("Walkthrough")
+						.setContentText("Welcome to Briar, let's walk you through some of its features")
+						.setStyle(R.style.ShowcaseTheme)
+						.singleShot(77)
 						.setOnClickListener((View v) -> {
 								switch(showcaseCounter) {
 									case 0:
 										showcaseView.setShowcase(target1, true);
 										showcaseView.setContentTitle("Features");
-										showcaseView.setContentText("Choose from the various features on the left");
+										showcaseView.setContentText("You can view your contacts, create private groups," +
+												" and browse forums and blogs");
 										break;
 									case 1:
 										showcaseView.setShowcase(target2, true);
 										showcaseView.setContentTitle("Connectivity");
-										showcaseView.setContentText("Send messages via Tor, Bluetooth or Wi-Fi");
+										showcaseView.setContentText("Choose to send messages securely via Tor, Bluetooth or Wi-Fi");
 										break;
 									case 2:
 										showcaseView.hide();
 										break;
 								}
 								showcaseCounter++;
-
 						})
 						.build();
 			}
