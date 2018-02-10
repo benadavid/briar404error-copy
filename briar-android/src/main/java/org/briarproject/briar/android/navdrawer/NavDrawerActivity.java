@@ -10,6 +10,7 @@ import android.support.design.widget.NavigationView.OnNavigationItemSelectedList
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -20,6 +21,10 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.Target;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
@@ -71,6 +76,11 @@ public class NavDrawerActivity extends BriarActivity implements
 
 	private ActionBarDrawerToggle drawerToggle;
 
+	// walkthrough variables
+	private ShowcaseView showcaseView;
+	private Target target1, target2;
+	private int showcaseCounter;
+
 	@Inject
 	NavDrawerController controller;
 
@@ -121,7 +131,41 @@ public class NavDrawerActivity extends BriarActivity implements
 
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
 				R.string.nav_drawer_open_description,
-				R.string.nav_drawer_close_description);
+				R.string.nav_drawer_close_description){
+
+			// triggers walkthrough when navigation drawer is first opened
+			public void onDrawerOpened(View drawerView){
+				super.onDrawerOpened(drawerView);
+
+				// highlights areas of the nav drawer featured in walkthrough
+				target1 = new ViewTarget(R.id.navigation, NavDrawerActivity.this);
+				target2 = new ViewTarget(R.id.connectivity, NavDrawerActivity.this);
+
+				showcaseView = new ShowcaseView.Builder(NavDrawerActivity.this)
+						.setTarget(Target.NONE)
+						.setContentTitle("Walkthrough")
+						.setOnClickListener((View v) -> {
+								switch(showcaseCounter) {
+									case 0:
+										showcaseView.setShowcase(target1, true);
+										showcaseView.setContentTitle("Features");
+										showcaseView.setContentText("Choose from the various features on the left");
+										break;
+									case 1:
+										showcaseView.setShowcase(target2, true);
+										showcaseView.setContentTitle("Connectivity");
+										showcaseView.setContentText("Send messages via Tor, Bluetooth or Wi-Fi");
+										break;
+									case 2:
+										showcaseView.hide();
+										break;
+								}
+								showcaseCounter++;
+
+						})
+						.build();
+			}
+		};
 		drawerLayout.addDrawerListener(drawerToggle);
 		navigation.setNavigationItemSelectedListener(this);
 
