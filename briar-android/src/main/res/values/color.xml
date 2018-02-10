@@ -43,33 +43,33 @@
 	<color name="spinner_border">#61000000</color> <!-- 38% Black -->
 	<color name="forum_cell_highlight">#ffffff</color>
 
+	<!-- Tutorial -->
 	<!-- Walkthrough Screen colors -->
-	<color name= "colorPrimary">#2D3E50</color>
-	<color name= "colorPrimaryDark">#0F1720</color>
-	<color name="colorAccent">#06b9ff</color>
+	<color name="colorPrimary">#2d3e50</color>
+	<color name="colorPrimaryDark">#0f1720</color>
+	<color name="colorAccent">#c1c1c1</color>
 
-	<color name="screen1">#cfcfcf</color>
-	<color name="screen2">#dabf35</color>
-	<color name="screen3">#da5e35</color>
+	<!-- Screens background color-->
+	<color name="bg_screen1">#c1c1c1</color>
+	<color name="bg_screen2">#95d220</color>
 
-	<color name="dotDark1">#797979</color>
-	<color name="dotDark2">#867521</color>
-	<color name="dotDark3">#7b341d</color>
+	<!-- dots inactive colors -->
+	<color name="dot_dark_screen1">#707070</color>
+	<color name="dot_dark_screen2">#5b8113</color>
 
-	<color name="dotLight1">#e1e1e1</color>
-	<color name="dotLight2">#ffe878</color>
-	<color name="dotLight3">#ff8e69</color>
+	<!-- dots active colors -->
+	<color name="dot_light_screen1">#ededed</color>
+	<color name="dot_light_screen2">#b4fd28</color>
 
-	<array name="dot_active">
-		<item>@color/dotLight1</item>
-		<item>@color/dotLight2</item>
-		<item>@color/dotLight3</item>
+	<array name="array_dot_active">
+		<item>@color/dot_light_screen1</item>
+		<item>@color/dot_light_screen2</item>
 	</array>
 
-	<array name="dot_inactive">
-		<item>@color/dotDark1</item>
-		<item>@color/dotDark2</item>
-		<item>@color/dotDark3</item>
+	<array name="array_dot_inactive">
+		<item>@color/dot_dark_screen1</item>
+		<item>@color/dot_dark_screen2</item>
 	</array>
+
 
 </resources>

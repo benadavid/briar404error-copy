@@ -137,4 +137,8 @@
 	<style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
 	<style name="AppTheme.PopupOverLay" parent="ThemeOverlay.AppCompat.Light"/>
+
+	<style name="BriarTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+	<style name="BriarTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 </resources>
