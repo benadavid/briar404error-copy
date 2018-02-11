@@ -137,6 +137,18 @@ public class ConversationActivity extends BriarActivity
 	@CryptoExecutor
 	Executor cryptoExecutor;
 
+	protected String lastAction;
+
+	public AndroidNotificationManager getAndroidNotificationManager() {
+		return notificationManager;
+	}
+	public ConnectionRegistry getConnectionRegistry() {
+		return connectionRegistry;
+	}
+	public Executor getExecutor() {
+		return cryptoExecutor;
+	}
+
 	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
 
 	private ConversationAdapter adapter;
@@ -179,6 +191,34 @@ public class ConversationActivity extends BriarActivity
 	@Inject
 	volatile GroupInvitationManager groupInvitationManager;
 
+	public ContactManager getContactManager() {
+		return contactManager;
+	}
+	public MessagingManager getMessagingManager() {
+		return messagingManager;
+	}
+	public EventBus getEventBus() {
+		return eventBus;
+	}
+	public SettingsManager getSettingsManager() {
+		return settingsManager;
+	}
+	public PrivateMessageFactory getPrivateMessageFactory() {
+		return privateMessageFactory;
+	}
+	public IntroductionManager getIntroductionManager() {
+		return introductionManager;
+	}
+	public ForumSharingManager  getForumSharingManager() {
+		return forumSharingManager;
+	}
+	public BlogSharingManager getBlogSharingManager() {
+		return blogSharingManager;
+	}
+	public GroupInvitationManager getGroupInvitationManager() {
+		return groupInvitationManager;
+	}
+
 	private volatile ContactId contactId;
 	@Nullable
 	private volatile String contactName;
@@ -189,13 +229,13 @@ public class ConversationActivity extends BriarActivity
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void onCreate(@Nullable Bundle state) {
+	public void  onCreate(@Nullable Bundle state) {
 		setSceneTransitionAnimation();
 		super.onCreate(state);
 
 		Intent i = getIntent();
 		int id = i.getIntExtra(CONTACT_ID, -1);
-		if (id == -1) throw new IllegalStateException();
+//		if (id == -1) throw new IllegalStateException();
 		contactId = new ContactId(id);
 
 		setContentView(R.layout.activity_conversation);
@@ -781,6 +821,7 @@ public class ConversationActivity extends BriarActivity
 		else {
 			createMessage(text, timestamp);
 		}
+		lastAction = "PANIC";
 	}
 
 	private void removeContact() {
