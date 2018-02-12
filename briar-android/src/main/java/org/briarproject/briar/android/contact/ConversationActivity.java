@@ -2,11 +2,14 @@ package org.briarproject.briar.android.contact;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -134,6 +137,18 @@ public class ConversationActivity extends BriarActivity
 	@CryptoExecutor
 	Executor cryptoExecutor;
 
+	protected String lastAction;
+
+	public AndroidNotificationManager getAndroidNotificationManager() {
+		return notificationManager;
+	}
+	public ConnectionRegistry getConnectionRegistry() {
+		return connectionRegistry;
+	}
+	public Executor getExecutor() {
+		return cryptoExecutor;
+	}
+
 	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
 
 	private ConversationAdapter adapter;
@@ -176,6 +191,34 @@ public class ConversationActivity extends BriarActivity
 	@Inject
 	volatile GroupInvitationManager groupInvitationManager;
 
+	public ContactManager getContactManager() {
+		return contactManager;
+	}
+	public MessagingManager getMessagingManager() {
+		return messagingManager;
+	}
+	public EventBus getEventBus() {
+		return eventBus;
+	}
+	public SettingsManager getSettingsManager() {
+		return settingsManager;
+	}
+	public PrivateMessageFactory getPrivateMessageFactory() {
+		return privateMessageFactory;
+	}
+	public IntroductionManager getIntroductionManager() {
+		return introductionManager;
+	}
+	public ForumSharingManager  getForumSharingManager() {
+		return forumSharingManager;
+	}
+	public BlogSharingManager getBlogSharingManager() {
+		return blogSharingManager;
+	}
+	public GroupInvitationManager getGroupInvitationManager() {
+		return groupInvitationManager;
+	}
+
 	private volatile ContactId contactId;
 	@Nullable
 	private volatile String contactName;
@@ -186,13 +229,13 @@ public class ConversationActivity extends BriarActivity
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void onCreate(@Nullable Bundle state) {
+	public void  onCreate(@Nullable Bundle state) {
 		setSceneTransitionAnimation();
 		super.onCreate(state);
 
 		Intent i = getIntent();
 		int id = i.getIntExtra(CONTACT_ID, -1);
-		if (id == -1) throw new IllegalStateException();
+//		if (id == -1) throw new IllegalStateException();
 		contactId = new ContactId(id);
 
 		setContentView(R.layout.activity_conversation);
@@ -278,6 +321,10 @@ public class ConversationActivity extends BriarActivity
 				Intent intent = new Intent(this, IntroductionActivity.class);
 				intent.putExtra(CONTACT_ID, contactId.getInt());
 				startActivityForResult(intent, REQUEST_INTRODUCTION);
+				return true;
+			case R.id.action_panic:
+				//Do something, send panic info to user
+				sendPanic();
 				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();
@@ -444,6 +491,15 @@ public class ConversationActivity extends BriarActivity
 				if (LOG.isLoggable(INFO))
 					LOG.info("Loading body took " + duration + " ms");
 				displayMessageBody(m, body);
+
+				//We can hook here for panic
+
+				if(m.equals("#PANIC#")){
+					//We sign out
+					//Default action for foreign user panic button activation
+					signOut(true);
+				}
+
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -645,14 +701,31 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
+	/**
+	 * Triggered when the person clicks on the "Send message" button
+	 * @param text
+	 */
 	@Override
 	public void onSendClick(String text) {
+
 		if (text.equals("")) return;
+
 		text = StringUtils.truncateUtf8(text, MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+
+		//Timestamp
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
-		if (messagingGroupId == null) loadGroupId(text, timestamp);
-		else createMessage(text, timestamp);
+
+		//MessagingGroupId = ??
+		if (messagingGroupId == null) {
+			//loadGroupId will call createMessage later on, if no exception is thrown
+			loadGroupId(text, timestamp);
+		}
+		else {
+			createMessage(text, timestamp);
+		}
+
+		//Reset the text field
 		textInputView.setText("");
 	}
 
@@ -667,6 +740,7 @@ public class ConversationActivity extends BriarActivity
 			try {
 				messagingGroupId =
 						messagingManager.getConversationId(contactId);
+
 				createMessage(body, timestamp);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -676,6 +750,16 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void createMessage(String body, long timestamp) {
+
+		/*
+		//If we send #TEST#, it does logout the user
+		if(body.equals("#TEST#")){
+			// Performing foreign user panic responses
+			//signOut(true);
+		}
+		*/
+
+		//Thing to encrypt communications. Apparently, we can send functions as a parameter, like in JavaScript
 		cryptoExecutor.execute(() -> {
 			try {
 				//noinspection ConstantConditions init in loadGroupId()
@@ -719,6 +803,25 @@ public class ConversationActivity extends BriarActivity
 		builder.setNegativeButton(R.string.delete, okListener);
 		builder.setPositiveButton(R.string.cancel, null);
 		builder.show();
+	}
+
+	private void sendPanic(){
+
+		String text = StringUtils.truncateUtf8("#PANIC#", MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+
+		//Timestamp
+		long timestamp = System.currentTimeMillis();
+		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
+
+		//MessagingGroupId = ??
+		if (messagingGroupId == null) {
+			//loadGroupId will call createMessage later on, if no exception is thrown
+			loadGroupId(text, timestamp);
+		}
+		else {
+			createMessage(text, timestamp);
+		}
+		lastAction = "PANIC";
 	}
 
 	private void removeContact() {
