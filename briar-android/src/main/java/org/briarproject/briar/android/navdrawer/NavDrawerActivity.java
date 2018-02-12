@@ -1,24 +1,37 @@
 package org.briarproject.briar.android.navdrawer;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -45,6 +58,10 @@ import org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarnin
 import org.briarproject.briar.android.privategroup.list.GroupListFragment;
 import org.briarproject.briar.android.settings.SettingsActivity;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -65,6 +82,8 @@ import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
 public class NavDrawerActivity extends BriarActivity implements
 		BaseFragmentListener, TransportStateListener,
 		OnNavigationItemSelectedListener {
+	/** Class name for log messages. */
+	private static final String LOG_TAG = NavDrawerActivity.class.getSimpleName();
 
 	public static final String INTENT_CONTACTS = "intent_contacts";
 	public static final String INTENT_GROUPS = "intent_groups";
@@ -86,6 +105,15 @@ public class NavDrawerActivity extends BriarActivity implements
 
 	private DrawerLayout drawerLayout;
 	private NavigationView navigation;
+
+	ImageView imageView;
+	Button button;
+	private static final int IMAGE_UPLOAD_REQUEST=42;
+	Uri imageUri;
+	private ImageButton imgButton;
+	String path;
+	public final static String APP_PATH_SD_CARD="/DesiredSubfolderName/";
+	public final static String APP_THUMBNAIL_PATH_SD_CARD="thumbnails";
 
 	private List<Transport> transports;
 	private BaseAdapter transportsAdapter;
@@ -120,9 +148,10 @@ public class NavDrawerActivity extends BriarActivity implements
 		exitIfStartupFailed(getIntent());
 		setContentView(R.layout.activity_nav_drawer);
 
+
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		drawerLayout = findViewById(R.id.drawer_layout);
-		navigation = findViewById(R.id.navigation);
+		navigation = (NavigationView)findViewById(R.id.navigation);
 		GridView transportsView = findViewById(R.id.transportsView);
 
 		setSupportActionBar(toolbar);
@@ -182,7 +211,105 @@ public class NavDrawerActivity extends BriarActivity implements
 		if (getIntent() != null) {
 			onNewIntent(getIntent());
 		}
+
+
+		//avatar button
+		imgButton = (ImageButton) navigation.findViewById(R.id.imageButton1);
+		          imgButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+             public void onClick(View v) {
+            	Intent intent = new Intent(Intent.ACTION_PICK);
+	            intent.setType("image/*");
+	            startActivityForResult(intent, IMAGE_UPLOAD_REQUEST);
+            }
+         });
+
+		//******** load pic from internal memory and format it into a circle
+		        if(fileExistance("desiredFilename.png")) {
+			        // Make the image into a circle
+			        // In saveImageToInternalStorage() we named the picture desiredFilename
+			        RoundedBitmapDrawable roundedBitmapDrawable= RoundedBitmapDrawableFactory.create(getResources(), getThumbnail("desiredFilename.png"));
+			        roundedBitmapDrawable.setCircular(true);
+			        imgButton.setImageDrawable(roundedBitmapDrawable);
+			        }
+		//********* end of load pic
+
+
+
 	}
+
+	//************
+	//Save picture to internal memory
+	//************
+	public boolean saveImageToInternalStorage(Bitmap image) {
+
+		try {
+			// Use the compress method on the Bitmap object to write image to
+			// the OutputStream
+			//user may name the picture file in any way he wishes. Default is "desiredFilename"
+			FileOutputStream fos = openFileOutput("desiredFilename.png", Context.MODE_PRIVATE);
+
+			// Writing the bitmap to the output stream
+			image.compress(Bitmap.CompressFormat.PNG, 100, fos);
+			fos.close();
+
+			return true;
+		} catch (Exception e) {
+			Log.e("saveToInternalStorage()", e.getMessage());
+			return false;
+		}
+	}
+	//************
+	//end of save picture to internal memory
+	//************
+
+
+	//************
+	//Load picture from internal memory
+	//************
+	public boolean isSdReadable() {
+
+		boolean mExternalStorageAvailable = false;
+		String state = Environment.getExternalStorageState();
+
+		if (Environment.MEDIA_MOUNTED.equals(state)) {
+			// We can read and write the media
+			mExternalStorageAvailable = true;
+			Log.i("isSdReadable", "External storage card is readable.");
+		} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+			// We can only read the media
+			Log.i("isSdReadable", "External storage card is readable.");
+			mExternalStorageAvailable = true;
+		} else {
+			// all we need to know is we can neither read nor write
+			mExternalStorageAvailable = false;
+		}
+
+		return mExternalStorageAvailable;
+	}
+
+	public Bitmap getThumbnail(String filename) {
+
+		String fullPath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH_SD_CARD + APP_THUMBNAIL_PATH_SD_CARD;
+		Bitmap thumbnail = null;
+
+
+		// If no file on external storage, look in internal storage
+		if (thumbnail == null) {
+			try {
+				File filePath = getFileStreamPath(filename);
+				FileInputStream fi = new FileInputStream(filePath);
+				thumbnail = BitmapFactory.decodeStream(fi);
+			} catch (Exception ex) {
+				Log.e(LOG_TAG + "getThumbnail() failed", ex.getMessage());
+			}
+		}
+		return thumbnail;
+	}
+	//******
+	// end of load picture from internal memory
+	//******
+
 
 	@Override
 	@SuppressLint("NewApi")
@@ -211,6 +338,32 @@ public class NavDrawerActivity extends BriarActivity implements
 							}
 						}
 					});
+		}
+
+		//avatar
+		if(result == RESULT_CANCELED) return;
+
+		if (request == IMAGE_UPLOAD_REQUEST) {
+			ParcelFileDescriptor fd;
+			try {
+				fd = getContentResolver().openFileDescriptor(data.getData(), "r");
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				return;
+			}
+
+			// Get the image file location
+			Bitmap bmp = BitmapFactory.decodeFileDescriptor(fd.getFileDescriptor());
+
+			//save to internal storage
+			saveImageToInternalStorage(bmp);
+
+			// Make the image into a circle
+			RoundedBitmapDrawable roundedBitmapDrawable= RoundedBitmapDrawableFactory.create(getResources(), bmp);
+			roundedBitmapDrawable.setCircular(true);
+			imgButton.setImageDrawable(roundedBitmapDrawable);
+
+
 		}
 	}
 
@@ -480,4 +633,13 @@ public class NavDrawerActivity extends BriarActivity implements
 		private int iconId;
 		private int textId;
 	}
+
+	//******
+    //check if the picture exists in the internal memory before trying to load the picture to prevent crash
+	//******
+	public boolean fileExistance(String fname){
+		File file = getBaseContext().getFileStreamPath(fname);
+	    return file.exists();
+	}
+	//end of file existance code
 }

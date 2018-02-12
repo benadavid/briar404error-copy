@@ -124,7 +124,8 @@
 	<style name="BriarTextCounter.Overflow" parent="TextAppearance.Design.Counter">
 		<item name="android:textColor">@color/briar_button_negative</item>
 	</style>
-
+  
+  <!-- Walkthrough-icons Style -->
 	<style name="ShowcaseTheme" parent="ShowcaseView">
 		<item name="sv_backgroundColor">#e54c4cff</item>
 		<item name="sv_showcaseColor">#25467A</item>
@@ -142,4 +143,21 @@
 		<item name="android:textColor">#e5e5e5</item>
 		<item name="android:textSize">18sp</item>
 	</style>
+
+	<!-- Walkthrough style -->
+	<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+		<item name="colorPrimary">@color/colorPrimary</item>
+		<item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+		<item name="colorAccent">@color/colorAccent</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+	<style name="AppTheme.PopupOverLay" parent="ThemeOverlay.AppCompat.Light"/>
+
+	<style name="BriarTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+	<style name="BriarTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 </resources>
