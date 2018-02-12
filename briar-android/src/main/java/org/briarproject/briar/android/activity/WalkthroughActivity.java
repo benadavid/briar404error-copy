@@ -174,7 +174,7 @@ public class WalkthroughActivity extends AppCompatActivity {
 	};
 
 	//Making notification bar transparent
-	private void changeStatusBarColor()
+	protected void changeStatusBarColor()
 	{
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
 		{
