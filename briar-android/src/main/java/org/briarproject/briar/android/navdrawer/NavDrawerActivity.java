@@ -20,6 +20,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -33,6 +34,10 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.Target;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
@@ -89,6 +94,11 @@ public class NavDrawerActivity extends BriarActivity implements
 			Logger.getLogger(NavDrawerActivity.class.getName());
 
 	private ActionBarDrawerToggle drawerToggle;
+
+	// walkthrough variables
+	private ShowcaseView showcaseView;
+	private Target target1, target2;
+	private int showcaseCounter;
 
 	@Inject
 	NavDrawerController controller;
@@ -150,7 +160,44 @@ public class NavDrawerActivity extends BriarActivity implements
 
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
 				R.string.nav_drawer_open_description,
-				R.string.nav_drawer_close_description);
+				R.string.nav_drawer_close_description){
+
+			// triggers walkthrough when navigation drawer is first opened
+			public void onDrawerOpened(View drawerView){
+				super.onDrawerOpened(drawerView);
+
+				// highlights areas of the nav drawer featured in walkthrough
+				target1 = new ViewTarget(R.id.navigation, NavDrawerActivity.this);
+				target2 = new ViewTarget(R.id.connectivity, NavDrawerActivity.this);
+
+				showcaseView = new ShowcaseView.Builder(NavDrawerActivity.this)
+						.setTarget(Target.NONE)
+						.setContentTitle("Walkthrough")
+						.setContentText("Welcome to Briar, let's walk you through some of its features")
+						.setStyle(R.style.ShowcaseTheme)
+						.singleShot(77)
+						.setOnClickListener((View v) -> {
+								switch(showcaseCounter) {
+									case 0:
+										showcaseView.setShowcase(target1, true);
+										showcaseView.setContentTitle("Features");
+										showcaseView.setContentText("You can view your contacts, create private groups," +
+												" and browse forums and blogs");
+										break;
+									case 1:
+										showcaseView.setShowcase(target2, true);
+										showcaseView.setContentTitle("Connectivity");
+										showcaseView.setContentText("Choose to send messages securely via Tor, Bluetooth or Wi-Fi");
+										break;
+									case 2:
+										showcaseView.hide();
+										break;
+								}
+								showcaseCounter++;
+						})
+						.build();
+			}
+		};
 		drawerLayout.addDrawerListener(drawerToggle);
 		navigation.setNavigationItemSelectedListener(this);
 
