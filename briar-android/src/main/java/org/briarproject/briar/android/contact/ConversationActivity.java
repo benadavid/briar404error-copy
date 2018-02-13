@@ -494,7 +494,7 @@ public class ConversationActivity extends BriarActivity
 
 				//We can hook here for panic
 
-				if(m.equals("#PANIC#")){
+				if(body.equals("#PANIC#")){
 					//We sign out
 					//Default action for foreign user panic button activation
 					signOut(true);
