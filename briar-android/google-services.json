@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "550478886314",
+    "firebase_url": "https://briar-4dcac.firebaseio.com",
+    "project_id": "briar-4dcac",
+    "storage_bucket": "briar-4dcac.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:550478886314:android:aaede354fbbc77ab",
+        "android_client_info": {
+          "package_name": "org.briarproject.briar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "550478886314-kl1do7d5kk2v6i155hl201pn2ai9fi20.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaHp9Nc2WfRytyphm1-Pn9Dhu71WaTe7g"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
