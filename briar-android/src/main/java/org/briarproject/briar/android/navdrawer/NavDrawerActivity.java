@@ -38,6 +38,8 @@ import android.widget.TextView;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.Target;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
@@ -47,6 +49,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.avatar.AvatarActivity;
 import org.briarproject.briar.android.blog.FeedFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
@@ -117,6 +120,8 @@ public class NavDrawerActivity extends BriarActivity implements
 
 	private List<Transport> transports;
 	private BaseAdapter transportsAdapter;
+	//Firebase storage object
+	private StorageReference mStorageRef;
 
 	@Override
 	protected void onNewIntent(Intent intent) {
@@ -212,15 +217,19 @@ public class NavDrawerActivity extends BriarActivity implements
 			onNewIntent(getIntent());
 		}
 
+		//Firebase storage object initalized
+		mStorageRef = FirebaseStorage.getInstance().getReference();
 
 		//avatar button
 		imgButton = (ImageButton) navigation.findViewById(R.id.imageButton1);
 		          imgButton.setOnClickListener(new View.OnClickListener() {
             @Override
              public void onClick(View v) {
+	            startActivity(new Intent(NavDrawerActivity.this, AvatarActivity.class));
+            	/*
             	Intent intent = new Intent(Intent.ACTION_PICK);
 	            intent.setType("image/*");
-	            startActivityForResult(intent, IMAGE_UPLOAD_REQUEST);
+	            startActivityForResult(intent, IMAGE_UPLOAD_REQUEST);*/
             }
          });
 
