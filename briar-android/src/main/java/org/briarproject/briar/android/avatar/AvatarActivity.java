@@ -6,6 +6,8 @@ package org.briarproject.briar.android.avatar;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -37,6 +39,9 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+
+import java.io.File;
+
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
@@ -89,11 +94,7 @@ public class AvatarActivity extends BriarActivity {
 		}
 	}
 	public void uploadImage(View view) throws DbException {
-		/*get the user's nickname
-			/*if (contactName == null || contactAuthorId == null) {
-				Contact contact = contactManager.getContact(contactId);
-				contactName = contact.getAuthor().getName();
-				contactAuthorId = contact.getAuthor().getId();*/
+		//retrieve local user nickname
 		runOnDbThread(() -> {
 
 			// Load the local pseudonym
@@ -106,6 +107,7 @@ public class AvatarActivity extends BriarActivity {
 			}
 
 		});
+		//upload image in firebase under that nickname
 		uploadImage2();
 	}
 
@@ -115,7 +117,7 @@ public class AvatarActivity extends BriarActivity {
 
 	public void uploadImage2(){
 			//create reference to images folder and assing a name to the file that will be uploaded
-			imageRef = storageRef.child(getNickname() + "/" + selectedImage.getLastPathSegment());
+			imageRef = storageRef.child(getNickname() + "/pic");
 			//creating and showing progress dialog
 			progressDialog = new ProgressDialog(this);
 			progressDialog.setMax(100);
