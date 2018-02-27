@@ -37,11 +37,9 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
-
 
 public class AvatarActivity extends BriarActivity {
 	private static final int SELECT_PHOTO = 100;
@@ -57,15 +55,7 @@ public class AvatarActivity extends BriarActivity {
 	private static String nickname;
 
 	@Inject
-	volatile ContactManager contactManager;
-	@Inject
 	volatile IdentityManager identityManager;
-	@Nullable
-	private volatile ContactId contactId;
-	@Nullable
-	private volatile String contactName;
-	@Nullable
-	private volatile AuthorId contactAuthorId;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
