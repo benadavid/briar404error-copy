@@ -9,7 +9,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import javax.annotation.Nullable;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
@@ -23,9 +24,26 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.NoSuchContactException;
+import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.activity.ActivityComponent;
+import org.briarproject.briar.android.activity.BriarActivity;
 
-public class AvatarActivity extends AppCompatActivity {
+import javax.inject.Inject;
+
+import static java.util.logging.Level.WARNING;
+
+
+public class AvatarActivity extends BriarActivity {
 	private static final int SELECT_PHOTO = 100;
 	Uri selectedImage;
 	FirebaseStorage storage;
@@ -33,8 +51,29 @@ public class AvatarActivity extends AppCompatActivity {
 	ProgressDialog progressDialog;
 	UploadTask uploadTask;
 	ImageView imageView;
+	private TextInputEditText authorNameInput;
+	protected DatabaseConfig databaseConfig;
+	private static LocalAuthor author;
+	private static String nickname;
+
+	@Inject
+	volatile ContactManager contactManager;
+	@Inject
+	volatile IdentityManager identityManager;
+	@Nullable
+	private volatile ContactId contactId;
+	@Nullable
+	private volatile String contactName;
+	@Nullable
+	private volatile AuthorId contactAuthorId;
+
 	@Override
-	protected void onCreate(@Nullable Bundle savedInstanceState) {
+	public void injectActivity(ActivityComponent component) {
+		component.inject(this);
+	}
+
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.avatar_main);
 		imageView = (ImageView) findViewById(R.id.imageView2);
@@ -59,45 +98,71 @@ public class AvatarActivity extends AppCompatActivity {
 				}
 		}
 	}
-	public void uploadImage(View view) {
-		//create reference to images folder and assing a name to the file that will be uploaded
-		imageRef = storageRef.child("images/"+selectedImage.getLastPathSegment());
-		//creating and showing progress dialog
-		progressDialog = new ProgressDialog(this);
-		progressDialog.setMax(100);
-		progressDialog.setMessage("Uploading...");
-		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		progressDialog.show();
-		progressDialog.setCancelable(false);
-		//starting upload
-		uploadTask = imageRef.putFile(selectedImage);
-		// Observe state change events such as progress, pause, and resume
-		uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-			@Override
-			public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-				double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-				//sets and increments value of progressbar
-				progressDialog.incrementProgressBy((int) progress);
+	public void uploadImage(View view) throws DbException {
+		/*get the user's nickname
+			/*if (contactName == null || contactAuthorId == null) {
+				Contact contact = contactManager.getContact(contactId);
+				contactName = contact.getAuthor().getName();
+				contactAuthorId = contact.getAuthor().getId();*/
+		runOnDbThread(() -> {
+
+			// Load the local pseudonym
+			try {
+				author = identityManager.getLocalAuthor();
+				nickname = author.getName();
+				;
+			} catch (DbException e) {
+				return;
 			}
+
 		});
-		// Register observers to listen for when the download is done or if it fails
-		uploadTask.addOnFailureListener(new OnFailureListener() {
-			@Override
-			public void onFailure(@NonNull Exception exception) {
-				// Handle unsuccessful uploads
-				Toast.makeText(AvatarActivity.this,"Error in uploading!",Toast.LENGTH_SHORT).show();
-				progressDialog.dismiss();
-			}
-		}).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-			@Override
-			public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-				// taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-				Uri downloadUrl = taskSnapshot.getDownloadUrl();
-				Toast.makeText(AvatarActivity.this,"Upload successful",Toast.LENGTH_SHORT).show();
-				progressDialog.dismiss();
-				//showing the uploaded image in ImageView using the download url
-				Picasso.with(AvatarActivity.this).load(downloadUrl).into(imageView);
-			}
-		});
+		uploadImage2();
+	}
+
+	public static String getNickname() {
+		return nickname;
+	}
+
+	public void uploadImage2(){
+			//create reference to images folder and assing a name to the file that will be uploaded
+			imageRef = storageRef.child(getNickname() + "/" + selectedImage.getLastPathSegment());
+			//creating and showing progress dialog
+			progressDialog = new ProgressDialog(this);
+			progressDialog.setMax(100);
+			progressDialog.setMessage("Uploading...");
+			progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			progressDialog.show();
+			progressDialog.setCancelable(false);
+			//starting upload
+			uploadTask = imageRef.putFile(selectedImage);
+			// Observe state change events such as progress, pause, and resume
+			uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+				@Override
+				public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+					double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+					//sets and increments value of progressbar
+					progressDialog.incrementProgressBy((int) progress);
+				}
+			});
+
+			// Register observers to listen for when the download is done or if it fails
+			uploadTask.addOnFailureListener(new OnFailureListener() {
+				@Override
+				public void onFailure(@NonNull Exception exception) {
+					// Handle unsuccessful uploads
+					Toast.makeText(AvatarActivity.this,"Error in uploading!",Toast.LENGTH_SHORT).show();
+					progressDialog.dismiss();
+				}
+			}).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+				@Override
+				public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+					// taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+					Uri downloadUrl = taskSnapshot.getDownloadUrl();
+					Toast.makeText(AvatarActivity.this,"Upload successful",Toast.LENGTH_SHORT).show();
+					progressDialog.dismiss();
+					//showing the uploaded image in ImageView using the download url
+					Picasso.with(AvatarActivity.this).load(downloadUrl).into(imageView);
+				}
+			});
 	}
 }
