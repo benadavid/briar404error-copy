@@ -1,10 +1,14 @@
 package org.briarproject.briar.android.contact;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -21,6 +25,15 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
@@ -51,6 +64,7 @@ import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.avatar.AvatarActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.contact.ConversationAdapter.ConversationListener;
 import org.briarproject.briar.android.forum.ForumActivity;
@@ -84,6 +98,8 @@ import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
 import org.thoughtcrime.securesms.components.util.FutureTaskListener;
 import org.thoughtcrime.securesms.components.util.ListenableFutureTask;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -128,6 +144,10 @@ public class ConversationActivity extends BriarActivity
 			Logger.getLogger(ConversationActivity.class.getName());
 	private static final String SHOW_ONBOARDING_INTRODUCTION =
 			"showOnboardingIntroduction";
+	StorageReference storageRef,imageRef;
+	FirebaseStorage storage;
+	public static String nickname;
+	Bitmap btm;
 
 	@Inject
 	AndroidNotificationManager notificationManager;
@@ -165,6 +185,7 @@ public class ConversationActivity extends BriarActivity
 				public String call() throws Exception {
 					Contact c = contactManager.getContact(contactId);
 					contactName = c.getAuthor().getName();
+					nickname=contactName;
 					return c.getAuthor().getName();
 				}
 			});
@@ -256,6 +277,10 @@ public class ConversationActivity extends BriarActivity
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_private_messages));
+		//accessing the firebase storage
+		storage = FirebaseStorage.getInstance();
+		//creates a storage reference
+		storageRef = storage.getReference();
 
 		textInputView = findViewById(R.id.text_input_container);
 		textInputView.setListener(this);
@@ -342,6 +367,7 @@ public class ConversationActivity extends BriarActivity
 					Contact contact = contactManager.getContact(contactId);
 					contactName = contact.getAuthor().getName();
 					contactAuthorId = contact.getAuthor().getId();
+					nickname=contactName;
 				}
 				long duration = System.currentTimeMillis() - now;
 				if (LOG.isLoggable(INFO))
@@ -352,17 +378,28 @@ public class ConversationActivity extends BriarActivity
 				finishOnUiThread();
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		});
 	}
 
-	private void displayContactDetails() {
+	private void displayContactDetails() throws IOException {
 		runOnUiThreadUnlessDestroyed(() -> {
 			//noinspection ConstantConditions
+			/*
 			toolbarAvatar.setImageDrawable(
 					new IdenticonDrawable(contactAuthorId.getBytes()));
-			toolbarTitle.setText(contactName);
+			toolbarTitle.setText(contactName);*/
 		});
+		//showing the uploaded image in ImageView using the download url
+		runOnUiThreadUnlessDestroyed(()->{
+			Glide.with(this /* context */)
+					.using(new FirebaseImageLoader())
+					.load(storageRef.child("/"+contactName+"/pic.jpg"))
+					.into(toolbarAvatar);
+			});
+
 	}
 
 	private void displayContactOnlineStatus() {
