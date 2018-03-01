@@ -32,6 +32,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
@@ -384,22 +385,18 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void displayContactDetails() throws IOException {
-		runOnUiThreadUnlessDestroyed(() -> {
-			//noinspection ConstantConditions
-			/*
-			toolbarAvatar.setImageDrawable(
-					new IdenticonDrawable(contactAuthorId.getBytes()));
-			toolbarTitle.setText(contactName);*/
-		});
+	private void displayContactDetails() throws IOException{
 		//showing the uploaded image in ImageView using the download url
 		runOnUiThreadUnlessDestroyed(()->{
-			Glide.with(this /* context */)
-					.using(new FirebaseImageLoader())
-					.load(storageRef.child("/"+contactName+"/pic.jpg"))
-					.into(toolbarAvatar);
+				//set contact name in toolbar
+				toolbarTitle.setText(contactName);
+				//set avatar or sets identicon if no image found in firebase storage
+				Glide.with(this /* context */)
+						.using(new FirebaseImageLoader())
+						.load(storageRef.child("/"+contactName+"/pic.jpg"))
+						.error(new IdenticonDrawable(contactAuthorId.getBytes()))
+						.into(toolbarAvatar);
 			});
-
 	}
 
 	private void displayContactOnlineStatus() {
