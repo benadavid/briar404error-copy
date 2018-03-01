@@ -96,6 +96,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+//For Regex
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.regex.Matcher;
+
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
@@ -494,11 +499,35 @@ public class ConversationActivity extends BriarActivity
 
 				//We can hook here for panic
 
+				//Gibran Test
 				if(body.equals("#PANIC#")){
 					//We sign out
 					//Default action for foreign user panic button activation
-					signOut(true);
+					//We register the fact that this message has led to a panic action
+					LOG.info(m.toString());
+
+
+					//signOut(true);
 				}
+
+				//We check if we have a REGEX of an URL. If yes, we backup the content
+				Pattern p = Pattern.compile("/^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$/");
+				Matcher match = p.matcher(body);
+				StringBuffer sb = new StringBuffer();
+				while (match.find()) {
+
+					//For every match, we download and save the file
+
+					//We need to do this job in background
+
+
+
+					//match.appendReplacement(sb, "dog");
+				}
+				//match.appendTail(sb);
+				//System.out.println(sb.toString());
+
+
 
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
