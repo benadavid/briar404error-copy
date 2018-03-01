@@ -150,7 +150,7 @@ public class AvatarActivity extends BriarActivity {
 				public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 					// taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
 					Uri downloadUrl = taskSnapshot.getDownloadUrl();
-					Toast.makeText(AvatarActivity.this,"Upload successful",Toast.LENGTH_SHORT).show();
+					Toast.makeText(AvatarActivity.this,"Avatar Set",Toast.LENGTH_SHORT).show();
 					progressDialog.dismiss();
 					//showing the uploaded image in ImageView using the download url
 					Picasso.with(AvatarActivity.this).load(downloadUrl).into(imageView);

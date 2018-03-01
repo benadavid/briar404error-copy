@@ -33,7 +33,7 @@
 		android:layout_marginRight="16dp"
 		android:layout_marginStart="16dp"
 		android:layout_marginTop="32dp"
-		android:text="Upload"
+		android:text="Set as Avatar"
 		app:layout_constraintLeft_toLeftOf="parent"
 		app:layout_constraintRight_toRightOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/button2"
