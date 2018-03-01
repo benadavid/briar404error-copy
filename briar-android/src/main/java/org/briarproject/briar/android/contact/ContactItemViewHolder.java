@@ -7,6 +7,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
@@ -26,6 +31,9 @@ public class ContactItemViewHolder<I extends ContactItem>
 	protected final TextView name;
 	@Nullable
 	protected final ImageView bulb;
+	StorageReference storageRef,imageRef;
+	FirebaseStorage storage;
+	public static String nickname;
 
 	public ContactItemViewHolder(View v) {
 		super(v);
@@ -38,9 +46,17 @@ public class ContactItemViewHolder<I extends ContactItem>
 	}
 
 	protected void bind(I item, @Nullable OnContactClickListener<I> listener) {
+		//accessing the firebase storage
+		storage = FirebaseStorage.getInstance();
+		//creates a storage reference
+		storageRef = storage.getReference();
 		Author author = item.getContact().getAuthor();
-		avatar.setImageDrawable(
-				new IdenticonDrawable(author.getId().getBytes()));
+		//set avatar or sets identicon if no image found in firebase storage
+		Glide.with(avatar.getContext() /* context */)
+				.using(new FirebaseImageLoader())
+				.load(storageRef.child("/"+author.getName()+"/pic.jpg"))
+				.error(new IdenticonDrawable(author.getId().getBytes()))
+				.into(avatar);
 		String contactName = author.getName();
 		name.setText(contactName);
 
