@@ -326,6 +326,9 @@ public class ConversationActivity extends BriarActivity
 				//Do something, send panic info to user
 				sendPanic();
 				return true;
+			case R.id.action_mute:
+				//Method to be called for muting contact
+				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();
 				return true;
