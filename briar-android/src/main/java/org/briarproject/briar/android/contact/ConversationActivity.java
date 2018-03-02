@@ -327,7 +327,7 @@ public class ConversationActivity extends BriarActivity
 				sendPanic();
 				return true;
 			case R.id.action_mute:
-				//Method to be called for muting contact
+				dynamicMuteTitleChange(item); //dynamically changes title whether trying to mute or unmute
 				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();
@@ -1047,4 +1047,32 @@ introductionOnboardingSeen();
 		return contactNameTask;
 	}
 
+	//dynamically changes the mute button title from mute to unmute
+	private void dynamicMuteTitleChange(MenuItem item)
+	{
+		//if its muted, then unmute and vice-versa
+		switch(item.getItemId()) {
+			case R.id.action_mute:
+				if(item.getTitle().equals("Mute")) {
+					item.setTitle("Unmute");
+					muteContact();
+				} else {
+					item.setTitle("Mute");
+					unMuteContact();
+				}
+				break;
+		}
+	}
+
+	//disables notifications from this contact
+	private void muteContact()
+	{
+		notificationManager.blockContactNotification(contactId);
+	}
+
+	//enables notifications from this contact
+	private void unMuteContact()
+	{
+		notificationManager.unblockContactNotification(contactId);
+	}
 }
