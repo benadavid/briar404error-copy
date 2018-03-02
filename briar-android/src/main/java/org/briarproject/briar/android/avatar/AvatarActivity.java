@@ -5,18 +5,28 @@ package org.briarproject.briar.android.avatar;
  */
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import javax.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.bumptech.glide.load.resource.bitmap.BitmapDrawableResource;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -39,12 +49,18 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.APP_PATH_SD_CARD;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.APP_THUMBNAIL_PATH_SD_CARD;
 
 public class AvatarActivity extends BriarActivity {
 	private static final int SELECT_PHOTO = 100;
@@ -58,6 +74,8 @@ public class AvatarActivity extends BriarActivity {
 	protected DatabaseConfig databaseConfig;
 	private static LocalAuthor author;
 	private static String nickname;
+	private static final String LOG_TAG = AvatarActivity.class.getSimpleName();
+
 
 	@Inject
 	volatile IdentityManager identityManager;
@@ -76,6 +94,15 @@ public class AvatarActivity extends BriarActivity {
 		storage = FirebaseStorage.getInstance();
 		//creates a storage reference
 		storageRef = storage.getReference();
+
+		//******** load pic from internal memory and format it into a circle
+		if(fileExistance("desiredFilename.png")) {
+			// In saveImageToInternalStorage() we named the picture desiredFilename
+			RoundedBitmapDrawable bmp = RoundedBitmapDrawableFactory.create(getResources(), getThumbnail("desiredFilename.png"));
+
+			imageView.setImageDrawable(bmp);
+		}
+		//********* end of load pic
 	}
 	public void selectImage(View view) {
 		Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
@@ -90,6 +117,24 @@ public class AvatarActivity extends BriarActivity {
 				if (resultCode == RESULT_OK) {
 					Toast.makeText(AvatarActivity.this,"Image selected, click on upload button",Toast.LENGTH_SHORT).show();
 					selectedImage = imageReturnedIntent.getData();
+
+					ParcelFileDescriptor fd;
+					try {
+						fd = getContentResolver().openFileDescriptor(imageReturnedIntent.getData(), "r");
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+						return;
+					}
+
+					// Get the image file location
+					Bitmap bmp = BitmapFactory.decodeFileDescriptor(fd.getFileDescriptor());
+
+					//save to internal storage
+					saveImageToInternalStorage(bmp);
+
+					Drawable d = new BitmapDrawable(getResources(), bmp);
+
+					imageView.setImageDrawable(d);
 				}
 		}
 	}
@@ -157,4 +202,86 @@ public class AvatarActivity extends BriarActivity {
 				}
 			});
 	}
+
+	//************
+	//Save picture to internal memory
+	//************
+	public boolean saveImageToInternalStorage(Bitmap image) {
+
+		try {
+			// Use the compress method on the Bitmap object to write image to
+			// the OutputStream
+			//user may name the picture file in any way he wishes. Default is "desiredFilename"
+			FileOutputStream
+					fos = openFileOutput("desiredFilename.png", Context.MODE_PRIVATE);
+
+			// Writing the bitmap to the output stream
+			image.compress(Bitmap.CompressFormat.PNG, 100, fos);
+			fos.close();
+
+			return true;
+		} catch (Exception e) {
+			Log.e("saveToInternalStorage()", e.getMessage());
+			return false;
+		}
+	}
+	//************
+	//end of save picture to internal memory
+	//************
+
+	//************
+	//Load picture from internal memory
+	//************
+	public boolean isSdReadable() {
+
+		boolean mExternalStorageAvailable = false;
+		String state = Environment.getExternalStorageState();
+
+		if (Environment.MEDIA_MOUNTED.equals(state)) {
+			// We can read and write the media
+			mExternalStorageAvailable = true;
+			Log.i("isSdReadable", "External storage card is readable.");
+		} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+			// We can only read the media
+			Log.i("isSdReadable", "External storage card is readable.");
+			mExternalStorageAvailable = true;
+		} else {
+			// all we need to know is we can neither read nor write
+			mExternalStorageAvailable = false;
+		}
+
+		return mExternalStorageAvailable;
+	}
+
+	public Bitmap getThumbnail(String filename) {
+
+		String fullPath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH_SD_CARD + APP_THUMBNAIL_PATH_SD_CARD;
+		Bitmap thumbnail = null;
+
+
+		// If no file on external storage, look in internal storage
+		if (thumbnail == null) {
+			try {
+				File filePath = getFileStreamPath(filename);
+				FileInputStream fi = new FileInputStream(filePath);
+				thumbnail = BitmapFactory.decodeStream(fi);
+			} catch (Exception ex) {
+				Log.e(LOG_TAG + "getThumbnail() failed", ex.getMessage());
+			}
+		}
+		return thumbnail;
+	}
+	//******
+	// end of load picture from internal memory
+	//******
+
+
+	//******
+	//check if the picture exists in the internal memory before trying to load the picture to prevent crash
+	//******
+	public boolean fileExistance(String fname){
+		File file = getBaseContext().getFileStreamPath(fname);
+		return file.exists();
+	}
+	//end of file existance code
 }
