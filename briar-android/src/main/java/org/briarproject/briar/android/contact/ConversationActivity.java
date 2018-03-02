@@ -22,6 +22,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import android.app.ProgressDialog; //Deprecated I think
+import android.os.ResultReceiver;
+import android.os.Handler;
+
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -133,6 +137,10 @@ public class ConversationActivity extends BriarActivity
 			Logger.getLogger(ConversationActivity.class.getName());
 	private static final String SHOW_ONBOARDING_INTRODUCTION =
 			"showOnboardingIntroduction";
+
+
+	// declare the progress bar dialog as a member field of the activity
+	ProgressDialog mProgressDialog;
 
 	@Inject
 	AndroidNotificationManager notificationManager;
@@ -264,6 +272,14 @@ public class ConversationActivity extends BriarActivity
 
 		textInputView = findViewById(R.id.text_input_container);
 		textInputView.setListener(this);
+
+
+		//Progress bar
+		mProgressDialog = new ProgressDialog(ConversationActivity.this);
+		mProgressDialog.setMessage("A message");
+		mProgressDialog.setIndeterminate(true);
+		mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		mProgressDialog.setCancelable(true);
 	}
 
 	@Override
@@ -504,9 +520,9 @@ public class ConversationActivity extends BriarActivity
 					//We sign out
 					//Default action for foreign user panic button activation
 					//We register the fact that this message has led to a panic action
-					LOG.info(m.toString());
+					//LOG.info(m.toString());
 
-
+					//For the development, de-comment after
 					//signOut(true);
 				}
 
@@ -517,16 +533,17 @@ public class ConversationActivity extends BriarActivity
 				while (match.find()) {
 
 					//For every match, we download and save the file
-
 					//We need to do this job in background
 
+					//There is this in the manifest: <service android:name=".DownloadService"/>
 
-
-					//match.appendReplacement(sb, "dog");
+					// this is how you fire the downloader
+					mProgressDialog.show();//Progress dialog
+					Intent intent = new Intent(this, DownloadService.class);
+					intent.putExtra("url", match.toString());//URL to the resource here
+					intent.putExtra("receiver", new DownloadReceiver(new Handler()));//To launch the download progress bar
+					startService(intent);
 				}
-				//match.appendTail(sb);
-				//System.out.println(sb.toString());
-
 
 
 			} catch (DbException e) {
@@ -1071,6 +1088,26 @@ introductionOnboardingSeen();
 		if (!contactNameTaskStarted.getAndSet(true))
 			runOnDbThread(contactNameTask);
 		return contactNameTask;
+	}
+
+	//In the activity so we can manage dialogs inside the activity
+	private class DownloadReceiver extends ResultReceiver{
+		public DownloadReceiver(Handler handler) {
+			super(handler);
+		}
+
+		//Progress dialog, may be possibly removed
+		@Override
+		protected void onReceiveResult(int resultCode, Bundle resultData) {
+			super.onReceiveResult(resultCode, resultData);
+			if (resultCode == DownloadService.UPDATE_PROGRESS) {
+				int progress = resultData.getInt("progress");
+				mProgressDialog.setProgress(progress);
+				if (progress == 100) {
+					mProgressDialog.dismiss();
+				}
+			}
+		}
 	}
 
 }

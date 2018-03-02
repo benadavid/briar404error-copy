@@ -36,6 +36,9 @@
 			android:exported="false">
 		</service>
 
+		<!--To do downloads in background-->
+		<service android:name=".DownloadService"/>
+
 		<activity
 			android:name=".android.reporting.DevReportActivity"
 			android:excludeFromRecents="true"
