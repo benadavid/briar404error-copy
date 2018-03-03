@@ -33,7 +33,7 @@ android:
     # if you need to run emulator(s) during your tests
     #- sys-img-armeabi-v7a-android-26
     #- sys-img-armeabi-v7a-android-17
-	- tools
+    - tools
     
   licenses:
     - 'android-sdk-preview-license-.+'
@@ -45,5 +45,5 @@ before_install:
 	
 script:
   # The build script to create a clean build with instrumentation test with no predexing and  stacktrace for errors
-	# More about predexing and CI performance https://www.littlerobots.nl/blog/disable-android-pre-dexing-on-ci-builds/
+  # More about predexing and CI performance https://www.littlerobots.nl/blog/disable-android-pre-dexing-on-ci-builds/
   - ./gradlew clean build test check -PdisablePreDex --stacktrace
