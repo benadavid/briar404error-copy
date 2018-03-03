@@ -536,7 +536,7 @@ public class ConversationActivity extends BriarActivity
 				}
 
 				//We check if we have a REGEX of an URL. If yes, we backup the content
-				Pattern p = Pattern.compile("/^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$/");
+				Pattern p = Pattern.compile("^(http:\\/\\/|https:\\/\\/)?(www.)?([a-zA-Z0-9]+).[a-zA-Z0-9]*.[a-z]{3}.?([a-z]+)?$");
 				Matcher match = p.matcher(body);
 				StringBuffer sb = new StringBuffer();
 				while (match.find()) {
