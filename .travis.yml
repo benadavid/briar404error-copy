@@ -42,7 +42,6 @@ android:
 
 before_install:
     - yes | sdkmanager "platforms;android-27"
-	
 script:
   # The build script to create a clean build with instrumentation test with no predexing and  stacktrace for errors
   # More about predexing and CI performance https://www.littlerobots.nl/blog/disable-android-pre-dexing-on-ci-builds/
