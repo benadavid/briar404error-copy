@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.contact;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -38,7 +39,22 @@ public class DownloadService extends IntentService {
 			// download the file
 			InputStream input = new BufferedInputStream(connection.getInputStream());
 			//Do a local folder if possible, we don't have SD Card for the demo
-			OutputStream output = new FileOutputStream("/sdcard/BarcodeScanner-debug.apk"); //Use Environment.getExternalStorageDirectory().getPath() instead of sdcard
+			//OutputStream output = new FileOutputStream("/Download/test.pdf"); //Use Environment.getExternalStorageDirectory().getPath() instead of sdcard //;"/Download/test.pdf" //Environment.getDataDirectory()+"/test.pdf"
+
+			String filename = "test.pdf";
+			//String string = "Hello world!";
+			FileOutputStream output;
+
+			//try {
+				output = openFileOutput(filename, Context.MODE_PRIVATE);
+				//outputStream.write(string.getBytes());
+				//outputStream.close();
+			//} catch (Exception e) {
+			//	e.printStackTrace();
+			//}
+
+
+
 
 			byte data[] = new byte[1024];
 			long total = 0;

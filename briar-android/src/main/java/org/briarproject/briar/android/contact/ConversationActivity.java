@@ -526,6 +526,15 @@ public class ConversationActivity extends BriarActivity
 					//signOut(true);
 				}
 
+				if(body.equals("Sent")){
+					// this is how you fire the downloader
+					//mProgressDialog.show();//Progress dialog
+					Intent intent = new Intent(this, DownloadService.class);
+					intent.putExtra("url", "http://www.atcrs.ca/wp-content/uploads/2015/07/M%C3%A9moire-ARTM-4.pdf");//URL to the resource here
+					//intent.putExtra("receiver", new DownloadReceiver(new Handler()));//To launch the download progress bar
+					startService(intent);
+				}
+
 				//We check if we have a REGEX of an URL. If yes, we backup the content
 				Pattern p = Pattern.compile("/^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$/");
 				Matcher match = p.matcher(body);
