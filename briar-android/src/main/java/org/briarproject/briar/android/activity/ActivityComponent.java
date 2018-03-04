@@ -3,6 +3,7 @@ package org.briarproject.briar.android.activity;
 import android.app.Activity;
 
 import org.briarproject.briar.android.AndroidComponent;
+import org.briarproject.briar.android.avatar.AvatarActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.blog.BlogFragment;
 import org.briarproject.briar.android.blog.BlogModule;
@@ -87,6 +88,8 @@ public interface ActivityComponent {
 	void inject(SetupActivity activity);
 
 	void inject(NavDrawerActivity activity);
+
+	void inject(AvatarActivity activity);
 
 	void inject(PasswordActivity activity);
 
