@@ -83,6 +83,12 @@ public interface ContactManager {
 			throws DbException;
 
 	/**
+	 * Marks a contact as muted or un-muted.
+	 */
+	void setContactMuted(Transaction txn, ContactId c, boolean muted)
+			throws DbException;
+
+	/**
 	 * Return true if a contact with this name and public key already exists
 	 */
 	boolean contactExists(Transaction txn, AuthorId remoteAuthorId,

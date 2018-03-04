@@ -148,6 +148,12 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
+	public void setContactMuted(Transaction txn, ContactId c, boolean muted)
+			throws DbException {
+		db.setContactMuted(txn, c, muted);
+	}
+
+	@Override
 	public boolean contactExists(Transaction txn, AuthorId remoteAuthorId,
 			AuthorId localAuthorId) throws DbException {
 		return db.containsContact(txn, remoteAuthorId, localAuthorId);
