@@ -242,9 +242,6 @@ public class NavDrawerActivity extends BriarActivity implements
 			        imgButton.setImageDrawable(roundedBitmapDrawable);
 			        }
 		//********* end of load pic
-
-
-
 	}
 
 	//************
@@ -331,6 +328,16 @@ public class NavDrawerActivity extends BriarActivity implements
 				if (expiry != NO) showExpiryWarning(expiry);
 			}
 		});
+
+		//******** load pic from internal memory and format it into a circle
+		if(fileExistance("desiredFilename.png")) {
+			// Make the image into a circle
+			// In saveImageToInternalStorage() we named the picture desiredFilename
+			RoundedBitmapDrawable roundedBitmapDrawable= RoundedBitmapDrawableFactory.create(getResources(), getThumbnail("desiredFilename.png"));
+			roundedBitmapDrawable.setCircular(true);
+			imgButton.setImageDrawable(roundedBitmapDrawable);
+		}
+		//********* end of load pic
 	}
 
 	@Override
@@ -352,6 +359,7 @@ public class NavDrawerActivity extends BriarActivity implements
 		//avatar
 		if(result == RESULT_CANCELED) return;
 
+		/*
 		if (request == IMAGE_UPLOAD_REQUEST) {
 			ParcelFileDescriptor fd;
 			try {
@@ -371,9 +379,7 @@ public class NavDrawerActivity extends BriarActivity implements
 			RoundedBitmapDrawable roundedBitmapDrawable= RoundedBitmapDrawableFactory.create(getResources(), bmp);
 			roundedBitmapDrawable.setCircular(true);
 			imgButton.setImageDrawable(roundedBitmapDrawable);
-
-
-		}
+		}*/
 	}
 
 	private void exitIfStartupFailed(Intent intent) {

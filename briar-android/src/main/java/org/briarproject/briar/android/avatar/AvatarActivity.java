@@ -95,6 +95,7 @@ public class AvatarActivity extends BriarActivity {
 		//creates a storage reference
 		storageRef = storage.getReference();
 
+
 		//******** load pic from internal memory and format it into a circle
 		if(fileExistance("desiredFilename.png")) {
 			// In saveImageToInternalStorage() we named the picture desiredFilename
