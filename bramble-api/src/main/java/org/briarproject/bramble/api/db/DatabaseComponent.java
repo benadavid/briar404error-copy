@@ -73,7 +73,7 @@ public interface DatabaseComponent {
 	 * and returns an ID for the contact.
 	 */
 	ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			boolean verified, boolean active) throws DbException;
+			boolean verified, boolean active, boolean muted) throws DbException;
 
 	/**
 	 * Stores a group.

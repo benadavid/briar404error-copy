@@ -168,7 +168,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public ContactId addContact(Transaction transaction, Author remote,
-			AuthorId local, boolean verified, boolean active)
+			AuthorId local, boolean verified, boolean active, boolean muted)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
