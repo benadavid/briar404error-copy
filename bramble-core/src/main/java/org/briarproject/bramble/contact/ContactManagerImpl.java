@@ -50,7 +50,7 @@ class ContactManagerImpl implements ContactManager {
 
 	@Override
 	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			SecretKey master,long timestamp, boolean alice, boolean verified,
+			SecretKey master, long timestamp, boolean alice, boolean verified,
 			boolean active) throws DbException {
 		ContactId c = db.addContact(txn, remote, local, verified, active);
 		keyManager.addContact(txn, c, master, timestamp, alice);
@@ -148,9 +148,15 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public void setContactMuted(Transaction txn, ContactId c, boolean muted)
+	public void setContactMuted(ContactId c, boolean muted)
 			throws DbException {
-		db.setContactMuted(txn, c, muted);
+		Transaction txn = db.startTransaction(false);
+		try {
+			setContactMuted(txn, c, muted);
+			db.commitTransaction(txn);
+		} finally {
+			db.endTransaction(txn);
+		}
 	}
 
 	@Override
@@ -182,4 +188,9 @@ class ContactManagerImpl implements ContactManager {
 		db.removeContact(txn, c);
 	}
 
+	@Override
+	public void setContactMuted(Transaction txn, ContactId c, boolean muted)
+			throws DbException {
+		db.setContactMuted(txn, c, muted);
+	}
 }

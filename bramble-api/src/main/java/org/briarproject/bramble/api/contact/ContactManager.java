@@ -85,6 +85,12 @@ public interface ContactManager {
 	/**
 	 * Marks a contact as muted or un-muted.
 	 */
+	void setContactMuted(ContactId c, boolean muted)
+			throws DbException;
+
+	/**
+	 * Marks a contact as muted or un-muted.
+	 */
 	void setContactMuted(Transaction txn, ContactId c, boolean muted)
 			throws DbException;
 
