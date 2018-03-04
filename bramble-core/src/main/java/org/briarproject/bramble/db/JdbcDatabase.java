@@ -1023,7 +1023,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			Author author = new Author(authorId, name, publicKey);
-			return new Contact(c, author, localAuthorId, verified, active, muted);
+			Contact contact = new Contact(c, author, localAuthorId, verified, active);
+			contact.setMuted(muted);
+			return contact;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1053,8 +1055,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 				boolean verified = rs.getBoolean(6);
 				boolean active = rs.getBoolean(7);
 				boolean muted = rs.getBoolean(8);
-				contacts.add(new Contact(contactId, author, localAuthorId,
-						verified, active, muted));
+				Contact contact = new Contact(contactId, author, localAuthorId,
+						verified, active);
+				contact.setMuted(muted);
+				contacts.add(contact);
 			}
 			rs.close();
 			ps.close();
@@ -1112,8 +1116,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 				boolean active = rs.getBoolean(6);
 				boolean muted = rs.getBoolean(7);
 				Author author = new Author(remote, name, publicKey);
-				contacts.add(new Contact(c, author, localAuthorId, verified,
-						active, muted));
+				Contact contact = new Contact(c, author, localAuthorId, verified,
+						active);
+				contact.setMuted(muted);
+				contacts.add(contact);
 			}
 			rs.close();
 			ps.close();
