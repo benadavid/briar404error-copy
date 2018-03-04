@@ -24,10 +24,3 @@ local.properties
 build/
 *.iml
 projectFilesBackup/
-/dig/web/analyzed.js
-/dig/web/index.html
-/dig/web/scripts/dependency.css
-/dig/web/scripts/graph-actions-select.js
-/dig/web/scripts/graph-actions-select-compiled.js
-/dig/web/scripts/parse.js
-/dig/web/scripts/parse-compiled.js
