@@ -163,7 +163,7 @@ public class AvatarActivity extends BriarActivity {
 
 	public void uploadImage2(){
 			//create reference to images folder and assing a name to the file that will be uploaded
-			imageRef = storageRef.child(getNickname() + "/pic");
+			imageRef = storageRef.child(getNickname() + "/pic.jpg");
 			//creating and showing progress dialog
 			progressDialog = new ProgressDialog(this);
 			progressDialog.setMax(100);
