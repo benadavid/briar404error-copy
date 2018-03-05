@@ -358,6 +358,7 @@ public class ConversationActivity extends BriarActivity
 					Contact contact = contactManager.getContact(contactId);
 					contactName = contact.getAuthor().getName();
 					contactAuthorId = contact.getAuthor().getId();
+
 					isMuted = contact.isMuted();
 				}
 				long duration = System.currentTimeMillis() - now;
