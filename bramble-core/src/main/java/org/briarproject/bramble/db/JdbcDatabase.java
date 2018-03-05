@@ -96,6 +96,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " localAuthorId _HASH NOT NULL,"
 					+ " verified BOOLEAN NOT NULL,"
 					+ " active BOOLEAN NOT NULL,"
+					+ " muted BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (contactId),"
 					+ " FOREIGN KEY (localAuthorId)"
 					+ " REFERENCES localAuthors (authorId)"
@@ -504,8 +505,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			// Create a contact row
 			String sql = "INSERT INTO contacts"
 					+ " (authorId, name, publicKey, localAuthorId,"
-					+ " verified, active)"
-					+ " VALUES (?, ?, ?, ?, ?, ?)";
+					+ " verified, active, muted)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, remote.getId().getBytes());
 			ps.setString(2, remote.getName());
@@ -513,6 +514,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(4, local.getBytes());
 			ps.setBoolean(5, verified);
 			ps.setBoolean(6, active);
+			ps.setBoolean(7, false); //Setting mute default to un-muted
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -1004,7 +1006,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT authorId, name, publicKey,"
-					+ " localAuthorId, verified, active"
+					+ " localAuthorId, verified, active, muted"
 					+ " FROM contacts"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1017,10 +1019,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 			AuthorId localAuthorId = new AuthorId(rs.getBytes(4));
 			boolean verified = rs.getBoolean(5);
 			boolean active = rs.getBoolean(6);
+			boolean muted = rs.getBoolean(7);
 			rs.close();
 			ps.close();
 			Author author = new Author(authorId, name, publicKey);
-			return new Contact(c, author, localAuthorId, verified, active);
+			Contact contact = new Contact(c, author, localAuthorId, verified, active);
+			contact.setMuted(muted);
+			return contact;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1035,7 +1040,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT contactId, authorId, name, publicKey,"
-					+ " localAuthorId, verified, active"
+					+ " localAuthorId, verified, active, muted"
 					+ " FROM contacts";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
@@ -1049,8 +1054,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 				AuthorId localAuthorId = new AuthorId(rs.getBytes(5));
 				boolean verified = rs.getBoolean(6);
 				boolean active = rs.getBoolean(7);
-				contacts.add(new Contact(contactId, author, localAuthorId,
-						verified, active));
+				boolean muted = rs.getBoolean(8);
+				Contact contact = new Contact(contactId, author, localAuthorId,
+						verified, active);
+				contact.setMuted(muted);
+				contacts.add(contact);
 			}
 			rs.close();
 			ps.close();
@@ -1092,7 +1100,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT contactId, name, publicKey,"
-					+ " localAuthorId, verified, active"
+					+ " localAuthorId, verified, active, muted"
 					+ " FROM contacts"
 					+ " WHERE authorId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1106,9 +1114,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 				AuthorId localAuthorId = new AuthorId(rs.getBytes(4));
 				boolean verified = rs.getBoolean(5);
 				boolean active = rs.getBoolean(6);
+				boolean muted = rs.getBoolean(7);
 				Author author = new Author(remote, name, publicKey);
-				contacts.add(new Contact(c, author, localAuthorId, verified,
-						active));
+				Contact contact = new Contact(c, author, localAuthorId, verified,
+						active);
+				contact.setMuted(muted);
+				contacts.add(contact);
 			}
 			rs.close();
 			ps.close();
@@ -2464,6 +2475,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "UPDATE contacts SET active = ? WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBoolean(1, active);
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void setContactMuted(Connection txn, ContactId c, boolean muted)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE contacts SET muted = ? WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBoolean(1, muted);
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();

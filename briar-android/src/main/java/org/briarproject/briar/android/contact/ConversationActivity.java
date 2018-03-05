@@ -248,6 +248,7 @@ public class ConversationActivity extends BriarActivity
 	private volatile AuthorId contactAuthorId;
 	@Nullable
 	private volatile GroupId messagingGroupId;
+	private boolean isMuted;
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
@@ -319,8 +320,11 @@ public class ConversationActivity extends BriarActivity
 	public void onStop() {
 		super.onStop();
 		eventBus.removeListener(this);
-		notificationManager.unblockContactNotification(contactId);
+		//notificationManager.unblockContactNotification(contactId);
 		list.stopPeriodicUpdate();
+
+		//when closing activity, checks if contact will be muted or unmuted
+		muteOrUnMuteContact();
 	}
 
 	@Override
@@ -331,6 +335,14 @@ public class ConversationActivity extends BriarActivity
 
 		enableIntroductionActionIfAvailable(
 				menu.findItem(R.id.action_introduction));
+
+		//Set title of mute menu item depending on if contact is muted
+		if(isMuted)
+			runOnUiThreadUnlessDestroyed(() ->
+					menu.findItem(R.id.action_mute).setTitle("Unmute"));
+		else
+			runOnUiThreadUnlessDestroyed(() ->
+					menu.findItem(R.id.action_mute).setTitle("Mute"));
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -352,6 +364,10 @@ public class ConversationActivity extends BriarActivity
 				//Do something, send panic info to user
 				sendPanic();
 				return true;
+			case R.id.action_mute:
+				//dynamically changes title whether trying to mute or unmute
+				muteTitleChangeClick(item);
+				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();
 				return true;
@@ -368,6 +384,8 @@ public class ConversationActivity extends BriarActivity
 					Contact contact = contactManager.getContact(contactId);
 					contactName = contact.getAuthor().getName();
 					contactAuthorId = contact.getAuthor().getId();
+
+					isMuted = contact.isMuted();
 					nickname=contactName;
 				}
 				long duration = System.currentTimeMillis() - now;
@@ -1076,6 +1094,47 @@ introductionOnboardingSeen();
 		if (!contactNameTaskStarted.getAndSet(true))
 			runOnDbThread(contactNameTask);
 		return contactNameTask;
+	}
+
+	//dynamically changes the mute button title from mute to unmute
+	private void muteTitleChangeClick(MenuItem item)
+	{
+		//if its muted, then unmute and vice-versa
+		switch(item.getItemId()) {
+			case R.id.action_mute:
+				if(item.getTitle().equals("Mute"))
+				{
+					item.setTitle("Unmute");
+					isMuted = true;
+				}
+				else
+				{
+					item.setTitle("Mute");
+					isMuted = false;
+				}
+				break;
+		}
+
+		//after changing the title, mutes/umutes contact accordingly
+		setContactMutedOrUnMuted();
+	}
+
+	private void setContactMutedOrUnMuted()
+	{
+		runOnDbThread(() -> {
+			try {
+				contactManager.setContactMuted(contactId, isMuted);;
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}});
+	}
+
+	private void muteOrUnMuteContact()
+	{
+		if(isMuted)
+			notificationManager.blockContactNotification(contactId);
+		else
+			notificationManager.unblockContactNotification(contactId);
 	}
 
 }

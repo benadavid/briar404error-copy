@@ -14,6 +14,7 @@ public class Contact {
 	private final Author author;
 	private final AuthorId localAuthorId;
 	private final boolean verified, active;
+	private boolean muted;
 
 	public Contact(ContactId id, Author author, AuthorId localAuthorId,
 			boolean verified, boolean active) {
@@ -22,6 +23,11 @@ public class Contact {
 		this.localAuthorId = localAuthorId;
 		this.verified = verified;
 		this.active = active;
+		this.muted = false;
+	}
+
+	public void setMuted(boolean muted) {
+		this.muted = muted;
 	}
 
 	public ContactId getId() {
@@ -42,6 +48,10 @@ public class Contact {
 
 	public boolean isActive() {
 		return active;
+	}
+
+	public boolean isMuted() {
+		return muted;
 	}
 
 	@Override
