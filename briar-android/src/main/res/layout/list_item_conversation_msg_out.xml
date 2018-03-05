@@ -22,6 +22,7 @@
 			android:textColor="@color/briar_text_primary_inverse"
 			android:textIsSelectable="true"
 			android:textSize="@dimen/text_size_medium"
+			android:autoLink="web"
 			tools:text="This is a long long long message that spans over several lines.\n\nIt ends here."/>
 
 		<TextView

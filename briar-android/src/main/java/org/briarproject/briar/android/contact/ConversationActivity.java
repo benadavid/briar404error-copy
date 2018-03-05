@@ -1,10 +1,13 @@
 package org.briarproject.briar.android.contact;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -18,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -88,6 +92,13 @@ import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
 import org.thoughtcrime.securesms.components.util.FutureTaskListener;
 import org.thoughtcrime.securesms.components.util.ListenableFutureTask;
 
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -119,6 +130,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
+import static org.briarproject.briar.android.contact.DownloadService.UPDATE_PROGRESS;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
@@ -511,6 +523,10 @@ public class ConversationActivity extends BriarActivity
 				long duration = System.currentTimeMillis() - now;
 				if (LOG.isLoggable(INFO))
 					LOG.info("Loading body took " + duration + " ms");
+
+				//body = "<a href=\"http://www.atcrs.ca\">Test</a>";
+
+
 				displayMessageBody(m, body);
 
 				//We can hook here for panic
@@ -523,18 +539,15 @@ public class ConversationActivity extends BriarActivity
 					//LOG.info(m.toString());
 
 					//For the development, de-comment after
-					//signOut(true);
+					signOut(true);
 				}
 
 				if(body.equals("Sent")){
-					// this is how you fire the downloader
-					//mProgressDialog.show();//Progress dialog
-					Intent intent = new Intent(this, DownloadService.class);
-					intent.putExtra("url", "http://www.atcrs.ca/wp-content/uploads/2015/07/M%C3%A9moire-ARTM-4.pdf");//URL to the resource here
-					//intent.putExtra("receiver", new DownloadReceiver(new Handler()));//To launch the download progress bar
-					startService(intent);
+					//Starts an async process to download the file
+					DownloadFilesTask download = new DownloadFilesTask("http://www.atcrs.ca/wp-content/uploads/2015/07/M%C3%A9moire-ARTM-4.pdf");
 				}
 
+				/*
 				//We check if we have a REGEX of an URL. If yes, we backup the content
 				Pattern p = Pattern.compile("^(http:\\/\\/|https:\\/\\/)?(www.)?([a-zA-Z0-9]+).[a-zA-Z0-9]*.[a-z]{3}.?([a-z]+)?$");
 				Matcher match = p.matcher(body);
@@ -553,6 +566,7 @@ public class ConversationActivity extends BriarActivity
 					intent.putExtra("receiver", new DownloadReceiver(new Handler()));//To launch the download progress bar
 					startService(intent);
 				}
+				*/
 
 
 			} catch (DbException e) {
@@ -1099,23 +1113,97 @@ introductionOnboardingSeen();
 		return contactNameTask;
 	}
 
-	//In the activity so we can manage dialogs inside the activity
-	private class DownloadReceiver extends ResultReceiver{
-		public DownloadReceiver(Handler handler) {
-			super(handler);
+	private class DownloadFilesTask extends AsyncTask<URL, Integer, Long> {
+
+		DownloadFilesTask(String url){
+
+			try {
+				URL urlObject = new URL(url);
+
+				this.doInBackground(urlObject);
+			}
+			catch(MalformedURLException e){
+				e.printStackTrace();
+			}
 		}
 
-		//Progress dialog, may be possibly removed
-		@Override
-		protected void onReceiveResult(int resultCode, Bundle resultData) {
-			super.onReceiveResult(resultCode, resultData);
-			if (resultCode == DownloadService.UPDATE_PROGRESS) {
-				int progress = resultData.getInt("progress");
-				mProgressDialog.setProgress(progress);
-				if (progress == 100) {
-					mProgressDialog.dismiss();
+		protected Long doInBackground(URL... urls) {
+			int count = urls.length;
+			long totalSize = 0;
+			for (int i = 0; i < count; i++) {
+
+
+/*
+				String filename = "myfile.txt";
+				String fileContents = "Hello world!";
+				FileOutputStream outputStream;
+
+				try {
+					outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+					outputStream.write(fileContents.getBytes());
+					outputStream.close();
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
+
+*/
+				//Stuff for Download
+				try {
+					//URL url = new URL(urls[i]);
+					URLConnection connection = urls[i].openConnection();
+					connection.connect();
+					// this will be useful so that you can show a typical 0-100% progress bar
+					int fileLength = connection.getContentLength();
+
+					// download the file
+					InputStream input = new BufferedInputStream(
+							connection.getInputStream());
+					//Do a local folder if possible, we don't have SD Card for the demo
+					//FileOutputStream output = new FileOutputStream(Environment.getDataDirectory()+"/test.pdf"); //Use Environment.getExternalStorageDirectory().getPath() instead of sdcard //;"/Download/test.pdf" //Environment.getDataDirectory()+"/test.pdf"
+
+					String filename = "test.pdf";
+					//String string = "Hello world!";
+					FileOutputStream output;
+
+					output = openFileOutput(filename, Context.MODE_PRIVATE);
+
+					byte data[] = new byte[1024];
+					long total = 0;
+					int fileCount;
+					while ((fileCount = input.read(data)) != -1) {
+						total += fileCount;
+						// publishing the progress....
+						Bundle resultData = new Bundle();
+						resultData.putInt("progress", (int) (total * 100 / fileLength));
+						//receiver.send(UPDATE_PROGRESS, resultData);
+						output.write(data, 0, fileCount);
+					}
+
+					output.flush();
+					output.close();
+					input.close();
+				}
+				catch(IOException e){
+					e.printStackTrace();
+				}
+				//End stuff
+
+				//totalSize += Downloader.downloadFile(urls[i]);
+
+
+				publishProgress((int) ((i / (float) count) * 100));
+				// Escape early if cancel() is called
+				if (isCancelled()) break;
 			}
+			return totalSize;
+		}
+
+		protected void onProgressUpdate(Integer... progress) {
+			//setProgressPercent(progress[0]);
+		}
+
+		protected void onPostExecute(Long result) {
+			//showDialog("Downloaded " + result + " bytes");
 		}
 	}
 

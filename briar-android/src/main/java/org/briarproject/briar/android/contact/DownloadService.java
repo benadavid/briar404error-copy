@@ -45,15 +45,7 @@ public class DownloadService extends IntentService {
 			//String string = "Hello world!";
 			FileOutputStream output;
 
-			//try {
-				output = openFileOutput(filename, Context.MODE_PRIVATE);
-				//outputStream.write(string.getBytes());
-				//outputStream.close();
-			//} catch (Exception e) {
-			//	e.printStackTrace();
-			//}
-
-
+			output = openFileOutput(filename, Context.MODE_PRIVATE);
 
 
 			byte data[] = new byte[1024];
