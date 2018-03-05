@@ -37,6 +37,8 @@ public class TextInputView extends KeyboardAwareLinearLayout
 
 	protected final ViewHolder ui;
 	protected TextInputListener listener;
+	private static boolean bold = false;
+	private static boolean italic = false;
 
 	public TextInputView(Context context) {
 		this(context, null);
@@ -77,6 +79,8 @@ public class TextInputView extends KeyboardAwareLinearLayout
 
 		ui.emojiToggle.attach(ui.emojiDrawer);
 		ui.emojiToggle.setOnClickListener(v -> onEmojiToggleClicked());
+		ui.boldToggle.setOnClickListener(v -> onBoldToggleClicked());
+		ui.italicToggle.setOnClickListener(v -> onItalicToggleClicked());
 		ui.editText.setOnClickListener(v -> showSoftKeyboard());
 		ui.editText.setOnKeyListener((v, keyCode, event) -> {
 			if (keyCode == KEYCODE_BACK && isEmojiDrawerOpen()) {
@@ -128,6 +132,44 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		} else {
 			showEmojiDrawer();
 		}
+	}
+
+	private void onBoldToggleClicked(){
+		System.out.println("Bold Clicked");
+		if (bold == true){
+			setBold(false);
+		}
+		else if (bold == false){
+			setBold(true);
+		}
+		System.out.println("Bold is now " + bold);
+	}
+
+	private void onItalicToggleClicked() {
+		System.out.println("Italic Clicked");
+		if (italic == true){
+			setItalic(false);
+		}
+		else if (italic == false){
+			setItalic(true);
+		}
+		System.out.println("Italic is now " + italic);
+	}
+
+	public static boolean getBold() {
+		return bold;
+	}
+
+	public static boolean getItalic() {
+		return italic;
+	}
+
+	public void setBold(boolean b){
+		bold = b;
+	}
+
+	public void setItalic(boolean i){
+		italic = i;
 	}
 
 	public void setText(String text) {
@@ -197,10 +239,14 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		private final EmojiToggle emojiToggle;
 		final EmojiEditText editText;
 		final View sendButton;
+		final View boldToggle;
+		final View italicToggle;
 		final EmojiDrawer emojiDrawer;
 
 		private ViewHolder() {
 			emojiToggle = findViewById(R.id.emoji_toggle);
+			boldToggle = findViewById(R.id.bold_toggle);
+			italicToggle = findViewById(R.id.italic_toggle);
 			editText = findViewById(R.id.input_text);
 			emojiDrawer = findViewById(R.id.emoji_drawer);
 			sendButton = findViewById(R.id.btn_send);
