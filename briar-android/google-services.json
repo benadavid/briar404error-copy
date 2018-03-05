@@ -41,7 +41,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:550478886314:android:62906da0d87817e5",
         "android_client_info": {
-          "package_name": "org.briarproject.briar.android.debug"
+          "package_name": "org.briarproject.briar"
         }
       },
       "oauth_client": [
@@ -49,7 +49,7 @@
           "client_id": "550478886314-hki6ee0egeet6vpes9tkbfa908uracn7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "org.briarproject.briar.android.debug",
+            "package_name": "org.briarproject.briar",
             "certificate_hash": "4b401b57c8ae07e8bc4d8017cbd9ef73118904a9"
           }
         },
