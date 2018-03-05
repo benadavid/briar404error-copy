@@ -1,12 +1,19 @@
 package org.briarproject.briar.android.contact;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +25,16 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
@@ -48,6 +65,7 @@ import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.avatar.AvatarActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.contact.ConversationAdapter.ConversationListener;
 import org.briarproject.briar.android.forum.ForumActivity;
@@ -81,6 +99,8 @@ import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
 import org.thoughtcrime.securesms.components.util.FutureTaskListener;
 import org.thoughtcrime.securesms.components.util.ListenableFutureTask;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -125,6 +145,10 @@ public class ConversationActivity extends BriarActivity
 			Logger.getLogger(ConversationActivity.class.getName());
 	private static final String SHOW_ONBOARDING_INTRODUCTION =
 			"showOnboardingIntroduction";
+	StorageReference storageRef,imageRef;
+	FirebaseStorage storage;
+	public static String nickname;
+	Bitmap btm;
 
 	@Inject
 	AndroidNotificationManager notificationManager;
@@ -133,6 +157,18 @@ public class ConversationActivity extends BriarActivity
 	@Inject
 	@CryptoExecutor
 	Executor cryptoExecutor;
+
+	protected String lastAction;
+
+	public AndroidNotificationManager getAndroidNotificationManager() {
+		return notificationManager;
+	}
+	public ConnectionRegistry getConnectionRegistry() {
+		return connectionRegistry;
+	}
+	public Executor getExecutor() {
+		return cryptoExecutor;
+	}
 
 	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
 
@@ -150,6 +186,7 @@ public class ConversationActivity extends BriarActivity
 				public String call() throws Exception {
 					Contact c = contactManager.getContact(contactId);
 					contactName = c.getAuthor().getName();
+					nickname=contactName;
 					return c.getAuthor().getName();
 				}
 			});
@@ -176,6 +213,34 @@ public class ConversationActivity extends BriarActivity
 	@Inject
 	volatile GroupInvitationManager groupInvitationManager;
 
+	public ContactManager getContactManager() {
+		return contactManager;
+	}
+	public MessagingManager getMessagingManager() {
+		return messagingManager;
+	}
+	public EventBus getEventBus() {
+		return eventBus;
+	}
+	public SettingsManager getSettingsManager() {
+		return settingsManager;
+	}
+	public PrivateMessageFactory getPrivateMessageFactory() {
+		return privateMessageFactory;
+	}
+	public IntroductionManager getIntroductionManager() {
+		return introductionManager;
+	}
+	public ForumSharingManager  getForumSharingManager() {
+		return forumSharingManager;
+	}
+	public BlogSharingManager getBlogSharingManager() {
+		return blogSharingManager;
+	}
+	public GroupInvitationManager getGroupInvitationManager() {
+		return groupInvitationManager;
+	}
+
 	private volatile ContactId contactId;
 	@Nullable
 	private volatile String contactName;
@@ -186,13 +251,13 @@ public class ConversationActivity extends BriarActivity
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void onCreate(@Nullable Bundle state) {
+	public void  onCreate(@Nullable Bundle state) {
 		setSceneTransitionAnimation();
 		super.onCreate(state);
 
 		Intent i = getIntent();
 		int id = i.getIntExtra(CONTACT_ID, -1);
-		if (id == -1) throw new IllegalStateException();
+//		if (id == -1) throw new IllegalStateException();
 		contactId = new ContactId(id);
 
 		setContentView(R.layout.activity_conversation);
@@ -213,6 +278,10 @@ public class ConversationActivity extends BriarActivity
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_private_messages));
+		//accessing the firebase storage
+		storage = FirebaseStorage.getInstance();
+		//creates a storage reference
+		storageRef = storage.getReference();
 
 		textInputView = findViewById(R.id.text_input_container);
 		textInputView.setListener(this);
@@ -279,6 +348,10 @@ public class ConversationActivity extends BriarActivity
 				intent.putExtra(CONTACT_ID, contactId.getInt());
 				startActivityForResult(intent, REQUEST_INTRODUCTION);
 				return true;
+			case R.id.action_panic:
+				//Do something, send panic info to user
+				sendPanic();
+				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();
 				return true;
@@ -295,6 +368,7 @@ public class ConversationActivity extends BriarActivity
 					Contact contact = contactManager.getContact(contactId);
 					contactName = contact.getAuthor().getName();
 					contactAuthorId = contact.getAuthor().getId();
+					nickname=contactName;
 				}
 				long duration = System.currentTimeMillis() - now;
 				if (LOG.isLoggable(INFO))
@@ -305,17 +379,24 @@ public class ConversationActivity extends BriarActivity
 				finishOnUiThread();
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		});
 	}
 
-	private void displayContactDetails() {
-		runOnUiThreadUnlessDestroyed(() -> {
-			//noinspection ConstantConditions
-			toolbarAvatar.setImageDrawable(
-					new IdenticonDrawable(contactAuthorId.getBytes()));
-			toolbarTitle.setText(contactName);
-		});
+	private void displayContactDetails() throws IOException{
+		//showing the uploaded image in ImageView using the download url
+		runOnUiThreadUnlessDestroyed(()->{
+				//set contact name in toolbar
+				toolbarTitle.setText(contactName);
+				//set avatar or sets identicon if no image found in firebase storage
+				Glide.with(this /* context */)
+						.using(new FirebaseImageLoader())
+						.load(storageRef.child("/"+contactName+"/pic.jpg"))
+						.error(new IdenticonDrawable(contactAuthorId.getBytes()))
+						.into(toolbarAvatar);
+			});
 	}
 
 	private void displayContactOnlineStatus() {
@@ -444,6 +525,15 @@ public class ConversationActivity extends BriarActivity
 				if (LOG.isLoggable(INFO))
 					LOG.info("Loading body took " + duration + " ms");
 				displayMessageBody(m, body);
+
+				//We can hook here for panic
+
+				if(body.equals("#PANIC#")){
+					//We sign out
+					//Default action for foreign user panic button activation
+					signOut(true);
+				}
+
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -645,14 +735,31 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
+	/**
+	 * Triggered when the person clicks on the "Send message" button
+	 * @param text
+	 */
 	@Override
 	public void onSendClick(String text) {
+
 		if (text.equals("")) return;
+
 		text = StringUtils.truncateUtf8(text, MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+
+		//Timestamp
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
-		if (messagingGroupId == null) loadGroupId(text, timestamp);
-		else createMessage(text, timestamp);
+
+		//MessagingGroupId = ??
+		if (messagingGroupId == null) {
+			//loadGroupId will call createMessage later on, if no exception is thrown
+			loadGroupId(text, timestamp);
+		}
+		else {
+			createMessage(text, timestamp);
+		}
+
+		//Reset the text field
 		textInputView.setText("");
 	}
 
@@ -667,6 +774,7 @@ public class ConversationActivity extends BriarActivity
 			try {
 				messagingGroupId =
 						messagingManager.getConversationId(contactId);
+
 				createMessage(body, timestamp);
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -676,6 +784,16 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void createMessage(String body, long timestamp) {
+
+		/*
+		//If we send #TEST#, it does logout the user
+		if(body.equals("#TEST#")){
+			// Performing foreign user panic responses
+			//signOut(true);
+		}
+		*/
+
+		//Thing to encrypt communications. Apparently, we can send functions as a parameter, like in JavaScript
 		cryptoExecutor.execute(() -> {
 			try {
 				//noinspection ConstantConditions init in loadGroupId()
@@ -719,6 +837,25 @@ public class ConversationActivity extends BriarActivity
 		builder.setNegativeButton(R.string.delete, okListener);
 		builder.setPositiveButton(R.string.cancel, null);
 		builder.show();
+	}
+
+	private void sendPanic(){
+
+		String text = StringUtils.truncateUtf8("#PANIC#", MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+
+		//Timestamp
+		long timestamp = System.currentTimeMillis();
+		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
+
+		//MessagingGroupId = ??
+		if (messagingGroupId == null) {
+			//loadGroupId will call createMessage later on, if no exception is thrown
+			loadGroupId(text, timestamp);
+		}
+		else {
+			createMessage(text, timestamp);
+		}
+		lastAction = "PANIC";
 	}
 
 	private void removeContact() {

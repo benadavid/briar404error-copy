@@ -1,5 +1,6 @@
 package org.briarproject.bramble.api.client;
 
+
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;

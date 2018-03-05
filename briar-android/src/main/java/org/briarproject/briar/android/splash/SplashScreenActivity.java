@@ -11,8 +11,8 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
+import org.briarproject.briar.android.activity.WalkthroughActivity;
 import org.briarproject.briar.android.controller.ConfigController;
-import org.briarproject.briar.android.login.SetupActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import java.util.logging.Logger;
@@ -47,6 +47,7 @@ public class SplashScreenActivity extends BaseActivity {
 			startNextActivity();
 			supportFinishAfterTransition();
 		}, 500);
+
 	}
 
 	@Override
@@ -63,7 +64,7 @@ public class SplashScreenActivity extends BaseActivity {
 				startActivity(new Intent(this, NavDrawerActivity.class));
 			} else {
 				configController.deleteAccount(this);
-				startActivity(new Intent(this, SetupActivity.class));
+				startActivity(new Intent(this, WalkthroughActivity.class));
 			}
 		}
 	}

@@ -340,9 +340,13 @@
 	<string name="dialog_message_connect_panic_app">Are you sure that you want to allow %1$s to trigger destructive panic button actions?</string>
 	<string name="lock_setting_title">Sign Out</string>
 	<string name="lock_setting_summary">Sign out of Briar if a panic button is pressed</string>
+	<string name="lock_setting_transfer">Transfer panic button action to other users</string>
+	<string name="lock_setting_receive">Allow receiving panic button orders from other users</string>
 	<string name="purge_setting_title">Delete Account</string>
 	<string name="purge_setting_summary">Delete your Briar account if a panic button is pressed. Caution: This will permanently delete your identities, contacts and messages</string>
 	<string name="uninstall_setting_title">Uninstall Briar</string>
+	<string name="lock_setting_transfer_title">Transfer panic button</string>
+	<string name="lock_setting_receive_title">Receive panic button</string>
 	<string name="uninstall_setting_summary">This requires manual confirmation in a panic event</string>
 
 	<!-- Settings Notifications -->
@@ -403,5 +407,14 @@
 	<string name="permission_camera_request_body">To scan the QR code, Briar needs access to the camera.</string>
 	<string name="permission_camera_denied_body">You have denied access to the camera, but adding contacts requires using the camera.\n\nPlease consider granting access.</string>
 	<string name="permission_camera_denied_toast">Camera permission was not granted</string>
+
+	<!-- Walkthrough -->
+	<string name="title_activity_welcome">Home Screen</string>
+	<string name="Welcome">Welcome to Briar</string>
+	<string name="Briar_Description">Briar uses direct, encrypted connections between users to prevent surveillance and censorship.</string>
+	<string name="Connection_Description">If the internet\'s down, sync via Bluetooth or Wi-Fi, keeping the information flowing in a crisis. If the internet\'s up, sync via the Tor network for protection from surveillance.</string>
+	<string name="next">NEXT</string>
+	<string name="skip">SKIP</string>
+	<string name="start">PROCEED</string>
 
 </resources>

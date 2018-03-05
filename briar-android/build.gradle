@@ -33,9 +33,12 @@ dependencies {
 	implementation 'com.jpardogo.materialtabstrip:library:1.1.0'
 	implementation 'com.github.bumptech.glide:glide:3.8.0'
 	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.1.0'
-
+	implementation 'com.firebaseui:firebase-ui-storage:2.3.0'
+	implementation 'com.google.firebase:firebase-storage:11.0.4'
+	implementation 'com.google.firebase:firebase-auth:11.0.4'
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
-
+	compile 'com.squareup.picasso:picasso:2.5.2'
+	compile 'com.github.amlcurran.showcaseview:library:5.4.3'
 	compileOnly 'javax.annotation:jsr250-api:1.0'
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
@@ -181,11 +184,11 @@ def getGitHash = { ->
 
 android {
 	compileSdkVersion 27
-	buildToolsVersion '26.0.2'
+	buildToolsVersion '27.0.3'
 
 	defaultConfig {
 		minSdkVersion 14
-		targetSdkVersion 26
+		targetSdkVersion 27
 		versionCode 1700
 		versionName "0.17.0"
 		applicationId "org.briarproject.briar.android"
@@ -238,3 +241,5 @@ android {
 		warning 'ExtraTranslation'
 	}
 }
+
+apply plugin: 'com.google.gms.google-services'

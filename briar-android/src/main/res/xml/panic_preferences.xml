@@ -28,5 +28,20 @@
 		android:key="pref_key_uninstall"
 		android:summary="@string/uninstall_setting_summary"
 		android:title="@string/uninstall_setting_title"/>
+<!--
+	<CheckBoxPreference
+		android:defaultValue="false"
+		android:enabled="false"
+		android:key="pref_key_transfer"
+		android:summary="@string/lock_setting_transfer"
+		android:title="@string/lock_setting_transfer_title"/>
+
+	<CheckBoxPreference
+		android:defaultValue="false"
+		android:enabled="false"
+		android:key="pref_key_receive"
+		android:summary="@string/lock_setting_receive"
+		android:title="@string/lock_setting_receive_title"/>
+		-->
 
 </PreferenceScreen>
