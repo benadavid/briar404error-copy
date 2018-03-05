@@ -200,7 +200,7 @@ android {
 
 	buildTypes {
 		debug {
-			applicationIdSuffix ".debug"
+			applicationIdSuffix ""
 			resValue "string", "app_package", "org.briarproject.briar.android.debug"
 			resValue "string", "app_name", "Briar Debug"
 			shrinkResources false

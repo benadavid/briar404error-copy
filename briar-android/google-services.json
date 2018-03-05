@@ -49,7 +49,7 @@
           "client_id": "550478886314-hki6ee0egeet6vpes9tkbfa908uracn7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "org.briarproject.briar",
+            "package_name": "org.briarproject.briar.android.debug",
             "certificate_hash": "4b401b57c8ae07e8bc4d8017cbd9ef73118904a9"
           }
         },
