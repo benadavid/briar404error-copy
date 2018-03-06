@@ -135,7 +135,6 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	}
 
 	private void onBoldToggleClicked(){
-		System.out.println("Bold Clicked");
 		if (bold == true){
 			setBold(false);
 		}
@@ -146,7 +145,6 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	}
 
 	private void onItalicToggleClicked() {
-		System.out.println("Italic Clicked");
 		if (italic == true){
 			setItalic(false);
 		}

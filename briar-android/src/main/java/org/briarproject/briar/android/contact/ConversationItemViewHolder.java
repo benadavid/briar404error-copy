@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.contact;
 
-import android.app.Activity;
-import android.content.Context;
 import android.graphics.Typeface;
 import android.support.annotation.CallSuper;
 import android.support.annotation.UiThread;
@@ -23,8 +21,8 @@ class ConversationItemViewHolder extends ViewHolder {
 	protected final ViewGroup layout;
 	private final TextView text;
 	private final TextView time;
-	private boolean b;
-	private boolean i;
+	private boolean bold;
+	private boolean italic;
 
 	ConversationItemViewHolder(View v) {
 		super(v);
@@ -41,21 +39,19 @@ class ConversationItemViewHolder extends ViewHolder {
 		} else {
 			text.setText((StringUtils.trim(item.getBody())));
 
-			b = TextInputView.getBold();
-			i = TextInputView.getItalic();
+			bold = TextInputView.getBold();
+			italic = TextInputView.getItalic();
 
-			System.out.println("Static Bold: " + b);
-			System.out.println("Static Italic: " + i);
-			if(b == false && i == false) {
+			if(bold == false && italic == false) {
 				text.setTypeface(text.getTypeface(), Typeface.NORMAL);
 			}
-			else if(b == true && i == false) {
+			else if(bold == true && italic == false) {
 				text.setTypeface(text.getTypeface(), Typeface.BOLD);
 			}
-			else if(b == false && i == true) {
+			else if(bold == false && italic == true) {
 				text.setTypeface(text.getTypeface(), Typeface.ITALIC);
 			}
-			else if(b == true && i == true) {
+			else if(bold == true && italic == true) {
 				text.setTypeface(text.getTypeface(), Typeface.BOLD_ITALIC);
 			}
 		}
