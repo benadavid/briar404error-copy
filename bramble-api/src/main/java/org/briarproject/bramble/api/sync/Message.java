@@ -9,8 +9,10 @@ public class Message {
 	private final GroupId groupId;
 	private final long timestamp;
 	private final byte[] raw;
+	private final boolean bold;
+	private final boolean italic;
 
-	public Message(MessageId id, GroupId groupId, long timestamp, byte[] raw) {
+	public Message(MessageId id, GroupId groupId, long timestamp, byte[] raw, boolean bold, boolean italic) {
 		if (raw.length <= MESSAGE_HEADER_LENGTH)
 			throw new IllegalArgumentException();
 		if (raw.length > MAX_MESSAGE_LENGTH)
@@ -19,6 +21,8 @@ public class Message {
 		this.groupId = groupId;
 		this.timestamp = timestamp;
 		this.raw = raw;
+		this.bold = bold;
+		this.italic = italic;
 	}
 
 	/**
@@ -55,6 +59,16 @@ public class Message {
 	public byte[] getRaw() {
 		return raw;
 	}
+
+	/**
+	 * Returns the bold value of the message.
+	 */
+	public boolean getBold() {return bold;}
+
+	/**
+	 * Returns the italic value of the message.
+	 */
+	public boolean getItalic() {return italic;}
 
 	@Override
 	public int hashCode() {
