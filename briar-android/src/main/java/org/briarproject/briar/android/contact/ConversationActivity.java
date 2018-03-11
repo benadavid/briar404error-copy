@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.contact;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.PreferenceManager;
@@ -93,9 +95,11 @@ import org.thoughtcrime.securesms.components.util.FutureTaskListener;
 import org.thoughtcrime.securesms.components.util.ListenableFutureTask;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -257,6 +261,11 @@ public class ConversationActivity extends BriarActivity
 	public void  onCreate(@Nullable Bundle state) {
 		setSceneTransitionAnimation();
 		super.onCreate(state);
+
+		// Request permission to write to storage, needed for downloading links
+		ActivityCompat.requestPermissions(this,
+				new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+				1);
 
 		Intent i = getIntent();
 		int id = i.getIntExtra(CONTACT_ID, -1);
@@ -1149,25 +1158,25 @@ introductionOnboardingSeen();
 */
 				//Stuff for Download
 				try {
-					//URL url = new URL(urls[i]);
-					URLConnection connection = urls[i].openConnection();
+					HttpURLConnection connection = (HttpURLConnection) urls[i].openConnection();
 					connection.connect();
 					// this will be useful so that you can show a typical 0-100% progress bar
 					int fileLength = connection.getContentLength();
 
-					// download the file
-					InputStream input = new BufferedInputStream(
-							connection.getInputStream());
-					//Do a local folder if possible, we don't have SD Card for the demo
-					//FileOutputStream output = new FileOutputStream(Environment.getDataDirectory()+"/test.pdf"); //Use Environment.getExternalStorageDirectory().getPath() instead of sdcard //;"/Download/test.pdf" //Environment.getDataDirectory()+"/test.pdf"
+					// set up input stream to retrieve data
+					InputStream input = new BufferedInputStream(connection.getInputStream(), 8192);
 
+					// create file in Downloads folder
 					String filename = "test.pdf";
-					//String string = "Hello world!";
-					FileOutputStream output;
+					File filePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + filename);
 
-					output = openFileOutput(filename, Context.MODE_PRIVATE);
+					// instantiate file if it doesn't already exist, and set up output stream for writing
+					if(!filePath.exists()){
+						filePath.createNewFile();
+					}
+					FileOutputStream output = new FileOutputStream(filePath);
 
-					byte data[] = new byte[1024];
+					byte[] data = new byte[1024];
 					long total = 0;
 					int fileCount;
 					while ((fileCount = input.read(data)) != -1) {
