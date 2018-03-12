@@ -83,7 +83,7 @@ class IntroducerManager {
 
 		Message m = clientHelper.createMessage(
 				introductionGroupFactory.createLocalGroup().getId(), now,
-				BdfList.of(salt));
+				BdfList.of(salt), false, false);
 		MessageId sessionId = m.getId();
 
 		Group g1 = introductionGroupFactory.createIntroductionGroup(c1);

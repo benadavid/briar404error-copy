@@ -108,7 +108,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		GroupId groupId = messagingManager.getConversationId(contactId);
 		String body = "Hi Bob!";
 		PrivateMessage message = privateMessageFactory.createPrivateMessage(
-				groupId, timestamp, body);
+				groupId, timestamp, body, bold, italic);
 		messagingManager.addLocalMessage(message);
 		// Get a stream context
 		StreamContext ctx = keyManager.getStreamContext(contactId,

@@ -86,24 +86,24 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public Message createMessage(GroupId g, long timestamp, BdfList body)
+	public Message createMessage(GroupId g, long timestamp, BdfList body, boolean bold, boolean italic)
 			throws FormatException {
-		return messageFactory.createMessage(g, timestamp, toByteArray(body));
+		return messageFactory.createMessage(g, timestamp, toByteArray(body), bold, italic);
 	}
 
 	@Override
-	public Message createMessageForStoringMetadata(GroupId g) {
+	public Message createMessageForStoringMetadata(GroupId g, boolean bold, boolean italic) {
 		byte[] salt = new byte[SALT_LENGTH];
 		crypto.getSecureRandom().nextBytes(salt);
-		return messageFactory.createMessage(g, 0, salt);
+		return messageFactory.createMessage(g, 0, salt, bold, italic);
 	}
 
 	@Override
-	public Message getMessage(MessageId m) throws DbException {
+	public Message getMessage(MessageId m, boolean bold, boolean italic) throws DbException {
 		Message message;
 		Transaction txn = db.startTransaction(true);
 		try {
-			message = getMessage(txn, m);
+			message = getMessage(txn, m, bold, italic);
 			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
@@ -112,10 +112,11 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public Message getMessage(Transaction txn, MessageId m) throws DbException {
+	public Message getMessage(Transaction txn, MessageId m, boolean bold, boolean italic) throws DbException {
 		byte[] raw = db.getRawMessage(txn, m);
 		if (raw == null) return null;
-		return messageFactory.createMessage(m, raw);
+
+		return messageFactory.createMessage(m, raw, bold, italic);
 	}
 
 	@Override

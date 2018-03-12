@@ -59,7 +59,7 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 
 		// Serialise the signed message
 		BdfList message = BdfList.of(POST.getInt(), body, sig);
-		Message m = clientHelper.createMessage(groupId, timestamp, message);
+		Message m = clientHelper.createMessage(groupId, timestamp, message, false, false);
 		return new BlogPost(m, parent, author);
 	}
 
@@ -87,7 +87,7 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 		// Serialise the signed message
 		BdfList message = BdfList.of(COMMENT.getInt(), comment,
 				parentOriginalId, parentCurrentId, sig);
-		return clientHelper.createMessage(groupId, timestamp, message);
+		return clientHelper.createMessage(groupId, timestamp, message, false, false);
 	}
 
 	@Override
@@ -103,7 +103,7 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 		BdfList message = BdfList.of(WRAPPED_POST.getInt(), descriptor,
 				timestamp, content, signature);
 		return clientHelper
-				.createMessage(groupId, clock.currentTimeMillis(), message);
+				.createMessage(groupId, clock.currentTimeMillis(), message, false, false);
 	}
 
 	@Override
@@ -121,7 +121,7 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 		BdfList message = BdfList.of(WRAPPED_POST.getInt(), descriptor,
 				timestamp, content, signature);
 		return clientHelper
-				.createMessage(groupId, clock.currentTimeMillis(), message);
+				.createMessage(groupId, clock.currentTimeMillis(), message, false, false);
 	}
 
 	@Override
@@ -141,7 +141,7 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 				timestamp, comment, pOriginalId, oldParentId, signature,
 				parentCurrentId);
 		return clientHelper
-				.createMessage(groupId, clock.currentTimeMillis(), message);
+				.createMessage(groupId, clock.currentTimeMillis(), message, false, false);
 	}
 
 	@Override
@@ -163,7 +163,7 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 				timestamp, comment, pOriginalId, oldParentId, signature,
 				parentCurrentId);
 		return clientHelper
-				.createMessage(groupId, clock.currentTimeMillis(), message);
+				.createMessage(groupId, clock.currentTimeMillis(), message, false, false);
 	}
 
 	private MessageType getType(BdfList body) throws FormatException {

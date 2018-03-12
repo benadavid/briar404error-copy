@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.forum.ForumConstants;
 import org.briarproject.briar.api.forum.ForumPost;
@@ -54,7 +53,7 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		String body =
 				StringUtils.fromUtf8(new byte[MAX_PRIVATE_MESSAGE_BODY_LENGTH]);
 		PrivateMessage message = privateMessageFactory.createPrivateMessage(
-				groupId, timestamp, body);
+				groupId, timestamp, body, bold, italic);
 		// Check the size of the serialised message
 		int length = message.getMessage().getRaw().length;
 		assertTrue(

@@ -208,4 +208,28 @@ class MessagingManagerImpl extends ConversationClientImpl
 		}
 	}
 
+	@Override
+	public boolean getBold(MessageId m) throws DbException {
+		try {
+			// 0: private message body
+			BdfList message = clientHelper.getMessageAsList(m);
+			if (message == null) throw new DbException();
+			return message.getBoolean(0);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public boolean getItalic(MessageId m) throws DbException {
+		try {
+			// 0: private message body
+			BdfList message = clientHelper.getMessageAsList(m);
+			if (message == null) throw new DbException();
+			return message.getBoolean(0);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
 }

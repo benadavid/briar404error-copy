@@ -20,8 +20,8 @@ public class QueueMessage extends Message {
 	private final long queuePosition;
 
 	public QueueMessage(MessageId id, GroupId groupId, long timestamp,
-			long queuePosition, byte[] raw) {
-		super(id, groupId, timestamp, raw);
+			long queuePosition, byte[] raw, boolean bold, boolean italic) {
+		super(id, groupId, timestamp, raw, bold, italic);
 		this.queuePosition = queuePosition;
 	}
 

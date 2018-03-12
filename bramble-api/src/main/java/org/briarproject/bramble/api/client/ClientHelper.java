@@ -25,16 +25,16 @@ public interface ClientHelper {
 	void addLocalMessage(Transaction txn, Message m, BdfDictionary metadata,
 			boolean shared) throws DbException, FormatException;
 
-	Message createMessage(GroupId g, long timestamp, BdfList body)
+	Message createMessage(GroupId g, long timestamp, BdfList body, boolean bold, boolean italic)
 			throws FormatException;
 
-	Message createMessageForStoringMetadata(GroupId g);
+	Message createMessageForStoringMetadata(GroupId g, boolean bold, boolean italic);
 
 	@Nullable
-	Message getMessage(MessageId m) throws DbException;
+	Message getMessage(MessageId m, boolean bold, boolean italic) throws DbException;
 
 	@Nullable
-	Message getMessage(Transaction txn, MessageId m) throws DbException;
+	Message getMessage(Transaction txn, MessageId m, boolean bold, boolean italic) throws DbException;
 
 	@Nullable
 	BdfList getMessageAsList(MessageId m) throws DbException, FormatException;

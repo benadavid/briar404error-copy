@@ -147,7 +147,7 @@ class RecordReaderImpl implements RecordReader {
 		System.arraycopy(payload, MESSAGE_HEADER_LENGTH, body, 0,
 				payloadLength - MESSAGE_HEADER_LENGTH);
 		state = State.BUFFER_EMPTY;
-		return messageFactory.createMessage(groupId, timestamp, body);
+		return messageFactory.createMessage(groupId, timestamp, body, false, false);
 	}
 
 	@Override

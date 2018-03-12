@@ -48,7 +48,7 @@ class ForumPostFactoryImpl implements ForumPostFactory {
 				author.getPrivateKey());
 		// Serialise the signed message
 		BdfList message = BdfList.of(parent, authorList, body, sig);
-		Message m = clientHelper.createMessage(groupId, timestamp, message);
+		Message m = clientHelper.createMessage(groupId, timestamp, message, false, false);
 		return new ForumPost(m, parent, author);
 	}
 

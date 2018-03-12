@@ -28,13 +28,14 @@ class PrivateMessageFactoryImpl implements PrivateMessageFactory {
 
 	@Override
 	public PrivateMessage createPrivateMessage(GroupId groupId, long timestamp,
-			String body) throws FormatException {
+			String body, boolean bold, boolean italic) throws FormatException {
 		// Validate the arguments
 		if (utf8IsTooLong(body, MAX_PRIVATE_MESSAGE_BODY_LENGTH))
 			throw new IllegalArgumentException();
 		// Serialise the message
 		BdfList message = BdfList.of(body);
-		Message m = clientHelper.createMessage(groupId, timestamp, message);
+
+		Message m = clientHelper.createMessage(groupId, timestamp, message, bold, italic);
 		return new PrivateMessage(m);
 	}
 }

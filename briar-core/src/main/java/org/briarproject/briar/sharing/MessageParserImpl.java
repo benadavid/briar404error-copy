@@ -77,7 +77,7 @@ abstract class MessageParserImpl<S extends Shareable>
 	@Override
 	public InviteMessage<S> getInviteMessage(Transaction txn, MessageId m)
 			throws DbException, FormatException {
-		Message message = clientHelper.getMessage(txn, m);
+		Message message = clientHelper.getMessage(txn, m, false, false);
 		if (message == null) throw new DbException();
 		BdfList body = clientHelper.toList(message);
 		return parseInviteMessage(message, body);

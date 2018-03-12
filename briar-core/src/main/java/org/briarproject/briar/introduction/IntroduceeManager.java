@@ -147,7 +147,7 @@ class IntroduceeManager {
 
 		Message localMsg = clientHelper.createMessage(
 				introductionGroupFactory.createLocalGroup().getId(), now,
-				BdfList.of(salt));
+				BdfList.of(salt), false, false);
 		MessageId storageId = localMsg.getId();
 
 		// find out who is introducing us

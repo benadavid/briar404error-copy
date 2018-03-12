@@ -49,4 +49,14 @@ public interface MessagingManager extends ConversationClient {
 	 */
 	String getMessageBody(MessageId m) throws DbException;
 
+	/**
+	 * Returns the bold setting of the private message with the given ID.
+	 */
+	boolean getBold(MessageId m) throws DbException;
+
+	/**
+	 * Returns the italic setting of the private message with the given ID.
+	 */
+	boolean getItalic(MessageId m) throws DbException;
+
 }

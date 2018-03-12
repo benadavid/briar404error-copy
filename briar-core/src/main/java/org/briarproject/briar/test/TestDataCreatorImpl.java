@@ -283,8 +283,26 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			throws DbException, FormatException {
 		long timestamp = clock.currentTimeMillis() - num * 60 * 1000;
 		String body = getRandomText();
+		boolean bold = false;
+		boolean italic = false;
+		if (timestamp%4 == 1){
+			bold = true;
+			italic = false;
+		}
+		if (timestamp%4 == 0) {
+			bold = false;
+			italic = true;
+		}
+		if (timestamp%4 == 2) {
+			bold = true;
+			italic = true;
+		}
+		if (timestamp%4 == 3) {
+			bold = false;
+			italic = false;
+		}
 		PrivateMessage m = privateMessageFactory
-				.createPrivateMessage(groupId, timestamp, body);
+				.createPrivateMessage(groupId, timestamp, body, bold, italic);
 
 		boolean local = random.nextBoolean();
 		BdfDictionary meta = new BdfDictionary();

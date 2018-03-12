@@ -762,9 +762,12 @@ public class ConversationActivity extends BriarActivity
 		//Thing to encrypt communications. Apparently, we can send functions as a parameter, like in JavaScript
 		cryptoExecutor.execute(() -> {
 			try {
+
+				boolean bold = TextInputView.getBold();
+				boolean italic = TextInputView.getItalic();
 				//noinspection ConstantConditions init in loadGroupId()
 				storeMessage(privateMessageFactory.createPrivateMessage(
-						messagingGroupId, timestamp, body), body);
+						messagingGroupId, timestamp, body, bold, italic), body);
 			} catch (FormatException e) {throw new RuntimeException(e);
 			}
 		});

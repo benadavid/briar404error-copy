@@ -50,7 +50,7 @@ class QueueMessageFactoryImpl implements QueueMessageFactory {
 		byte[] hash = crypto.hash(LABEL, new byte[] {PROTOCOL_VERSION},
 				groupId.getBytes(), timeBytes, bodyBytes);
 		MessageId id = new MessageId(hash);
-		return new QueueMessage(id, groupId, timestamp, queuePosition, raw);
+		return new QueueMessage(id, groupId, timestamp, queuePosition, raw, false, false);
 	}
 
 	@Override
@@ -64,6 +64,6 @@ class QueueMessageFactoryImpl implements QueueMessageFactory {
 		long timestamp = ByteUtils.readUint64(raw, UniqueId.LENGTH);
 		long queuePosition = ByteUtils.readUint64(raw, MESSAGE_HEADER_LENGTH);
 		return new QueueMessage(id, new GroupId(groupId), timestamp,
-				queuePosition, raw);
+				queuePosition, raw, false, false);
 	}
 }

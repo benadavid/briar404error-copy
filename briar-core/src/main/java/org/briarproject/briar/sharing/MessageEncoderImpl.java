@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
@@ -87,7 +88,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		);
 		try {
 			return messageFactory.createMessage(contactGroupId, timestamp,
-					clientHelper.toByteArray(body));
+					clientHelper.toByteArray(body), false, false);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
@@ -135,7 +136,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		);
 		try {
 			return messageFactory.createMessage(contactGroupId, timestamp,
-					clientHelper.toByteArray(body));
+					clientHelper.toByteArray(body), false, false);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}

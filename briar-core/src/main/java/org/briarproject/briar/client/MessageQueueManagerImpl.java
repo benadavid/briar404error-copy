@@ -188,7 +188,7 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 					MESSAGE_HEADER_LENGTH);
 			if (queuePosition < 0) throw new InvalidMessageException();
 			QueueMessage q = new QueueMessage(m.getId(), m.getGroupId(),
-					m.getTimestamp(), queuePosition, raw);
+					m.getTimestamp(), queuePosition, raw, m.getBold(), m.getItalic());
 			return delegate.validateMessage(q, g);
 		}
 	}
@@ -228,7 +228,7 @@ class MessageQueueManagerImpl implements MessageQueueManager {
 				// The message is in order
 				LOG.info("Message is in order, delivering");
 				QueueMessage q = new QueueMessage(m.getId(), m.getGroupId(),
-						m.getTimestamp(), queuePosition, m.getRaw());
+						m.getTimestamp(), queuePosition, m.getRaw(), m.getBold(), m.getItalic());
 				queueState.incomingPosition++;
 				// Collect any consecutive messages
 				List<MessageId> consecutive = new ArrayList<>();

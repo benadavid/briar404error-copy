@@ -222,7 +222,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 
 	private MessageId createStorageId(Transaction txn, GroupId g)
 			throws DbException {
-		Message m = clientHelper.createMessageForStoringMetadata(g);
+		Message m = clientHelper.createMessageForStoringMetadata(g, false, false);
 		db.addLocalMessage(txn, m, new Metadata(), false);
 		return m.getId();
 	}

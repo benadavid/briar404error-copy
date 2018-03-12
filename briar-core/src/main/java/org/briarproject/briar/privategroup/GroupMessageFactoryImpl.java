@@ -60,7 +60,7 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 			BdfList body =
 					BdfList.of(type, member.getName(),
 							member.getPublicKey(), invite, memberSignature);
-			Message m = clientHelper.createMessage(groupId, timestamp, body);
+			Message m = clientHelper.createMessage(groupId, timestamp, body, false, false);
 
 			return new GroupMessage(m, null, member);
 		} catch (GeneralSecurityException | FormatException e) {
@@ -86,7 +86,7 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 					BdfList.of(type, author.getName(),
 							author.getPublicKey(), parentId, previousMsgId,
 							content, signature);
-			Message m = clientHelper.createMessage(groupId, timestamp, body);
+			Message m = clientHelper.createMessage(groupId, timestamp, body, false, false);
 
 			return new GroupMessage(m, parentId, author);
 		} catch (GeneralSecurityException | FormatException e) {

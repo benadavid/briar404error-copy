@@ -89,7 +89,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		);
 		try {
 			return messageFactory.createMessage(contactGroupId, timestamp,
-					clientHelper.toByteArray(body));
+					clientHelper.toByteArray(body), false, false);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
@@ -106,7 +106,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		);
 		try {
 			return messageFactory.createMessage(contactGroupId, timestamp,
-					clientHelper.toByteArray(body));
+					clientHelper.toByteArray(body), false, false);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
@@ -123,7 +123,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		);
 		try {
 			return messageFactory.createMessage(contactGroupId, timestamp,
-					clientHelper.toByteArray(body));
+					clientHelper.toByteArray(body), false, false);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
@@ -138,7 +138,7 @@ class MessageEncoderImpl implements MessageEncoder {
 		);
 		try {
 			return messageFactory.createMessage(contactGroupId, timestamp,
-					clientHelper.toByteArray(body));
+					clientHelper.toByteArray(body), false, false);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
