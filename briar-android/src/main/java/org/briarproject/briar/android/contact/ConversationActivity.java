@@ -515,6 +515,8 @@ public class ConversationActivity extends BriarActivity
 				ConversationItem item = messages.valueAt(i);
 				if (item.getId().equals(m)) {
 					item.setBody(body);
+					item.setBold(TextInputView.getBold());
+					item.setItalic(TextInputView.getItalic());
 					adapter.notifyItemChanged(messages.keyAt(i));
 					list.scrollToPosition(adapter.getItemCount() - 1);
 					return;
@@ -784,9 +786,11 @@ public class ConversationActivity extends BriarActivity
 				Message message = m.getMessage();
 				PrivateMessageHeader h = new PrivateMessageHeader(
 						message.getId(), message.getGroupId(),
-						message.getTimestamp(), true, false, false, false);
+						message.getTimestamp(), true, false, false, false, message.getBold(), message.getItalic());
 				ConversationItem item = ConversationItem.from(h);
 				item.setBody(body);
+				item.setBold(message.getBold());
+				item.setItalic(message.getItalic());
 				bodyCache.put(message.getId(), body);
 				addConversationItem(item);
 			} catch (DbException e) {

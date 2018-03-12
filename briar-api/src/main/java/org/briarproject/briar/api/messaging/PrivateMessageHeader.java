@@ -12,9 +12,9 @@ import javax.annotation.concurrent.Immutable;
 public class PrivateMessageHeader extends BaseMessageHeader {
 
 	public PrivateMessageHeader(MessageId id, GroupId groupId, long timestamp,
-			boolean local, boolean read, boolean sent, boolean seen) {
+			boolean local, boolean read, boolean sent, boolean seen, boolean bold, boolean italic) {
 
-		super(id, groupId, timestamp, local, sent, seen, read);
+		super(id, groupId, timestamp, local, sent, seen, read, bold, italic);
 	}
 
 }

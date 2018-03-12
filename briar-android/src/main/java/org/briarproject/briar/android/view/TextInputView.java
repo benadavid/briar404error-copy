@@ -95,6 +95,9 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		});
 		ui.sendButton.setOnClickListener(v -> trySendMessage());
 		ui.emojiDrawer.setEmojiEventListener(this);
+
+		bold = false;
+		italic = false;
 	}
 
 	private void trySendMessage() {

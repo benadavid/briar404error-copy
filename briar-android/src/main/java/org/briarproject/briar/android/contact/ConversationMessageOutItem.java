@@ -14,7 +14,7 @@ class ConversationMessageOutItem extends ConversationOutItem {
 
 	ConversationMessageOutItem(PrivateMessageHeader h) {
 		super(h.getId(), h.getGroupId(), null, h.getTimestamp(), h.isSent(),
-				h.isSeen());
+				h.isSeen(), h.isBold(), h.isItalic());
 	}
 
 	@LayoutRes

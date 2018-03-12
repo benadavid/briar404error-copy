@@ -19,8 +19,8 @@ class ConversationNoticeInItem extends ConversationItem {
 
 	ConversationNoticeInItem(MessageId id, GroupId groupId,
 			String text, @Nullable String msgText, long time,
-			boolean read) {
-		super(id, groupId, text, time, read);
+			boolean read, boolean bold, boolean italic) {
+		super(id, groupId, text, time, read, bold, italic);
 		this.msgText = msgText;
 	}
 

@@ -39,14 +39,18 @@ abstract class ConversationItem {
 	private final GroupId groupId;
 	private final long time;
 	private boolean read;
+	private boolean bold;
+	private boolean italic;
 
 	ConversationItem(MessageId id, GroupId groupId, @Nullable String body,
-			long time, boolean read) {
+			long time, boolean read, boolean bold, boolean italic) {
 		this.id = id;
 		this.groupId = groupId;
 		this.body = body;
 		this.time = time;
 		this.read = read;
+		this.bold = bold;
+		this.italic = italic;
 	}
 
 	MessageId getId() {
@@ -74,6 +78,14 @@ abstract class ConversationItem {
 		return read;
 	}
 
+	public boolean isBold() {return bold; }
+
+	public void setBold(boolean b) {bold = b;}
+
+	public void setItalic(boolean i) {italic = i;}
+
+	public boolean isItalic() {return italic; }
+
 	abstract public boolean isIncoming();
 
 	@LayoutRes
@@ -94,7 +106,7 @@ abstract class ConversationItem {
 					contactName, ir.getName());
 			return new ConversationNoticeOutItem(ir.getMessageId(),
 					ir.getGroupId(), text, ir.getMessage(), ir.getTimestamp(),
-					ir.isSent(), ir.isSeen());
+					ir.isSent(), ir.isSeen(), ir.isBold(), ir.isItalic());
 		} else {
 			String text;
 			if (ir.wasAnswered()) {
@@ -112,7 +124,7 @@ abstract class ConversationItem {
 			return new ConversationRequestItem(ir.getMessageId(),
 					ir.getGroupId(), INTRODUCTION, ir.getSessionId(), text,
 					ir.getMessage(), ir.getTimestamp(), ir.isRead(), null,
-					ir.wasAnswered(), false);
+					ir.wasAnswered(), false, false, false);
 		}
 	}
 
@@ -131,7 +143,7 @@ abstract class ConversationItem {
 			}
 			return new ConversationNoticeOutItem(ir.getMessageId(),
 					ir.getGroupId(), text, null, ir.getTimestamp(), ir.isSent(),
-					ir.isSeen());
+					ir.isSeen(), ir.isBold(), ir.isItalic());
 		} else {
 			String text;
 			if (ir.wasAccepted()) {
@@ -151,7 +163,7 @@ abstract class ConversationItem {
 			}
 			return new ConversationNoticeInItem(ir.getMessageId(),
 					ir.getGroupId(), text, null, ir.getTimestamp(),
-					ir.isRead());
+					ir.isRead(), false, false);
 		}
 	}
 
@@ -176,7 +188,7 @@ abstract class ConversationItem {
 			}
 			return new ConversationNoticeOutItem(ir.getId(), ir.getGroupId(),
 					text, ir.getMessage(), ir.getTimestamp(), ir.isSent(),
-					ir.isSeen());
+					ir.isSeen(), ir.isBold(), ir.isItalic());
 		} else {
 			String text;
 			RequestType type;
@@ -202,7 +214,7 @@ abstract class ConversationItem {
 					ir.getGroupId(), type, ir.getSessionId(), text,
 					ir.getMessage(), ir.getTimestamp(), ir.isRead(),
 					ir.getShareable().getId(), !ir.isAvailable(),
-					ir.canBeOpened());
+					ir.canBeOpened(), false, false);
 		}
 	}
 
@@ -235,7 +247,7 @@ abstract class ConversationItem {
 			}
 			String text = ctx.getString(res, contactName);
 			return new ConversationNoticeOutItem(ir.getId(), ir.getGroupId(),
-					text, null, ir.getTimestamp(), ir.isSent(), ir.isSeen());
+					text, null, ir.getTimestamp(), ir.isSent(), ir.isSeen(), ir.isBold(), ir.isItalic());
 		} else {
 			if (ir.wasAccepted()) {
 				if (ir instanceof ForumInvitationResponse) {
@@ -262,7 +274,7 @@ abstract class ConversationItem {
 			}
 			String text = ctx.getString(res, contactName);
 			return new ConversationNoticeInItem(ir.getId(), ir.getGroupId(),
-					text, null, ir.getTimestamp(), ir.isRead());
+					text, null, ir.getTimestamp(), ir.isRead(), false, false);
 		}
 	}
 

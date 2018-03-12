@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.UiUtils;
-import org.briarproject.briar.android.view.TextInputView;
 
 @UiThread
 @NotNullByDefault
@@ -39,8 +38,8 @@ class ConversationItemViewHolder extends ViewHolder {
 		} else {
 			text.setText((StringUtils.trim(item.getBody())));
 
-			bold = TextInputView.getBold();
-			italic = TextInputView.getItalic();
+			bold = item.isBold();
+			italic = item.isItalic();
 
 			if(bold == false && italic == false) {
 				text.setTypeface(text.getTypeface(), Typeface.NORMAL);

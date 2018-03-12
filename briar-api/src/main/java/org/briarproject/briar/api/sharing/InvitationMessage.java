@@ -20,7 +20,7 @@ public class InvitationMessage extends BaseMessageHeader {
 			boolean local, boolean sent, boolean seen, boolean read,
 			SessionId sessionId, ContactId contactId) {
 
-		super(id, groupId, time, local, sent, seen, read);
+		super(id, groupId, time, local, sent, seen, read, false, false);
 		this.sessionId = sessionId;
 		this.contactId = contactId;
 	}

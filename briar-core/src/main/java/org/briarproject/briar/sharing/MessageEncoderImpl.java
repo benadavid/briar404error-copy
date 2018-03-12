@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.briar.api.messaging.MessagingManager;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -42,6 +43,8 @@ class MessageEncoderImpl implements MessageEncoder {
 		this.clientHelper = clientHelper;
 		this.messageFactory = messageFactory;
 	}
+	@Inject
+	volatile MessagingManager messagingManager;
 
 	@Override
 	public BdfDictionary encodeMetadata(MessageType type,
@@ -136,9 +139,12 @@ class MessageEncoderImpl implements MessageEncoder {
 		);
 		try {
 			return messageFactory.createMessage(contactGroupId, timestamp,
-					clientHelper.toByteArray(body), false, false);
+					clientHelper.toByteArray(body), messagingManager.getBold(previousMessageId), messagingManager.getItalic(previousMessageId));
 		} catch (FormatException e) {
 			throw new AssertionError(e);
+		} catch (DbException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 

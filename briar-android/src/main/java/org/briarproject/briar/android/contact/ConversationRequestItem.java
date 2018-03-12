@@ -28,8 +28,8 @@ class ConversationRequestItem extends ConversationNoticeInItem {
 			RequestType requestType, SessionId sessionId, String text,
 			@Nullable String msgText, long time, boolean read,
 			@Nullable GroupId requestedGroupId, boolean answered,
-			boolean canBeOpened) {
-		super(id, groupId, text, msgText, time, read);
+			boolean canBeOpened, boolean bold, boolean italic) {
+		super(id, groupId, text, msgText, time, read, bold, italic);
 		this.requestType = requestType;
 		this.sessionId = sessionId;
 		this.requestedGroupId = requestedGroupId;

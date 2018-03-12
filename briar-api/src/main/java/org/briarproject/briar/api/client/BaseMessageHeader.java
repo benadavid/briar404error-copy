@@ -13,10 +13,10 @@ public abstract class BaseMessageHeader {
 	private final MessageId id;
 	private final GroupId groupId;
 	private final long timestamp;
-	private final boolean local, sent, seen, read;
+	private final boolean local, sent, seen, read, bold, italic;
 
 	public BaseMessageHeader(MessageId id, GroupId groupId, long timestamp,
-			boolean local, boolean sent, boolean seen, boolean read) {
+			boolean local, boolean sent, boolean seen, boolean read, boolean bold, boolean italic) {
 
 		this.id = id;
 		this.groupId = groupId;
@@ -25,6 +25,8 @@ public abstract class BaseMessageHeader {
 		this.sent = sent;
 		this.seen = seen;
 		this.read = read;
+		this.bold = bold;
+		this.italic = italic;
 	}
 
 	public MessageId getId() {
@@ -53,6 +55,14 @@ public abstract class BaseMessageHeader {
 
 	public boolean isRead() {
 		return read;
+	}
+
+	public boolean isBold() {
+		return bold;
+	}
+
+	public boolean isItalic() {
+		return italic;
 	}
 
 }
