@@ -417,4 +417,7 @@
 	<string name="skip">SKIP</string>
 	<string name="start">PROCEED</string>
 
+	<!-- Mute Contact -->
+	<string name="mute">Mute</string>
+
 </resources>

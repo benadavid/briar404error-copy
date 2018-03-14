@@ -475,6 +475,12 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
+	 * Marks the given contact as muted or un-muted.
+	 */
+	void setContactMuted(Transaction txn, ContactId c, boolean muted)
+			throws DbException;
+
+	/**
 	 * Sets the given group's visibility to the given contact.
 	 */
 	void setGroupVisibility(Transaction txn, ContactId c, GroupId g,
