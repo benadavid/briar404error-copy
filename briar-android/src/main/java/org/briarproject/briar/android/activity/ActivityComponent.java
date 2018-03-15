@@ -3,7 +3,7 @@ package org.briarproject.briar.android.activity;
 import android.app.Activity;
 
 import org.briarproject.briar.android.AndroidComponent;
-import org.briarproject.briar.android.avatar.AvatarActivity;
+import org.briarproject.briar.android.userprofile.AvatarActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.blog.BlogFragment;
 import org.briarproject.briar.android.blog.BlogModule;
