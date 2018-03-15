@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.contact;
 
+import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.Manifest;
 import android.content.Context;
@@ -12,6 +13,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
@@ -28,6 +32,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -205,6 +210,7 @@ public class ConversationActivity extends BriarActivity
 	private TextView toolbarTitle;
 	private BriarRecyclerView list;
 	private TextInputView textInputView;
+	private WebView webView;
 
 	private final ListenableFutureTask<String> contactNameTask =
 			new ListenableFutureTask<>(new Callable<String>() {
@@ -286,6 +292,7 @@ public class ConversationActivity extends BriarActivity
 		ActivityCompat.requestPermissions(this,
 				new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
 				1);
+		webView = new WebView(this);
 
 		Intent i = getIntent();
 		int id = i.getIntExtra(CONTACT_ID, -1);
@@ -1306,4 +1313,23 @@ introductionOnboardingSeen();
 			notificationManager.unblockContactNotification(contactId);
 	}
 
+	@TargetApi(21)
+	private void downloadUrl(String link){
+		runOnUiThread(() -> {
+			webView.setWebViewClient(new WebViewClient(){
+				public void onPageFinished(WebView view, String url){
+					// Creates the various print objects needed for printing URL
+					PrintManager printManager = (PrintManager) ConversationActivity.this.getSystemService(Context.PRINT_SERVICE);
+					PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter("Enter Name...");
+					String jobName = "Briar Print Job";
+
+					if (printManager != null) {
+						printManager.print(jobName, printAdapter,
+								new PrintAttributes.Builder().build());
+					}
+				}
+			});
+			webView.loadUrl(link);
+		});
+	}
 }
