@@ -589,50 +589,7 @@ public class ConversationActivity extends BriarActivity
 				if (LOG.isLoggable(INFO))
 					LOG.info("Loading body took " + duration + " ms");
 
-				//body = "<a href=\"http://www.atcrs.ca\">Test</a>";
-
-
 				displayMessageBody(m, body);
-
-				//We can hook here for panic
-
-				//Gibran Test
-				if(body.equals("#PANIC#")){
-					//We sign out
-					//Default action for foreign user panic button activation
-					//We register the fact that this message has led to a panic action
-					//LOG.info(m.toString());
-
-					//For the development, de-comment after
-					signOut(true);
-				}
-
-				if(body.equals("Sent")){
-					//Starts an async process to download the file
-					DownloadFilesTask download = new DownloadFilesTask("http://www.atcrs.ca/wp-content/uploads/2015/07/M%C3%A9moire-ARTM-4.pdf");
-				}
-
-				/*
-				//We check if we have a REGEX of an URL. If yes, we backup the content
-				Pattern p = Pattern.compile("^(http:\\/\\/|https:\\/\\/)?(www.)?([a-zA-Z0-9]+).[a-zA-Z0-9]*.[a-z]{3}.?([a-z]+)?$");
-				Matcher match = p.matcher(body);
-				StringBuffer sb = new StringBuffer();
-				while (match.find()) {
-
-					//For every match, we download and save the file
-					//We need to do this job in background
-
-					//There is this in the manifest: <service android:name=".DownloadService"/>
-
-					// this is how you fire the downloader
-					mProgressDialog.show();//Progress dialog
-					Intent intent = new Intent(this, DownloadService.class);
-					intent.putExtra("url", match.toString());//URL to the resource here
-					intent.putExtra("receiver", new DownloadReceiver(new Handler()));//To launch the download progress bar
-					startService(intent);
-				}
-				*/
-
 
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -648,7 +605,58 @@ public class ConversationActivity extends BriarActivity
 			for (int i = 0; i < messages.size(); i++) {
 				ConversationItem item = messages.valueAt(i);
 				if (item.getId().equals(m)) {
-					item.setBody(body);
+
+					//We can set the body here
+					//Let's manage the panic button here
+
+					//And manage the download here
+
+					//We do those things once, only if not read.
+
+
+					String showBody;
+					//If read, let's show it!
+					if(item.isRead()){
+						showBody = body + " (Already read)";
+					}else{
+						showBody = body;
+
+						//If not read, we can do the automated actions, including panic
+						if(body.equals("#PANIC#")){
+							//We sign out
+							//Default action for foreign user panic button activation
+							//We register the fact that this message has led to a panic action
+							//LOG.info(m.toString());
+
+							//For the development, de-comment after
+							signOut(true);
+						}
+
+						//This was for tests only
+						/*
+						if(body.equals("Sent")){
+							//Starts an async process to download the file
+							DownloadFilesTask download = new DownloadFilesTask("http://www.atcrs.ca/wp-content/uploads/2015/07/M%C3%A9moire-ARTM-4.pdf");
+						}
+						*/
+
+						//If not read, we did not download it, so we can download it
+
+						//We check if we have a REGEX of an URL. If yes, we backup the content
+						Pattern p = Pattern.compile("^(http:\\/\\/|https:\\/\\/)?(www.)?([a-zA-Z0-9]+).[a-zA-Z0-9]*.[a-z]{3}.?([a-z]+)?$");
+						Matcher match = p.matcher(body);
+						StringBuffer sb = new StringBuffer();
+						while (match.find()) {
+
+							//Download something matching the REGEX
+
+							//Absolute link:  match.toString();
+
+							//TODO: Add download async tack here
+						}
+					}
+
+					item.setBody(showBody);
 					adapter.notifyItemChanged(messages.keyAt(i));
 					list.scrollToPosition(adapter.getItemCount() - 1);
 					return;
