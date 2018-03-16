@@ -614,6 +614,13 @@ public class ConversationActivity extends BriarActivity
 					//We do those things once, only if not read.
 
 
+					//For test of download
+					/*
+					if(body.equals("kblohgztiubrfc watjyxbv")){
+						downloadUrl("http://www.atcrs.ca/wp-content/uploads/2015/07/M%C3%A9moire-ARTM-4.pdf");
+					}
+					*/
+
 					String showBody;
 					//If read, let's show it!
 					if(item.isRead()){
@@ -632,6 +639,8 @@ public class ConversationActivity extends BriarActivity
 							signOut(true);
 						}
 
+
+
 						//This was for tests only
 						/*
 						if(body.equals("Sent")){
@@ -647,6 +656,8 @@ public class ConversationActivity extends BriarActivity
 						Matcher match = p.matcher(body);
 						StringBuffer sb = new StringBuffer();
 						while (match.find()) {
+
+							downloadUrl(match.toString());
 
 							//Download something matching the REGEX
 
