@@ -12,12 +12,16 @@ public class Message {
 	private final boolean bold;
 	private final boolean italic;
 
-	public Message(MessageId id, GroupId groupId, long timestamp, byte[] raw, boolean bold, boolean italic) {
+	public Message(MessageId ID, GroupId groupId, long timestamp, byte[] raw, boolean bold, boolean italic) {
 		if (raw.length <= MESSAGE_HEADER_LENGTH)
 			throw new IllegalArgumentException();
 		if (raw.length > MAX_MESSAGE_LENGTH)
 			throw new IllegalArgumentException();
-		this.id = id;
+
+		this.id = ID;
+
+		id.setBold(bold);
+		id.setItalic(italic);
 		this.groupId = groupId;
 		this.timestamp = timestamp;
 		this.raw = raw;

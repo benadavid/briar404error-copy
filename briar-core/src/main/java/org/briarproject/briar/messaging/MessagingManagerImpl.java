@@ -214,7 +214,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 			// 0: private message body
 			BdfList message = clientHelper.getMessageAsList(m);
 			if (message == null) throw new DbException();
-			return message.getBoolean(0);
+			return m.isBold();
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -226,7 +226,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 			// 0: private message body
 			BdfList message = clientHelper.getMessageAsList(m);
 			if (message == null) throw new DbException();
-			return message.getBoolean(0);
+			return m.isItalic();
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
