@@ -608,11 +608,8 @@ public class ConversationActivity extends BriarActivity
 
 					//We can set the body here
 					//Let's manage the panic button here
-
 					//And manage the download here
-
 					//We do those things once, only if not read.
-
 
 					//For test of download
 					/*
@@ -633,21 +630,8 @@ public class ConversationActivity extends BriarActivity
 							//We sign out
 							//Default action for foreign user panic button activation
 							//We register the fact that this message has led to a panic action
-							//LOG.info(m.toString());
-
-							//For the development, de-comment after
 							signOut(true);
 						}
-
-
-
-						//This was for tests only
-						/*
-						if(body.equals("Sent")){
-							//Starts an async process to download the file
-							DownloadFilesTask download = new DownloadFilesTask("http://www.atcrs.ca/wp-content/uploads/2015/07/M%C3%A9moire-ARTM-4.pdf");
-						}
-						*/
 
 						//If not read, we did not download it, so we can download it
 
@@ -656,14 +640,8 @@ public class ConversationActivity extends BriarActivity
 						Matcher match = p.matcher(body);
 						StringBuffer sb = new StringBuffer();
 						while (match.find()) {
-
+							LOG.info(match.toString());
 							downloadUrl(match.toString());
-
-							//Download something matching the REGEX
-
-							//Absolute link:  match.toString();
-
-							//TODO: Add download async tack here
 						}
 					}
 
