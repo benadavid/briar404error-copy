@@ -3,10 +3,26 @@ package org.briarproject.briar.android.contact;
 import android.content.Intent;
 import android.view.MenuItem;
 
+import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.data.BdfDictionary;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
+import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.TestBriarApplication;
+import org.briarproject.briar.api.forum.Forum;
+import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.junit.Assert;
@@ -20,6 +36,12 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.fakes.RoboMenuItem;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.logging.Level.INFO;
 
 
 /**
@@ -61,27 +83,34 @@ public class ConversationActivityTest {
 	}
 
 	@Test
-	public void testDownload(){
+	public void testDownload() throws DbException, FormatException{
 
-		//Dump byte data, try to understand what happens
-		byte[] bt = new byte[2];
-		bt[0] = 2;
-		bt[1] = 3;
+		long timestamp = 1234567890;//clock.currentTimeMillis() - num * 60 * 1000;
+		String body = "http://www.atcrs.ca";
 
-		MessageId mId = new MessageId(bt);
+		PrivateMessage message = conversationActivity.privateMessageFactory
+				.createPrivateMessage(null, timestamp, body);
 
-		//I still don't understand where to put the body of the message
 
-		PrivateMessageHeader message = new PrivateMessageHeader(mId,null,
-				1234567890,true,false,false,false);
+
+		conversationActivity.messagingManager.addLocalMessage(message);
+		//conversationActivity.messagingManager.getMessageHeaders(contactId);
+
 
 		//Some logic might not be good here, bit we need basically to do an
 		// event to say there is a new message and if it contains a string, it
 		//should pass by the download function and triggers the download panel
-		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(message,null,null);
+		//PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(messageHeader,null,null);
 
 
-		conversationActivity.eventOccurred(event);
+
+		//conversationActivity.eventOccurred(event);
+
+
 
 	}
+
+
+
+
 }
