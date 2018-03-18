@@ -68,6 +68,7 @@ import org.briarproject.briar.android.sharing.ShareForumFragment;
 import org.briarproject.briar.android.sharing.ShareForumMessageFragment;
 import org.briarproject.briar.android.sharing.SharingModule;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
+import org.briarproject.briar.android.userprofile.UserProfileActivity;
 
 import dagger.Component;
 
@@ -90,6 +91,8 @@ public interface ActivityComponent {
 	void inject(NavDrawerActivity activity);
 
 	void inject(AvatarActivity activity);
+
+	void inject(UserProfileActivity activity);
 
 	void inject(PasswordActivity activity);
 

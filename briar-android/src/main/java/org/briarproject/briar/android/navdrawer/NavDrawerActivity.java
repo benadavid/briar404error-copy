@@ -141,7 +141,6 @@ public class NavDrawerActivity extends BriarActivity implements
 		component.inject(this);
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
