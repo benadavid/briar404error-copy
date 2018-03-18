@@ -90,10 +90,39 @@ public class ConversationActivityTest {
 	public void testDownload() throws DbException, FormatException{
 
 
-		byte[] bt = new byte[2];
+		byte[] bt = new byte[32];
 		bt[0] = 0;
-		bt[1] =1;
-
+		bt[1] = 1;
+		bt[2] = 0;
+		bt[3] = 1;
+		bt[4] = 0;
+		bt[5] = 1;
+		bt[6] = 0;
+		bt[7] = 1;
+		bt[8] = 0;
+		bt[9] = 1;
+		bt[10] = 0;
+		bt[11] = 1;
+		bt[12] = 0;
+		bt[13] = 1;
+		bt[14] = 0;
+		bt[15] = 1;
+		bt[16] = 0;
+		bt[17] = 1;
+		bt[18] = 0;
+		bt[19] = 1;
+		bt[20] = 0;
+		bt[21] = 1;
+		bt[22] = 0;
+		bt[23] = 1;
+		bt[24] = 0;
+		bt[25] = 1;
+		bt[26] = 0;
+		bt[27] = 1;
+		bt[28] = 0;
+		bt[29] = 1;
+		bt[30] = 0;
+		bt[31] = 1;
 
 		//ContactId cId = new ContactId(1);
 		AuthorId aId = new AuthorId(bt);

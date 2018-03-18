@@ -43,6 +43,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
@@ -318,6 +319,7 @@ public class ConversationActivity extends BriarActivity
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_private_messages));
 		//accessing the firebase storage
+		FirebaseApp.initializeApp(this);
 		storage = FirebaseStorage.getInstance();
 		//creates a storage reference
 		storageRef = storage.getReference();
