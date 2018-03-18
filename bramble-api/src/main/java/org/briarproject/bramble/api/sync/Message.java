@@ -19,9 +19,6 @@ public class Message {
 			throw new IllegalArgumentException();
 
 		this.id = ID;
-
-		id.setBold(bold);
-		id.setItalic(italic);
 		this.groupId = groupId;
 		this.timestamp = timestamp;
 		this.raw = raw;
