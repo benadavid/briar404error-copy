@@ -1,8 +1,11 @@
 package org.briarproject.briar.android.contact;
 
 import android.support.annotation.UiThread;
+import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
+
+import com.commonsware.cwac.anddown.AndDown;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.StringUtils;
@@ -35,7 +38,10 @@ class ConversationNoticeInViewHolder extends ConversationItemViewHolder {
 			layout.setBackgroundResource(R.drawable.notice_in);
 		} else {
 			msgText.setVisibility(VISIBLE);
-			msgText.setText(StringUtils.trim(message));
+			AndDown converter = new AndDown();
+			String HTMLText = converter.markdownToHtml(StringUtils.trim(message));
+			CharSequence HTMLString = Html.fromHtml(HTMLText);
+			msgText.setText(HTMLString);
 			layout.setBackgroundResource(R.drawable.notice_in_bottom);
 		}
 	}

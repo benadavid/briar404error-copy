@@ -36,10 +36,10 @@ class ConversationItemViewHolder extends ViewHolder {
 			text.setText("\u2026");
 		} else {
 
-			AndDown converter=new AndDown();
-			String cooked=converter.markdownToHtml(StringUtils.trim(item.getBody()));
-			CharSequence cs= Html.fromHtml(cooked);
-			text.setText(cs);
+			AndDown converter = new AndDown();
+			String HTMLText = converter.markdownToHtml(StringUtils.trim(item.getBody()));
+			CharSequence HTMLString = Html.fromHtml(HTMLText);
+			text.setText(HTMLString);
 		}
 
 		long timestamp = item.getTime();

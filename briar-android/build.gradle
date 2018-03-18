@@ -13,7 +13,6 @@ dependencies {
 	implementation project(path: ':bramble-android', configuration: 'default')
 
 	def supportVersion = '27.0.1'
-	//noinspection GradleCompatible
 	implementation "com.android.support:support-v4:$supportVersion"
 	implementation("com.android.support:appcompat-v7:$supportVersion") {
 		exclude module: 'support-v4'
@@ -193,11 +192,11 @@ def getGitHash = { ->
 
 android {
 	compileSdkVersion 27
-	buildToolsVersion '26.0.2'
+	buildToolsVersion '27.0.3'
 
 	defaultConfig {
 		minSdkVersion 14
-		targetSdkVersion 26
+		targetSdkVersion 27
 		versionCode 1700
 		versionName "0.17.0"
 		applicationId "org.briarproject.briar.android"
@@ -250,3 +249,5 @@ android {
 		warning 'ExtraTranslation'
 	}
 }
+
+apply plugin: 'com.google.gms.google-services'
