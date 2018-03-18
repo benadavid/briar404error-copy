@@ -10,6 +10,8 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -38,7 +40,9 @@ import org.robolectric.annotation.Config;
 import org.robolectric.fakes.RoboMenuItem;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 import static java.util.logging.Level.INFO;
@@ -85,32 +89,49 @@ public class ConversationActivityTest {
 	@Test
 	public void testDownload() throws DbException, FormatException{
 
+
+		byte[] bt = new byte[2];
+		bt[0] = 0;
+		bt[1] =1;
+
+
+		//ContactId cId = new ContactId(1);
+		AuthorId aId = new AuthorId(bt);
+		Author author = new Author(aId, "ALLO",null);
+		LocalAuthor localAuthor = new LocalAuthor(aId,"ALLO",null,null,123455678);
+
+
+		ContactId contactId = conversationActivity.contactManager.addContact(
+				author,localAuthor.getId(),
+				null,123455678,true,true,true);
+
+
+		Contact contact = new Contact(contactId,author,localAuthor.getId(),true,true);
+
+
+		Group group = conversationActivity.messagingManager.getContactGroup(contact);
+
+
 		long timestamp = 1234567890;//clock.currentTimeMillis() - num * 60 * 1000;
 		String body = "http://www.atcrs.ca";
 
 		PrivateMessage message = conversationActivity.privateMessageFactory
-				.createPrivateMessage(null, timestamp, body);
-
+				.createPrivateMessage(group.getId(), timestamp, body);
 
 
 		conversationActivity.messagingManager.addLocalMessage(message);
-		//conversationActivity.messagingManager.getMessageHeaders(contactId);
-
+		Collection<PrivateMessageHeader> pm = conversationActivity.messagingManager.getMessageHeaders(contactId);
 
 		//Some logic might not be good here, bit we need basically to do an
 		// event to say there is a new message and if it contains a string, it
 		//should pass by the download function and triggers the download panel
-		//PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(messageHeader,null,null);
+		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(pm.iterator().next(),null,null);
 
 
 
-		//conversationActivity.eventOccurred(event);
-
-
+		conversationActivity.eventOccurred(event);
 
 	}
-
-
 
 
 }
