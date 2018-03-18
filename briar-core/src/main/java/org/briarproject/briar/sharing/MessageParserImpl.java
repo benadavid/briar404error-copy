@@ -17,7 +17,9 @@ import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.briar.sharing.MessageType.INVITE;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
+import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_BOLD;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_INVITATION_ACCEPTED;
+import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_ITALIC;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_READ;
@@ -70,8 +72,10 @@ abstract class MessageParserImpl<S extends Shareable>
 		boolean visible = meta.getBoolean(MSG_KEY_VISIBLE_IN_UI, false);
 		boolean available = meta.getBoolean(MSG_KEY_AVAILABLE_TO_ANSWER, false);
 		boolean accepted = meta.getBoolean(MSG_KEY_INVITATION_ACCEPTED, false);
+		boolean bold = meta.getBoolean(MSG_KEY_BOLD, false);
+		boolean italic = meta.getBoolean(MSG_KEY_ITALIC, false);
 		return new MessageMetadata(type, shareableId, timestamp, local, read,
-				visible, available, accepted);
+				visible, available, accepted, bold, italic);
 	}
 
 	@Override

@@ -19,4 +19,8 @@ public class PrivateMessage {
 		return message;
 	}
 
+	public boolean isBold(PrivateMessage PM) { return PM.getMessage().getBold(); }
+
+	public boolean isItalic(PrivateMessage PM) { return PM.getMessage().getItalic(); }
+
 }

@@ -557,7 +557,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			throws DbException {
 		BdfDictionary meta = messageEncoder
 				.encodeMetadata(type, shareableId, m.getTimestamp(), true, true,
-						visibleInConversation, false, false);
+						visibleInConversation, false, false, m.getBold(), m.getItalic());
 		try {
 			clientHelper.addLocalMessage(txn, m, meta, true);
 		} catch (FormatException e) {

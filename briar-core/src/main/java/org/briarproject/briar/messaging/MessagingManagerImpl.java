@@ -96,8 +96,10 @@ class MessagingManagerImpl extends ConversationClientImpl
 		long timestamp = meta.getLong("timestamp");
 		boolean local = meta.getBoolean("local");
 		boolean read = meta.getBoolean(MSG_KEY_READ);
+		boolean bold = meta.getBoolean("bold");
+		boolean italic = meta.getBoolean("italic");
 		PrivateMessageHeader header = new PrivateMessageHeader(
-				m.getId(), groupId, timestamp, local, read, false, false, m.getBold(), m.getItalic());
+				m.getId(), groupId, timestamp, local, read, false, false, bold, italic);
 		ContactId contactId = getContactId(txn, groupId);
 		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(
 				header, contactId, groupId);
@@ -116,6 +118,8 @@ class MessagingManagerImpl extends ConversationClientImpl
 			meta.put("timestamp", m.getMessage().getTimestamp());
 			meta.put("local", true);
 			meta.put("read", true);
+			meta.put("bold", m.isBold(m));
+			meta.put("italic", m.isItalic(m));
 			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
 			messageTracker.trackOutgoingMessage(txn, m.getMessage());
 			db.commitTransaction(txn);
@@ -186,9 +190,11 @@ class MessagingManagerImpl extends ConversationClientImpl
 				long timestamp = meta.getLong("timestamp");
 				boolean local = meta.getBoolean("local");
 				boolean read = meta.getBoolean("read");
+				boolean bold = meta.getBoolean("bold");
+				boolean italic = meta.getBoolean("italic");
 				headers.add(
 						new PrivateMessageHeader(id, g, timestamp, local, read,
-								s.isSent(), s.isSeen(), getBold(id), getItalic(id)));
+								s.isSent(), s.isSeen(), bold, italic));
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}
