@@ -12,7 +12,8 @@ class MessageMetadata {
 	private final MessageType type;
 	private final GroupId shareableId;
 	private final long timestamp;
-	private final boolean local, read, visible, available, accepted, bold, italic;
+	private final boolean local, read, visible, available, accepted;
+	private boolean bold, italic;
 
 	MessageMetadata(MessageType type, GroupId shareableId, long timestamp,
 			boolean local, boolean read, boolean visible, boolean available,

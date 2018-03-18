@@ -129,7 +129,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 				MessageId id = unvalidated.poll();
 				byte[] raw = db.getRawMessage(txn, id);
 				if (raw == null) throw new DbException();
-				m = messageFactory.createMessage(id, raw, false, false);
+				boolean bold = db.getBold(txn, id);
+				boolean italic = db.getItalic(txn, id);
+				m = messageFactory.createMessage(id, raw, bold, italic);
 				g = db.getGroup(txn, m.getGroupId());
 				db.commitTransaction(txn);
 			} finally {
@@ -198,7 +200,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 					} else if (allDelivered) {
 						byte[] raw = db.getRawMessage(txn, id);
 						if (raw == null) throw new DbException();
-						Message m = messageFactory.createMessage(id, raw, false, false);
+						boolean bold = db.getBold(txn, id);
+						boolean italic = db.getItalic(txn, id);
+						Message m = messageFactory.createMessage(id, raw, bold, italic);
 						Group g = db.getGroup(txn, m.getGroupId());
 						ClientId c = g.getClientId();
 						Metadata meta =

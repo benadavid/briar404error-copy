@@ -52,6 +52,7 @@ import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -77,7 +78,7 @@ import static org.briarproject.bramble.db.DatabaseConstants.MAX_OFFERED_MESSAGES
 
 @ThreadSafe
 @NotNullByDefault
-class DatabaseComponentImpl<T> implements DatabaseComponent {
+class DatabaseComponentImpl<T extends Connection> implements DatabaseComponent {
 
 	private static final Logger LOG =
 			Logger.getLogger(DatabaseComponentImpl.class.getName());
@@ -491,6 +492,26 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsMessage(txn, m))
 			throw new NoSuchMessageException();
 		return db.getRawMessage(txn, m);
+	}
+
+	@Nullable
+	@Override
+	public boolean getBold(Transaction transaction, MessageId m)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		return db.getBold(txn, m);
+	}
+
+	@Nullable
+	@Override
+	public boolean getItalic(Transaction transaction, MessageId m)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		return db.getItalic(txn, m);
 	}
 
 	@Override

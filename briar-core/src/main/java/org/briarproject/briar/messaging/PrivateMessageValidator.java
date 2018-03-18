@@ -41,8 +41,8 @@ class PrivateMessageValidator extends BdfMessageValidator {
 		meta.put("timestamp", m.getTimestamp());
 		meta.put("local", false);
 		meta.put(MSG_KEY_READ, false);
-		meta.put("bold", m.getBold());
-		meta.put("italic", m.getItalic());
+		meta.put("bold", true);
+		meta.put("italic", true);
 		return new BdfMessageContext(meta);
 	}
 }

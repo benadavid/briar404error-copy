@@ -20,6 +20,7 @@ import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.ValidationManager.State;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
+import java.sql.Connection;
 import java.util.Collection;
 import java.util.Map;
 
@@ -457,6 +458,14 @@ interface Database<T> {
 	 */
 	@Nullable
 	byte[] getRawMessage(T txn, MessageId m) throws DbException;
+
+	@Nullable
+	boolean getBold(Connection txn, MessageId m)
+			throws DbException;
+
+	@Nullable
+	boolean getItalic(Connection txn, MessageId m)
+			throws DbException;
 
 	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the

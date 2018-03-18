@@ -289,6 +289,14 @@ public interface DatabaseComponent {
 	@Nullable
 	byte[] getRawMessage(Transaction txn, MessageId m) throws DbException;
 
+	@Nullable
+	boolean getBold(Transaction transaction, MessageId m)
+			throws DbException;
+
+	@Nullable
+	boolean getItalic(Transaction transaction, MessageId m)
+			throws DbException;
+
 	/**
 	 * Returns the metadata for all delivered messages in the given group.
 	 * <p/>

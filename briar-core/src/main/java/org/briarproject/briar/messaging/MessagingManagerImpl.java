@@ -118,8 +118,8 @@ class MessagingManagerImpl extends ConversationClientImpl
 			meta.put("timestamp", m.getMessage().getTimestamp());
 			meta.put("local", true);
 			meta.put("read", true);
-			meta.put("bold", m.isBold(m));
-			meta.put("italic", m.isItalic(m));
+			meta.put("bold", true);
+			meta.put("italic", true);
 			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
 			messageTracker.trackOutgoingMessage(txn, m.getMessage());
 			db.commitTransaction(txn);
@@ -220,7 +220,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 			// 0: private message body
 			BdfList message = clientHelper.getMessageAsList(m);
 			if (message == null) throw new DbException();
-			return m.isBold();
+			return message.getBoolean(1);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -232,7 +232,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 			// 0: private message body
 			BdfList message = clientHelper.getMessageAsList(m);
 			if (message == null) throw new DbException();
-			return m.isItalic();
+			return message.getBoolean(2);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

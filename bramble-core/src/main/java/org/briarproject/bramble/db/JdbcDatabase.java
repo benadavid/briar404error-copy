@@ -603,8 +603,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO messages (messageId, groupId, timestamp,"
-					+ " state, shared, length, raw)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
+					+ " state, shared, length, raw, bold, italic)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			ps.setBytes(2, m.getGroupId().getBytes());
@@ -614,6 +614,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			byte[] raw = m.getRaw();
 			ps.setInt(6, raw.length);
 			ps.setBytes(7, raw);
+			boolean bold = m.getBold();
+			ps.setBoolean(8, bold);
+			boolean italic = m.getItalic();
+			ps.setBoolean(9, italic);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -1854,6 +1858,54 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return raw;
+		} catch (SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	@Nullable
+	public boolean getBold(Connection txn, MessageId m)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT bold FROM messages WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBoolean(1, m.isBold());
+			rs = ps.executeQuery();
+			if (!rs.next()) throw new DbStateException();
+			boolean bold = rs.getBoolean(1);
+			if (rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return bold;
+		} catch (SQLException e) {
+			tryToClose(rs);
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	@Nullable
+	public boolean getItalic(Connection txn, MessageId m)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT italic FROM messages WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBoolean(1, m.isItalic());
+			rs = ps.executeQuery();
+			if (!rs.next()) throw new DbStateException();
+			boolean italic = rs.getBoolean(1);
+			if (rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return italic;
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);

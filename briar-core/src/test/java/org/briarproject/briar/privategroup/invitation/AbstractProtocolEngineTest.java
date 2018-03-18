@@ -23,6 +23,8 @@ import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.jmock.Expectations;
 
+import java.util.Random;
+
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
@@ -55,6 +57,8 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 			context.mock(MessageTracker.class);
 	protected final Clock clock = context.mock(Clock.class);
 
+	private static final Random random = new Random();
+
 	protected final Transaction txn = new Transaction(null, false);
 	protected final GroupId contactGroupId = new GroupId(getRandomId());
 	protected final GroupId privateGroupId = new GroupId(getRandomId());
@@ -76,7 +80,7 @@ public abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	protected final MessageId messageId = new MessageId(getRandomId());
 	protected final Message message =
 			new Message(messageId, contactGroupId, messageTimestamp,
-					getRandomBytes(42));
+					getRandomBytes(42), random.nextBoolean(), random.nextBoolean());
 	private final BdfDictionary meta =
 			BdfDictionary.of(new BdfEntry("me", "ta"));
 	protected final ContactId contactId = new ContactId(5);
