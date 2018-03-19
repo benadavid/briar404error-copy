@@ -419,5 +419,6 @@
 
 	<!-- Mute Contact -->
 	<string name="mute">Mute</string>
+	<string name="title_activity_user_profile">UserProfileActivity</string>
 
 </resources>
