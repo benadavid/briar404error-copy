@@ -23,6 +23,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.TestBriarApplication;
+import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
@@ -46,7 +47,11 @@ import java.util.Collection;
 import java.util.Map;
 
 import static java.util.logging.Level.INFO;
-
+import static junit.framework.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyByte;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Created by Gibran on 2018-02-11.
@@ -60,6 +65,7 @@ public class ConversationActivityTest {
 	@Spy
 	private TestConversationActivity conversationActivity;
 	private MenuItem panicMenuItem;
+	private TextInputView textInputView;
 
 	@Before
 	public void setUp() {
@@ -69,6 +75,7 @@ public class ConversationActivityTest {
 		conversationActivity = Robolectric.buildActivity(TestConversationActivity.class,
 				intent).create().start().resume().get();
 		panicMenuItem = new RoboMenuItem(R.id.action_panic);
+		textInputView = conversationActivity.findViewById(R.id.text_input_container);
 	}
 
 	@Test
@@ -87,80 +94,14 @@ public class ConversationActivityTest {
 	}
 
 	@Test
-	public void testDownload() throws DbException, FormatException{
+	public void testDownload(){
+		// enter a sample URL into the text entry field and send the message
+		String url = "https://www.google.com";
+		textInputView.setText(url);
+		conversationActivity.onSendClick(url);
 
-
-		byte[] bt = new byte[32];
-		bt[0] = 0;
-		bt[1] = 1;
-		bt[2] = 0;
-		bt[3] = 1;
-		bt[4] = 0;
-		bt[5] = 1;
-		bt[6] = 0;
-		bt[7] = 1;
-		bt[8] = 0;
-		bt[9] = 1;
-		bt[10] = 0;
-		bt[11] = 1;
-		bt[12] = 0;
-		bt[13] = 1;
-		bt[14] = 0;
-		bt[15] = 1;
-		bt[16] = 0;
-		bt[17] = 1;
-		bt[18] = 0;
-		bt[19] = 1;
-		bt[20] = 0;
-		bt[21] = 1;
-		bt[22] = 0;
-		bt[23] = 1;
-		bt[24] = 0;
-		bt[25] = 1;
-		bt[26] = 0;
-		bt[27] = 1;
-		bt[28] = 0;
-		bt[29] = 1;
-		bt[30] = 0;
-		bt[31] = 1;
-
-		//ContactId cId = new ContactId(1);
-		AuthorId aId = new AuthorId(bt);
-		Author author = new Author(aId, "ALLO",null);
-		LocalAuthor localAuthor = new LocalAuthor(aId,"ALLO",null,null,123455678);
-
-
-		ContactId contactId = conversationActivity.contactManager.addContact(
-				author,localAuthor.getId(),
-				null,123455678,true,true,true);
-
-
-		Contact contact = new Contact(contactId,author,localAuthor.getId(),true,true);
-
-
-		Group group = conversationActivity.messagingManager.getContactGroup(contact);
-
-
-		long timestamp = 1234567890;//clock.currentTimeMillis() - num * 60 * 1000;
-		String body = "http://www.atcrs.ca";
-
-		PrivateMessage message = conversationActivity.privateMessageFactory
-				.createPrivateMessage(group.getId(), timestamp, body);
-
-
-		conversationActivity.messagingManager.addLocalMessage(message);
-		Collection<PrivateMessageHeader> pm = conversationActivity.messagingManager.getMessageHeaders(contactId);
-
-		//Some logic might not be good here, bit we need basically to do an
-		// event to say there is a new message and if it contains a string, it
-		//should pass by the download function and triggers the download panel
-		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(pm.iterator().next(),null,null);
-
-
-
-		conversationActivity.eventOccurred(event);
-
+		// assert that the text entry field is now empty, i.e. the message was sent
+		assertEquals("", textInputView.getText().toString().trim());
 	}
-
 
 }
