@@ -46,3 +46,12 @@ script:
   # The build script to create a clean build with instrumentation test with no predexing and  stacktrace for errors
   # More about predexing and CI performance https://www.littlerobots.nl/blog/disable-android-pre-dexing-on-ci-builds/
   - ./gradlew clean build test check -PdisablePreDex --stacktrace
+  
+jobs:
+  include:
+    - stage: clean
+      script: ./gradlew clean
+    - stage: unittest
+      script: ./gradlew test check -PdisablePreDex --stacktrace
+    - stage: instrumentedtestandbuild
+      script: ./gradlew build connectedCheck
