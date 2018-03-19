@@ -108,6 +108,7 @@ import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
 import org.thoughtcrime.securesms.components.util.FutureTaskListener;
 import org.thoughtcrime.securesms.components.util.ListenableFutureTask;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
