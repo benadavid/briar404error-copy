@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.avatar;
+package org.briarproject.briar.android.userprofile;
 
 /**
  * Created by David on 2018-02-14.
@@ -20,36 +20,26 @@ import javax.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.bumptech.glide.load.resource.bitmap.BitmapDrawableResource;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
-import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
-import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.NoSuchContactException;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,7 +48,6 @@ import java.io.FileOutputStream;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.APP_PATH_SD_CARD;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.APP_THUMBNAIL_PATH_SD_CARD;
 
