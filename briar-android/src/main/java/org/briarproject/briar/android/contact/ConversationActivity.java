@@ -1207,7 +1207,9 @@ introductionOnboardingSeen();
 
 					// create file in Downloads folder
 					String filename = "test.pdf";
-					File filePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + filename);
+					File filePath = new File(
+							Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+									+ File.separator + filename);
 
 					// instantiate file if it doesn't already exist, and set up output stream for writing
 					if(!filePath.exists()){
