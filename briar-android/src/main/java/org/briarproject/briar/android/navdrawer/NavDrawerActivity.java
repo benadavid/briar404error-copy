@@ -6,12 +6,9 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
@@ -20,7 +17,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -49,7 +45,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.avatar.AvatarActivity;
+import org.briarproject.briar.android.userprofile.UserProfileActivity;
 import org.briarproject.briar.android.blog.FeedFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
@@ -63,7 +59,6 @@ import org.briarproject.briar.android.settings.SettingsActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -146,7 +141,6 @@ public class NavDrawerActivity extends BriarActivity implements
 		component.inject(this);
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
@@ -225,7 +219,7 @@ public class NavDrawerActivity extends BriarActivity implements
 		          imgButton.setOnClickListener(new View.OnClickListener() {
             @Override
              public void onClick(View v) {
-	            startActivity(new Intent(NavDrawerActivity.this, AvatarActivity.class));
+	            startActivity(new Intent(NavDrawerActivity.this, UserProfileActivity.class));
             	/*
             	Intent intent = new Intent(Intent.ACTION_PICK);
 	            intent.setType("image/*");
