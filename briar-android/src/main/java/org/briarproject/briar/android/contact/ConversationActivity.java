@@ -39,6 +39,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.storage.StorageException;
@@ -274,7 +278,7 @@ public class ConversationActivity extends BriarActivity
 	private volatile AuthorId contactAuthorId;
 	@Nullable
 	private volatile GroupId messagingGroupId;
-	private boolean isMuted;
+	protected boolean isMuted;
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
@@ -311,6 +315,7 @@ public class ConversationActivity extends BriarActivity
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_private_messages));
+		FirebaseApp.initializeApp(this);
 		//accessing the firebase storage
 		FirebaseApp.initializeApp(this);
 		storage = FirebaseStorage.getInstance();
@@ -1273,7 +1278,7 @@ introductionOnboardingSeen();
 		setContactMutedOrUnMuted();
 	}
 
-	private void setContactMutedOrUnMuted()
+	protected void setContactMutedOrUnMuted()
 	{
 		runOnDbThread(() -> {
 			try {
@@ -1283,14 +1288,14 @@ introductionOnboardingSeen();
 			}});
 	}
 
-	private void muteOrUnMuteContact()
+	protected void muteOrUnMuteContact()
 	{
 		if(isMuted)
 			notificationManager.blockContactNotification(contactId);
 		else
 			notificationManager.unblockContactNotification(contactId);
 	}
-
+  
 	@TargetApi(21)
 	private void downloadUrl(String link){
 		runOnUiThread(() -> {
@@ -1311,5 +1316,12 @@ introductionOnboardingSeen();
 			});
 			webView.loadUrl(link);
 		});
+	}
+
+	protected void setContactManager(ContactManager contactManager) {
+		this.contactManager = contactManager;
+	}
+	protected void setNotificationManager(AndroidNotificationManager notificationManager) {
+		this.notificationManager = notificationManager;
 	}
 }

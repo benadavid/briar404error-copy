@@ -34,3 +34,6 @@
     **[] $VALUES;
     public *;
 }
+
+-dontwarn org.xmlpull.v1.**
+-dontwarn javax.annotation.**
