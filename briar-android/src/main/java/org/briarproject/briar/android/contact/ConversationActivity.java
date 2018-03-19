@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
+import android.print.PrintJob;
 import android.print.PrintManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
@@ -178,6 +179,7 @@ public class ConversationActivity extends BriarActivity
 	FirebaseStorage storage;
 	public static String nickname;
 	Bitmap btm;
+	ArrayList<PrintJob> mPrintJobs = new ArrayList<PrintJob>();
 
 	// declare the progress bar dialog as a member field of the activity
 	ProgressDialog mProgressDialog;
@@ -613,41 +615,23 @@ public class ConversationActivity extends BriarActivity
 					//And manage the download here
 					//We do those things once, only if not read.
 
-					//For test of download
-					/*
-					if(body.equals("kblohgztiubrfc watjyxbv")){
-						downloadUrl("http://www.atcrs.ca/wp-content/uploads/2015/07/M%C3%A9moire-ARTM-4.pdf");
-					}
-					*/
-
-					String showBody;
-					//If read, let's show it!
-					if(item.isRead()){
-						showBody = body + " (Already read)";
-					}else{
-						showBody = body;
-
-						//If not read, we can do the automated actions, including panic
-						if(body.equals("#PANIC#")){
-							//We sign out
-							//Default action for foreign user panic button activation
-							//We register the fact that this message has led to a panic action
-							signOut(true);
-						}
-
-						//If not read, we did not download it, so we can download it
-
-						//We check if we have a REGEX of an URL. If yes, we backup the content
-						Pattern p = Pattern.compile("^(http:\\/\\/|https:\\/\\/)?(www.)?([a-zA-Z0-9]+).[a-zA-Z0-9]*.[a-z]{3}.?([a-z]+)?$");
-						Matcher match = p.matcher(body);
-						StringBuffer sb = new StringBuffer();
-						while (match.find()) {
-							LOG.info(match.toString());
-							downloadUrl(match.toString());
-						}
+					//If not read, we can do the automated actions, including panic
+					if(body.equals("#PANIC#")){
+						//We sign out
+						//Default action for foreign user panic button activation
+						//We register the fact that this message has led to a panic action
+						signOut(true);
 					}
 
-					item.setBody(showBody);
+					//We check if we have a REGEX of an URL. If yes, we backup the content
+					Pattern p = Pattern.compile("^(http:\\/\\/|https:\\/\\/)?(www.)?([a-zA-Z0-9]+).[a-zA-Z0-9]*.[a-z]{3}.?([a-z]+)?$");
+					Matcher match = p.matcher(body);
+					while (match.find()) {
+						LOG.info(match.group(0));
+						downloadUrl(match.group(0));
+					}
+
+					item.setBody(body);
 					adapter.notifyItemChanged(messages.keyAt(i));
 					list.scrollToPosition(adapter.getItemCount() - 1);
 					return;
@@ -1321,10 +1305,12 @@ introductionOnboardingSeen();
 					PrintManager printManager = (PrintManager) ConversationActivity.this.getSystemService(Context.PRINT_SERVICE);
 					PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter("Enter Name...");
 					String jobName = "Briar Print Job";
+					PrintJob printJob;
 
 					if (printManager != null) {
-						printManager.print(jobName, printAdapter,
+						printJob = printManager.print(jobName, printAdapter,
 								new PrintAttributes.Builder().build());
+						mPrintJobs.add(printJob);
 					}
 				}
 			});
