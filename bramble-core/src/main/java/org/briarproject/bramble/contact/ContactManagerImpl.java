@@ -23,7 +23,7 @@ import javax.inject.Inject;
 
 @ThreadSafe
 @NotNullByDefault
-class ContactManagerImpl implements ContactManager {
+public class ContactManagerImpl implements ContactManager {
 
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;

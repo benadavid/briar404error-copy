@@ -3,9 +3,12 @@ package org.briarproject.briar.android.contact;
 import android.support.annotation.CallSuper;
 import android.support.annotation.UiThread;
 import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.commonsware.cwac.anddown.AndDown;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.StringUtils;
@@ -32,7 +35,11 @@ class ConversationItemViewHolder extends ViewHolder {
 		if (item.getBody() == null) {
 			text.setText("\u2026");
 		} else {
-			text.setText(StringUtils.trim(item.getBody()));
+
+			AndDown converter = new AndDown();
+			String HTMLText = converter.markdownToHtml(StringUtils.trim(item.getBody()));
+			CharSequence HTMLString = Html.fromHtml(HTMLText);
+			text.setText(HTMLString);
 		}
 
 		long timestamp = item.getTime();

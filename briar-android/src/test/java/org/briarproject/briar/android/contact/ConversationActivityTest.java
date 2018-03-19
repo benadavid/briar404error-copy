@@ -28,17 +28,29 @@ import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
+import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.briar.R;
+import org.briarproject.briar.android.TestBriarApplication;
+import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.Assert.*;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.fakes.RoboMenuItem;
+import org.briarproject.bramble.contact.ContactManagerImpl;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -62,8 +74,8 @@ import static org.mockito.Mockito.verify;
 		packageName = "org.briarproject.briar")
 public class ConversationActivityTest {
 
-	@Spy
 	private TestConversationActivity conversationActivity;
+	private TestConversationActivity spyConversationActivity;
 	private MenuItem panicMenuItem;
 	private TextInputView textInputView;
 
@@ -74,6 +86,7 @@ public class ConversationActivityTest {
 		intent.putExtra("briar.GROUP_ID", TestUtils.getRandomId());
 		conversationActivity = Robolectric.buildActivity(TestConversationActivity.class,
 				intent).create().start().resume().get();
+		spyConversationActivity = Mockito.spy(conversationActivity);
 		panicMenuItem = new RoboMenuItem(R.id.action_panic);
 		textInputView = conversationActivity.findViewById(R.id.text_input_container);
 	}
@@ -104,4 +117,32 @@ public class ConversationActivityTest {
 		assertEquals("", textInputView.getText().toString().trim());
 	}
 
+  @Test
+	public void testSetContactMutedOrUnMuted() throws DbException {
+		spyConversationActivity.setContactMutedOrUnMuted();
+
+		Mockito.verify(spyConversationActivity).setContactMutedOrUnMuted();
+	}
+
+	@Test
+	public void testContactUnMute() {
+		AndroidNotificationManager mockNotificationManager = Mockito.mock(AndroidNotificationManager.class);
+		conversationActivity.setNotificationManager(mockNotificationManager);
+		conversationActivity.isMuted = false;
+
+		conversationActivity.muteOrUnMuteContact();
+
+		Mockito.verify(mockNotificationManager).unblockContactNotification(any(ContactId.class));
+	}
+
+	@Test
+	public void testContactMute() {
+		AndroidNotificationManager mockNotificationManager = Mockito.mock(AndroidNotificationManager.class);
+		conversationActivity.setNotificationManager(mockNotificationManager);
+		conversationActivity.isMuted = true;
+
+		conversationActivity.muteOrUnMuteContact();
+
+		Mockito.verify(mockNotificationManager).blockContactNotification(any(ContactId.class));
+	}
 }
