@@ -46,10 +46,70 @@
       },
       "oauth_client": [
         {
+          "client_id": "550478886314-g673kvrfkfccsjfk2g4d5t5sdpl30qjh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.briarproject.briar.android.debug",
+            "certificate_hash": "2ae4a63873ad2bbfdcd1f5183901e0f49af395a6"
+          }
+        },
+        {
+          "client_id": "550478886314-3t6qnuog5t622rdc454hf0p60jsf2mie.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.briarproject.briar.android.debug",
+            "certificate_hash": "ec46772a5d113a934b11b5d98717039758de9a72"
+          }
+        },
+        {
           "client_id": "550478886314-hki6ee0egeet6vpes9tkbfa908uracn7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "org.briarproject.briar.android.debug",
+            "certificate_hash": "4b401b57c8ae07e8bc4d8017cbd9ef73118904a9"
+          }
+        },
+        {
+          "client_id": "550478886314-kl1do7d5kk2v6i155hl201pn2ai9fi20.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaHp9Nc2WfRytyphm1-Pn9Dhu71WaTe7g"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "550478886314-kl1do7d5kk2v6i155hl201pn2ai9fi20.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:550478886314:android:4ab7c7691d008c95",
+        "android_client_info": {
+          "package_name": "org.briarproject.briar.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "550478886314-t4n5f0snnc92kjin9u1opndrunltc0b5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.briarproject.briar.debug",
             "certificate_hash": "4b401b57c8ae07e8bc4d8017cbd9ef73118904a9"
           }
         },
