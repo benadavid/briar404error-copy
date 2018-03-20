@@ -39,7 +39,8 @@ class ConversationNoticeInViewHolder extends ConversationItemViewHolder {
 			msgText.setVisibility(GONE);
 			layout.setBackgroundResource(R.drawable.notice_in);
 		} else {
-			colour = item.getBody().substring((item.getBody().length() -3), (item.getBody().length()));
+			msgText.setVisibility(VISIBLE);
+			colour = message.substring((message.length() -6), (message.length()-3));
 
 			switch (colour) {
 				case "RED":
@@ -67,23 +68,17 @@ class ConversationNoticeInViewHolder extends ConversationItemViewHolder {
 					msgText.setTextColor(Color.BLACK);
 					break;
 				case "NCL":
-					if (item.isIncoming() == true){
-						msgText.setTextColor(Color.BLACK);
-					}
-					else {
-						msgText.setTextColor(Color.WHITE);
-					}
+					msgText.setTextColor(Color.BLACK);
 					break;
 				default:
 					break;
 			}
+
 			AndDown converter = new AndDown();
-			//Remove the last 3 characters (colour characters) from the message
-			String HTMLText = converter.markdownToHtml(item.getBody().substring(0, (item.getBody().length() -3)));
+			String HTMLText = converter.markdownToHtml(StringUtils.trim(message.substring(0, (message.length()-6))));
 			CharSequence HTMLString = Html.fromHtml(HTMLText);
 			msgText.setText(HTMLString);
-			msgText.setVisibility(VISIBLE);
-			layout.setBackgroundResource(R.drawable.notice_in_bottom);
+			layout.setBackgroundResource(R.drawable.notice_out_bottom);
 		}
 	}
 
