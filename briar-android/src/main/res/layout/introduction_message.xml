@@ -94,7 +94,7 @@
 			android:layout_gravity="center"
 			tools:visibility="gone"/>
 
-		<org.briarproject.briar.android.view.LargeTextInputView
+		<org.briarproject.briar.android.view.TextInputView
 			android:id="@+id/introductionMessageView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

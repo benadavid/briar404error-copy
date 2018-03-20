@@ -851,7 +851,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void sendPanic(){
 
-		String text = StringUtils.truncateUtf8("!!PANIC!!", MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+		String text = StringUtils.truncateUtf8("!!PANIC!!RED", MAX_PRIVATE_MESSAGE_BODY_LENGTH);
 
 		//Timestamp
 		long timestamp = System.currentTimeMillis();

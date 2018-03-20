@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.contact;
 
+import android.graphics.Color;
 import android.support.annotation.UiThread;
 import android.text.Html;
 import android.view.View;
@@ -19,6 +20,7 @@ import static android.view.View.VISIBLE;
 class ConversationNoticeInViewHolder extends ConversationItemViewHolder {
 
 	private final TextView msgText;
+	private String colour;
 
 	ConversationNoticeInViewHolder(View v) {
 		super(v);
@@ -37,11 +39,50 @@ class ConversationNoticeInViewHolder extends ConversationItemViewHolder {
 			msgText.setVisibility(GONE);
 			layout.setBackgroundResource(R.drawable.notice_in);
 		} else {
-			msgText.setVisibility(VISIBLE);
+			colour = item.getBody().substring((item.getBody().length() -3), (item.getBody().length()));
+
+			switch (colour) {
+				case "RED":
+					msgText.setTextColor(Color.RED);
+					break;
+				case "YLW":
+					msgText.setTextColor(Color.YELLOW);
+					break;
+				case "GRN":
+					msgText.setTextColor(Color.GREEN);
+					break;
+				case "CYN":
+					msgText.setTextColor(Color.CYAN);
+					break;
+				case "BLU":
+					msgText.setTextColor(Color.BLUE);
+					break;
+				case "MGN":
+					msgText.setTextColor(Color.MAGENTA);
+					break;
+				case "GRY":
+					msgText.setTextColor(Color.GRAY);
+					break;
+				case "BLK":
+					msgText.setTextColor(Color.BLACK);
+					break;
+				case "NCL":
+					if (item.isIncoming() == true){
+						msgText.setTextColor(Color.BLACK);
+					}
+					else {
+						msgText.setTextColor(Color.WHITE);
+					}
+					break;
+				default:
+					break;
+			}
 			AndDown converter = new AndDown();
-			String HTMLText = converter.markdownToHtml(StringUtils.trim(message));
+			//Remove the last 3 characters (colour characters) from the message
+			String HTMLText = converter.markdownToHtml(item.getBody().substring(0, (item.getBody().length() -3)));
 			CharSequence HTMLString = Html.fromHtml(HTMLText);
 			msgText.setText(HTMLString);
+			msgText.setVisibility(VISIBLE);
 			layout.setBackgroundResource(R.drawable.notice_in_bottom);
 		}
 	}
