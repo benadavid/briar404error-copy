@@ -15,6 +15,8 @@ import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.UiUtils;
 
+import android.graphics.Color;
+
 @UiThread
 @NotNullByDefault
 class ConversationItemViewHolder extends ViewHolder {
@@ -35,11 +37,44 @@ class ConversationItemViewHolder extends ViewHolder {
 		if (item.getBody() == null) {
 			text.setText("\u2026");
 		} else {
+			//Get the colour value from the message
+			String colour = item.getBody().substring((item.getBody().length() -3), (item.getBody().length()));
 
 			AndDown converter = new AndDown();
-			String HTMLText = converter.markdownToHtml(StringUtils.trim(item.getBody()));
+			//Remove the last 3 characters (colour characters) from the message
+			String HTMLText = converter.markdownToHtml(StringUtils.trim(item.getBody().substring(0, (item.getBody().length() -3))));
 			CharSequence HTMLString = Html.fromHtml(HTMLText);
 			text.setText(HTMLString);
+			
+			switch(colour){
+				case "RED":
+					text.setTextColor(Color.RED);
+					break;
+				case "YLW":
+					text.setTextColor(Color.YELLOW);
+					break;
+				case "GRN":
+					text.setTextColor(Color.GREEN);
+					break;
+				case "CYN":
+					text.setTextColor(Color.CYAN);
+					break;
+				case "BLU":
+					text.setTextColor(Color.BLUE);
+					break;
+				case "MGN":
+					text.setTextColor(Color.MAGENTA);
+					break;
+				case "GRY":
+					text.setTextColor(Color.GRAY);
+					break;
+				case "BLK":
+					text.setTextColor(Color.BLACK);
+					break;
+				case "NCL":
+					break; //no colour selected - default option is still listed as its own case since every message must have a colour value appended to it
+			}
+
 		}
 
 		long timestamp = item.getTime();

@@ -3,6 +3,7 @@ package org.briarproject.briar.android.view;
 import android.animation.LayoutTransition;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.IBinder;
 import android.support.annotation.CallSuper;
@@ -37,6 +38,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 
 	protected final ViewHolder ui;
 	protected TextInputListener listener;
+	private String colour = "NCL";
 
 	public TextInputView(Context context) {
 		this(context, null);
@@ -89,13 +91,22 @@ public class TextInputView extends KeyboardAwareLinearLayout
 			}
 			return false;
 		});
+		ui.None.setOnClickListener(v -> NoColour());
+		ui.Red.setOnClickListener(v -> RedText());
+		ui.Yellow.setOnClickListener(v -> YellowText());
+		ui.Green.setOnClickListener(v -> GreenText());
+		ui.Cyan.setOnClickListener(v -> CyanText());
+		ui.Blue.setOnClickListener(v -> BlueText());
+		ui.Magenta.setOnClickListener(v -> MagentaText());
+		ui.Grey.setOnClickListener(v -> GreyText());
+		ui.Black.setOnClickListener(v -> BlackText());
 		ui.sendButton.setOnClickListener(v -> trySendMessage());
 		ui.emojiDrawer.setEmojiEventListener(this);
 	}
 
 	private void trySendMessage() {
 		if (listener != null) {
-			listener.onSendClick(ui.editText.getText().toString());
+			listener.onSendClick(getText());
 		}
 	}
 
@@ -130,12 +141,54 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		}
 	}
 
+	private void NoColour() { colour = "NCL"; }
+
+	private void RedText() { colour = "RED"; }
+
+	private void YellowText() { colour = "YLW"; }
+
+	private void GreenText() { colour = "GRN"; }
+
+	private void CyanText() { colour = "CYN"; }
+
+	private void BlueText() { colour = "BLU"; }
+
+	private void MagentaText() { colour = "MGN"; }
+
+	private void GreyText() { colour = "GRY"; }
+
+	private void BlackText() { colour = "BLK"; }
+
 	public void setText(String text) {
 		ui.editText.setText(text);
 	}
 
-	public Editable getText() {
-		return ui.editText.getText();
+	public String getText() {
+
+		switch(colour){
+			case "RED":
+				return ((ui.editText.getText()).append("RED")).toString();
+			case "YLW":
+				return ((ui.editText.getText()).append("YLW")).toString();
+			case "GRN":
+				return ((ui.editText.getText()).append("GRN")).toString();
+			case "CYN":
+				return ((ui.editText.getText()).append("CYN")).toString();
+			case "BLU":
+				return ((ui.editText.getText()).append("BLU")).toString();
+			case "MGN":
+				return ((ui.editText.getText()).append("MGN")).toString();
+			case "GRY":
+				return ((ui.editText.getText()).append("GRY")).toString();
+			case "BLK":
+				return ((ui.editText.getText()).append("BLK")).toString();
+			case "NCL":
+				return ((ui.editText.getText()).append("NCL")).toString();
+				//no colour selected - default option is still listed as its own case since every message must have a colour value appended to it
+			default:
+				return ((ui.editText.getText()).append("NCL")).toString();
+				//default statement keeps the compiler happy
+		}
 	}
 
 	public void setHint(@StringRes int res) {
@@ -198,12 +251,30 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		final EmojiEditText editText;
 		final View sendButton;
 		final EmojiDrawer emojiDrawer;
+		final View None;
+		final View Red;
+		final View Yellow;
+		final View Green;
+		final View Cyan;
+		final View Blue;
+		final View Magenta;
+		final View Grey;
+		final View Black;
 
 		private ViewHolder() {
 			emojiToggle = findViewById(R.id.emoji_toggle);
 			editText = findViewById(R.id.input_text);
 			emojiDrawer = findViewById(R.id.emoji_drawer);
 			sendButton = findViewById(R.id.btn_send);
+			None = findViewById(R.id.none);
+			Red = findViewById(R.id.red);
+			Yellow = findViewById(R.id.yellow);
+			Green = findViewById(R.id.green);
+			Cyan = findViewById(R.id.cyan);
+			Blue = findViewById(R.id.blue);
+			Magenta = findViewById(R.id.magenta);
+			Grey = findViewById(R.id.grey);
+			Black = findViewById(R.id.black);
 		}
 	}
 
