@@ -621,9 +621,9 @@ public class ConversationActivity extends BriarActivity
 					}
 
 					//We check if we have a REGEX of an URL. If yes, we backup the content
-					Pattern p = Pattern.compile("^(http:\\/\\/|https:\\/\\/)" +
-							"?(www.)?([a-zA-Z0-9]+)" +
-							".[a-zA-Z0-9]*.[a-z]{3}.?([a-z]+)?$");
+					Pattern p = Pattern.compile("^(https?|ftp|file)://" +
+							"[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*" +
+							"[-a-zA-Z0-9+&@#/%=~_|]$");
 					Matcher match = p.matcher(body);
 					while (match.find()) {
 						LOG.info(match.group(0));
