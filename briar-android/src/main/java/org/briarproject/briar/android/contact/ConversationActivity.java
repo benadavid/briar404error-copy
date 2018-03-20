@@ -66,6 +66,7 @@ import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextInputView.TextInputListener;
+import org.briarproject.briar.android.view.TextInputViewPrivateMessage;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.ProtocolStateException;
@@ -169,7 +170,7 @@ public class ConversationActivity extends BriarActivity
 	private ImageView toolbarStatus;
 	private TextView toolbarTitle;
 	private BriarRecyclerView list;
-	private TextInputView textInputView;
+	private TextInputViewPrivateMessage textInputViewPrivateMessage;
 
 	private final ListenableFutureTask<String> contactNameTask =
 			new ListenableFutureTask<>(new Callable<String>() {
@@ -276,8 +277,8 @@ public class ConversationActivity extends BriarActivity
 		//creates a storage reference
 		storageRef = storage.getReference();
 
-		textInputView = findViewById(R.id.text_input_container);
-		textInputView.setListener(this);
+		textInputViewPrivateMessage = findViewById(R.id.text_input_container);
+		textInputViewPrivateMessage.setListener(this);
 	}
 
 	@Override
@@ -467,7 +468,7 @@ public class ConversationActivity extends BriarActivity
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
-				textInputView.setSendButtonEnabled(true);
+				textInputViewPrivateMessage.setSendButtonEnabled(true);
 				List<ConversationItem> items = createItems(headers,
 						introductions, invitations);
 				if (items.isEmpty()) list.showData();
@@ -770,7 +771,7 @@ public class ConversationActivity extends BriarActivity
 		}
 
 		//Reset the text field
-		textInputView.setText("");
+		textInputViewPrivateMessage.setText("");
 	}
 
 	private long getMinTimestampForNewMessage() {

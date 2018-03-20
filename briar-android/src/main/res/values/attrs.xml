@@ -33,5 +33,4 @@
 			<enum name="down" value="1"/>
 		</attr>
 	</declare-styleable>
-
 </resources>

@@ -14,7 +14,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.UiUtils;
-import org.briarproject.briar.android.view.TextInputView;
+import org.briarproject.briar.android.view.TextInputViewPrivateMessage;
 import org.w3c.dom.Text;
 
 import android.graphics.Color;
@@ -81,7 +81,7 @@ class ConversationItemViewHolder extends ViewHolder {
 				}
 			AndDown converter = new AndDown();
 			//Remove the last 3 characters (colour characters) from the message
-			String HTMLText = converter.markdownToHtml(item.getBody().substring(0, (item.getBody().length() )));
+			String HTMLText = converter.markdownToHtml(item.getBody().substring(0, (item.getBody().length() -3)));
 			CharSequence HTMLString = Html.fromHtml(HTMLText);
 			text.setText(HTMLString);
 

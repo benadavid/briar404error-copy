@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import org.briarproject.briar.R;
-import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
 import org.thoughtcrime.securesms.components.emoji.EmojiDrawer;
 import org.thoughtcrime.securesms.components.emoji.EmojiDrawer.EmojiEventListener;
 import org.thoughtcrime.securesms.components.emoji.EmojiEditText;
@@ -31,21 +30,22 @@ import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 
 @UiThread
-public class TextInputView extends KeyboardAwareLinearLayout
+public class TextInputViewPrivateMessage extends TextInputView
 		implements EmojiEventListener {
 
 	protected final ViewHolder ui;
 	protected TextInputListener listener;
+	protected String colour = "NCL";
 
-	public TextInputView(Context context) {
+	public TextInputViewPrivateMessage(Context context) {
 		this(context, null);
 	}
 
-	public TextInputView(Context context, @Nullable AttributeSet attrs) {
+	public TextInputViewPrivateMessage(Context context, @Nullable AttributeSet attrs) {
 		this(context, attrs, 0);
 	}
 
-	public TextInputView(Context context, @Nullable AttributeSet attrs,
+	public TextInputViewPrivateMessage(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		setOrientation(VERTICAL);
@@ -56,18 +56,21 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		setUpViews(context, attrs);
 	}
 
+	@Override
 	protected void inflateLayout(Context context) {
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(LAYOUT_INFLATER_SERVICE);
-		inflater.inflate(R.layout.text_input_view, this, true);
+		inflater.inflate(R.layout.text_input_view_private_message, this, true);
 	}
 
-	@CallSuper
+	@Override
 	protected void setUpViews(Context context, @Nullable AttributeSet attrs) {
 		// get attributes
+		super.setUpViews(context, attrs);
 		TypedArray attributes = context.obtainStyledAttributes(attrs,
 				R.styleable.TextInputView);
-		String hint = attributes.getString(R.styleable.TextInputView_hint);
+		String hint = attributes
+				.getString(R.styleable.TextInputView_hint);
 		attributes.recycle();
 
 		if (hint != null) {
@@ -88,13 +91,22 @@ public class TextInputView extends KeyboardAwareLinearLayout
 			}
 			return false;
 		});
+		ui.None.setOnClickListener(v -> NoColour());
+		ui.Red.setOnClickListener(v -> RedText());
+		ui.Yellow.setOnClickListener(v -> YellowText());
+		ui.Green.setOnClickListener(v -> GreenText());
+		ui.Cyan.setOnClickListener(v -> CyanText());
+		ui.Blue.setOnClickListener(v -> BlueText());
+		ui.Magenta.setOnClickListener(v -> MagentaText());
+		ui.Grey.setOnClickListener(v -> GreyText());
+		ui.Black.setOnClickListener(v -> BlackText());
 		ui.sendButton.setOnClickListener(v -> trySendMessage());
 		ui.emojiDrawer.setEmojiEventListener(this);
 	}
 
 	private void trySendMessage() {
 		if (listener != null) {
-			listener.onSendClick(ui.editText.getText().toString());
+			listener.onSendClick(getText());
 		}
 	}
 
@@ -129,22 +141,45 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		}
 	}
 
+	private void NoColour() { colour = "NCL"; }
+
+	private void RedText() { colour = "RED"; }
+
+	private void YellowText() { colour = "YLW"; }
+
+	private void GreenText() { colour = "GRN"; }
+
+	private void CyanText() { colour = "CYN"; }
+
+	private void BlueText() { colour = "BLU"; }
+
+	private void MagentaText() { colour = "MGN"; }
+
+	private void GreyText() { colour = "GRY"; }
+
+	private void BlackText() { colour = "BLK"; }
+
 	public void setText(String text) {
 		ui.editText.setText(text);
 	}
 
+	@Override
 	public String getText() {
-		return ui.editText.getText().toString();
+		String text = ((ui.editText.getText()).append(colour)).toString();
+			colour = "NCL";
+			return text;
 	}
 
 	public void setHint(@StringRes int res) {
 		ui.editText.setHint(res);
 	}
 
+	@Override
 	public void setSendButtonEnabled(boolean enabled) {
 		ui.sendButton.setEnabled(enabled);
 	}
 
+	@Override
 	public void addTextChangedListener(TextWatcher watcher) {
 		ui.editText.addTextChangedListener(watcher);
 	}
@@ -153,6 +188,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		this.listener = listener;
 	}
 
+	@Override
 	public void showSoftKeyboard() {
 		if (isKeyboardOpen()) return;
 
@@ -167,12 +203,14 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		});
 	}
 
+	@Override
 	public void hideSoftKeyboard() {
 		IBinder token = ui.editText.getWindowToken();
 		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
 		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
 	}
 
+	@Override
 	public void showEmojiDrawer() {
 		if (isKeyboardOpen()) {
 			postOnKeyboardClose(() -> ui.emojiDrawer.show(getKeyboardHeight()));
@@ -183,10 +221,12 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		}
 	}
 
+	@Override
 	public void hideEmojiDrawer() {
 		ui.emojiDrawer.hide();
 	}
 
+	@Override
 	public boolean isEmojiDrawerOpen() {
 		return ui.emojiDrawer.isShowing();
 	}
@@ -197,12 +237,30 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		final EmojiEditText editText;
 		final View sendButton;
 		final EmojiDrawer emojiDrawer;
+		final View None;
+		final View Red;
+		final View Yellow;
+		final View Green;
+		final View Cyan;
+		final View Blue;
+		final View Magenta;
+		final View Grey;
+		final View Black;
 
 		private ViewHolder() {
 			emojiToggle = findViewById(R.id.emoji_toggle);
 			editText = findViewById(R.id.input_text);
 			emojiDrawer = findViewById(R.id.emoji_drawer);
 			sendButton = findViewById(R.id.btn_send);
+			None = findViewById(R.id.none);
+			Red = findViewById(R.id.red);
+			Yellow = findViewById(R.id.yellow);
+			Green = findViewById(R.id.green);
+			Cyan = findViewById(R.id.cyan);
+			Blue = findViewById(R.id.blue);
+			Magenta = findViewById(R.id.magenta);
+			Grey = findViewById(R.id.grey);
+			Black = findViewById(R.id.black);
 		}
 	}
 
