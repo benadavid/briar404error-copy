@@ -38,7 +38,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 
 	protected final ViewHolder ui;
 	protected TextInputListener listener;
-	private String colour = "NCL";
+	protected String colour = "NCL";
 
 	public TextInputView(Context context) {
 		this(context, null);
@@ -164,31 +164,9 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	}
 
 	public String getText() {
-
-		switch(colour){
-			case "RED":
-				return ((ui.editText.getText()).append("RED")).toString();
-			case "YLW":
-				return ((ui.editText.getText()).append("YLW")).toString();
-			case "GRN":
-				return ((ui.editText.getText()).append("GRN")).toString();
-			case "CYN":
-				return ((ui.editText.getText()).append("CYN")).toString();
-			case "BLU":
-				return ((ui.editText.getText()).append("BLU")).toString();
-			case "MGN":
-				return ((ui.editText.getText()).append("MGN")).toString();
-			case "GRY":
-				return ((ui.editText.getText()).append("GRY")).toString();
-			case "BLK":
-				return ((ui.editText.getText()).append("BLK")).toString();
-			case "NCL":
-				return ((ui.editText.getText()).append("NCL")).toString();
-				//no colour selected - default option is still listed as its own case since every message must have a colour value appended to it
-			default:
-				return ((ui.editText.getText()).append("NCL")).toString();
-				//default statement keeps the compiler happy
-		}
+		String text = ((ui.editText.getText()).append(colour)).toString();
+			colour = "NCL";
+			return text;
 	}
 
 	public void setHint(@StringRes int res) {

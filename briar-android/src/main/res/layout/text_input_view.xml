@@ -22,7 +22,7 @@
 			android:clickable="true"
 			android:enabled="false"
 			android:padding="@dimen/margin_small"
-			android:src="@drawable/red_square"/>
+			android:src="@drawable/blank_square"/>
 
 		<ImageButton
 			android:id="@+id/red"
@@ -42,8 +42,7 @@
 			android:clickable="true"
 			android:enabled="false"
 			android:padding="@dimen/margin_small"
-			android:src="@drawable/social_send_now_white"
-			android:tint="@color/briar_primary"/>
+			android:src="@drawable/yellow_square"/>
 
 		<ImageButton
 			android:id="@+id/green"
@@ -53,8 +52,7 @@
 			android:clickable="true"
 			android:enabled="false"
 			android:padding="@dimen/margin_small"
-			android:src="@drawable/social_send_now_white"
-			android:tint="@color/briar_primary"/>
+			android:src="@drawable/green_square"/>
 
 		<ImageButton
 			android:id="@+id/cyan"
@@ -64,7 +62,7 @@
 			android:clickable="true"
 			android:enabled="false"
 			android:padding="@dimen/margin_small"
-			android:src="@drawable/round_button"/>
+			android:src="@drawable/cyan_square"/>
 
 		<ImageButton
 			android:id="@+id/blue"
@@ -74,8 +72,7 @@
 			android:clickable="true"
 			android:enabled="false"
 			android:padding="@dimen/margin_small"
-			android:src="@drawable/social_send_now_white"
-			android:tint="@color/briar_primary"/>
+			android:src="@drawable/blue_square"/>
 
 		<ImageButton
 			android:id="@+id/magenta"
@@ -85,8 +82,7 @@
 			android:clickable="true"
 			android:enabled="false"
 			android:padding="@dimen/margin_small"
-			android:src="@drawable/social_send_now_white"
-			android:tint="@color/briar_primary"/>
+			android:src="@drawable/magenta_square"/>
 
 		<ImageButton
 			android:id="@+id/grey"
@@ -96,8 +92,7 @@
 			android:clickable="true"
 			android:enabled="false"
 			android:padding="@dimen/margin_small"
-			android:src="@drawable/social_send_now_white"
-			android:tint="@color/briar_primary"/>
+			android:src="@drawable/grey_square"/>
 
 		<ImageButton
 			android:id="@+id/black"
@@ -107,8 +102,7 @@
 			android:clickable="true"
 			android:enabled="false"
 			android:padding="@dimen/margin_small"
-			android:src="@drawable/social_send_now_white"
-			android:tint="@color/briar_primary"/>
+			android:src="@drawable/black_square"/>
 
 	</LinearLayout>
 
