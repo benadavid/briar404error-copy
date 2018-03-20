@@ -36,6 +36,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 
 	protected final ViewHolder ui;
 	protected TextInputListener listener;
+	protected String colour = "NCL";
 
 	public TextInputView(Context context) {
 		this(context, null);
@@ -88,13 +89,22 @@ public class TextInputView extends KeyboardAwareLinearLayout
 			}
 			return false;
 		});
+		ui.None.setOnClickListener(v -> NoColour());
+		ui.Red.setOnClickListener(v -> RedText());
+		ui.Yellow.setOnClickListener(v -> YellowText());
+		ui.Green.setOnClickListener(v -> GreenText());
+		ui.Cyan.setOnClickListener(v -> CyanText());
+		ui.Blue.setOnClickListener(v -> BlueText());
+		ui.Magenta.setOnClickListener(v -> MagentaText());
+		ui.Grey.setOnClickListener(v -> GreyText());
+		ui.Black.setOnClickListener(v -> BlackText());
 		ui.sendButton.setOnClickListener(v -> trySendMessage());
 		ui.emojiDrawer.setEmojiEventListener(this);
 	}
 
 	private void trySendMessage() {
 		if (listener != null) {
-			listener.onSendClick(ui.editText.getText().toString());
+			listener.onSendClick(getText());
 		}
 	}
 
@@ -129,12 +139,32 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		}
 	}
 
+	private void NoColour() { colour = "NCL"; }
+
+	private void RedText() { colour = "RED"; }
+
+	private void YellowText() { colour = "YLW"; }
+
+	private void GreenText() { colour = "GRN"; }
+
+	private void CyanText() { colour = "CYN"; }
+
+	private void BlueText() { colour = "BLU"; }
+
+	private void MagentaText() { colour = "MGN"; }
+
+	private void GreyText() { colour = "GRY"; }
+
+	private void BlackText() { colour = "BLK"; }
+
 	public void setText(String text) {
 		ui.editText.setText(text);
 	}
 
 	public String getText() {
-		return ui.editText.getText().toString();
+		String text = ((ui.editText.getText()).append(colour)).toString();
+		colour = "NCL";
+		return text;
 	}
 
 	public void setHint(@StringRes int res) {
@@ -197,12 +227,30 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		final EmojiEditText editText;
 		final View sendButton;
 		final EmojiDrawer emojiDrawer;
+		final View None;
+		final View Red;
+		final View Yellow;
+		final View Green;
+		final View Cyan;
+		final View Blue;
+		final View Magenta;
+		final View Grey;
+		final View Black;
 
 		private ViewHolder() {
 			emojiToggle = findViewById(R.id.emoji_toggle);
 			editText = findViewById(R.id.input_text);
 			emojiDrawer = findViewById(R.id.emoji_drawer);
 			sendButton = findViewById(R.id.btn_send);
+			None = findViewById(R.id.none);
+			Red = findViewById(R.id.red);
+			Yellow = findViewById(R.id.yellow);
+			Green = findViewById(R.id.green);
+			Cyan = findViewById(R.id.cyan);
+			Blue = findViewById(R.id.blue);
+			Magenta = findViewById(R.id.magenta);
+			Grey = findViewById(R.id.grey);
+			Black = findViewById(R.id.black);
 		}
 	}
 

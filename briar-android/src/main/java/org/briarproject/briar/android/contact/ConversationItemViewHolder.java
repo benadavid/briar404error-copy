@@ -14,7 +14,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.UiUtils;
-import org.briarproject.briar.android.view.TextInputViewPrivateMessage;
+import org.briarproject.briar.android.view.TextInputView;
 import org.w3c.dom.Text;
 
 import android.graphics.Color;

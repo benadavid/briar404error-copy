@@ -4,15 +4,19 @@ import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.UiThread;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
+
+import com.commonsware.cwac.anddown.AndDown;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.StringUtils;
@@ -30,6 +34,7 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 	protected final TextView textView;
 	private final ViewGroup layout;
 	private final AuthorView author;
+	private String colour;
 
 	public BaseThreadItemViewHolder(View v) {
 		super(v);
@@ -41,7 +46,45 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 
 	@CallSuper
 	public void bind(I item, ThreadItemListener<I> listener) {
-		textView.setText(StringUtils.trim(item.getText()));
+			//Get the colour value from the message
+			colour = item.getText().substring((item.getText().length() -3), (item.getText().length()));
+
+			switch (colour) {
+				case "RED":
+					textView.setTextColor(Color.RED);
+					break;
+				case "YLW":
+					textView.setTextColor(Color.YELLOW);
+					break;
+				case "GRN":
+					textView.setTextColor(Color.GREEN);
+					break;
+				case "CYN":
+					textView.setTextColor(Color.CYAN);
+					break;
+				case "BLU":
+					textView.setTextColor(Color.BLUE);
+					break;
+				case "MGN":
+					textView.setTextColor(Color.MAGENTA);
+					break;
+				case "GRY":
+					textView.setTextColor(Color.GRAY);
+					break;
+				case "BLK":
+					textView.setTextColor(Color.BLACK);
+					break;
+				case "NCL":
+						textView.setTextColor(Color.BLACK);
+					break;
+				default:
+					break;
+			}
+			AndDown converter = new AndDown();
+			//Remove the last 3 characters (colour characters) from the message
+			String HTMLText = converter.markdownToHtml(item.getText().substring(0, (item.getText().length() -3)));
+			CharSequence HTMLString = Html.fromHtml(HTMLText);
+			textView.setText(HTMLString);
 
 		author.setAuthor(item.getAuthor());
 		author.setDate(item.getTimestamp());

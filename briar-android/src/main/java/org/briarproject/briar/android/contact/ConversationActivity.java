@@ -66,7 +66,6 @@ import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextInputView.TextInputListener;
-import org.briarproject.briar.android.view.TextInputViewPrivateMessage;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.ProtocolStateException;
@@ -170,7 +169,7 @@ public class ConversationActivity extends BriarActivity
 	private ImageView toolbarStatus;
 	private TextView toolbarTitle;
 	private BriarRecyclerView list;
-	private TextInputViewPrivateMessage textInputViewPrivateMessage;
+	private TextInputView textInputView;
 
 	private final ListenableFutureTask<String> contactNameTask =
 			new ListenableFutureTask<>(new Callable<String>() {
@@ -277,8 +276,8 @@ public class ConversationActivity extends BriarActivity
 		//creates a storage reference
 		storageRef = storage.getReference();
 
-		textInputViewPrivateMessage = findViewById(R.id.text_input_container);
-		textInputViewPrivateMessage.setListener(this);
+		textInputView = findViewById(R.id.text_input_container);
+		textInputView.setListener(this);
 	}
 
 	@Override
@@ -468,7 +467,7 @@ public class ConversationActivity extends BriarActivity
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
-				textInputViewPrivateMessage.setSendButtonEnabled(true);
+				textInputView.setSendButtonEnabled(true);
 				List<ConversationItem> items = createItems(headers,
 						introductions, invitations);
 				if (items.isEmpty()) list.showData();
@@ -539,7 +538,7 @@ public class ConversationActivity extends BriarActivity
 
 				//We can hook here for panic
 
-				if(body.equals("#PANIC#")){
+				if(body.equals("!!PANIC!!")){
 					//We sign out
 					//Default action for foreign user panic button activation
 					signOut(true);
@@ -771,7 +770,7 @@ public class ConversationActivity extends BriarActivity
 		}
 
 		//Reset the text field
-		textInputViewPrivateMessage.setText("");
+		textInputView.setText("");
 	}
 
 	private long getMinTimestampForNewMessage() {
@@ -852,7 +851,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void sendPanic(){
 
-		String text = StringUtils.truncateUtf8("#PANIC#", MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+		String text = StringUtils.truncateUtf8("!!PANIC!!", MAX_PRIVATE_MESSAGE_BODY_LENGTH);
 
 		//Timestamp
 		long timestamp = System.currentTimeMillis();
