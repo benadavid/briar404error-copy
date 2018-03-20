@@ -3,6 +3,7 @@ package org.briarproject.briar.android.blog;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
@@ -10,12 +11,15 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.commonsware.cwac.anddown.AndDown;
 
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -48,6 +52,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 	private final TextView body;
 	private final ViewGroup commentContainer;
 	private final boolean fullText;
+	private String colour;
 
 	@NonNull
 	private final OnBlogPostClickListener listener;
@@ -113,8 +118,47 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 
 		// post body
 		Spanned bodyText = getSpanned(item.getBody());
+		body.setText(bodyText);
+
 		if (fullText) {
-			body.setText(bodyText);
+			colour = bodyText.toString().substring((bodyText.toString().length() -3), (bodyText.toString().length()));
+
+			switch (colour) {
+				case "RED":
+					body.setTextColor(Color.RED);
+					break;
+				case "YLW":
+					body.setTextColor(Color.YELLOW);
+					break;
+				case "GRN":
+					body.setTextColor(Color.GREEN);
+					break;
+				case "CYN":
+					body.setTextColor(Color.CYAN);
+					break;
+				case "BLU":
+					body.setTextColor(Color.BLUE);
+					break;
+				case "MGN":
+					body.setTextColor(Color.MAGENTA);
+					break;
+				case "GRY":
+					body.setTextColor(Color.GRAY);
+					break;
+				case "BLK":
+					body.setTextColor(Color.BLACK);
+					break;
+				case "NCL":
+					body.setTextColor(Color.BLACK);
+					break;
+				default:
+					break;
+			}
+			AndDown converter = new AndDown();
+			//Remove the last 9 characters (colour characters) from the message. For some reason blog posts have the colour code then NCLNCL.
+			String HTMLText = converter.markdownToHtml(bodyText.toString().substring(0, (bodyText.toString().length() -3)));
+			CharSequence HTMLString = Html.fromHtml(HTMLText);
+			body.setText(HTMLString);
 			body.setTextIsSelectable(true);
 			makeLinksClickable(body);
 		} else {
@@ -180,7 +224,44 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 			author.setDate(c.getTimestamp());
 			// TODO make author clickable #624
 
-			body.setText(c.getComment());
+			colour = c.getComment().toString().substring((c.getComment().toString().length() -9), (c.getComment().toString().length() -6));
+
+			switch (colour) {
+				case "RED":
+					body.setTextColor(Color.RED);
+					break;
+				case "YLW":
+					body.setTextColor(Color.YELLOW);
+					break;
+				case "GRN":
+					body.setTextColor(Color.GREEN);
+					break;
+				case "CYN":
+					body.setTextColor(Color.CYAN);
+					break;
+				case "BLU":
+					body.setTextColor(Color.BLUE);
+					break;
+				case "MGN":
+					body.setTextColor(Color.MAGENTA);
+					break;
+				case "GRY":
+					body.setTextColor(Color.GRAY);
+					break;
+				case "BLK":
+					body.setTextColor(Color.BLACK);
+					break;
+				case "NCL":
+					body.setTextColor(Color.GRAY);
+					break;
+				default:
+					break;
+			}
+			AndDown converter = new AndDown();
+			//Remove the last 9 characters (colour characters) from the message. For some reason blog posts have the colour code then NCLNCL.
+			String HTMLText = converter.markdownToHtml(c.getComment().substring(0, (c.getComment().length() -9)));
+			CharSequence HTMLString = Html.fromHtml(HTMLText);
+			body.setText(HTMLString);
 			if (fullText) body.setTextIsSelectable(true);
 
 			commentContainer.addView(v);
