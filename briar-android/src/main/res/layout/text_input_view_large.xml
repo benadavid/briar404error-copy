@@ -7,6 +7,102 @@
 	tools:showIn="@layout/fragment_reblog">
 
 	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<ImageButton
+			android:id="@+id/none"
+			android:layout_width="@dimen/text_input_height"
+			android:layout_height="@dimen/text_input_height"
+			android:background="?attr/selectableItemBackground"
+			android:clickable="true"
+			android:enabled="false"
+			android:padding="@dimen/margin_small"
+			android:src="@drawable/blank_square"/>
+
+		<ImageButton
+			android:id="@+id/red"
+			android:layout_width="@dimen/text_input_height"
+			android:layout_height="@dimen/text_input_height"
+			android:background="?attr/selectableItemBackground"
+			android:clickable="true"
+			android:enabled="false"
+			android:padding="@dimen/margin_small"
+			android:src="@drawable/red_square"/>
+
+		<ImageButton
+			android:id="@+id/yellow"
+			android:layout_width="@dimen/text_input_height"
+			android:layout_height="@dimen/text_input_height"
+			android:background="?attr/selectableItemBackground"
+			android:clickable="true"
+			android:enabled="false"
+			android:padding="@dimen/margin_small"
+			android:src="@drawable/yellow_square"/>
+
+		<ImageButton
+			android:id="@+id/green"
+			android:layout_width="@dimen/text_input_height"
+			android:layout_height="@dimen/text_input_height"
+			android:background="?attr/selectableItemBackground"
+			android:clickable="true"
+			android:enabled="false"
+			android:padding="@dimen/margin_small"
+			android:src="@drawable/green_square"/>
+
+		<ImageButton
+			android:id="@+id/cyan"
+			android:layout_width="@dimen/text_input_height"
+			android:layout_height="@dimen/text_input_height"
+			android:background="?attr/selectableItemBackground"
+			android:clickable="true"
+			android:enabled="false"
+			android:padding="@dimen/margin_small"
+			android:src="@drawable/cyan_square"/>
+
+		<ImageButton
+			android:id="@+id/blue"
+			android:layout_width="@dimen/text_input_height"
+			android:layout_height="@dimen/text_input_height"
+			android:background="?attr/selectableItemBackground"
+			android:clickable="true"
+			android:enabled="false"
+			android:padding="@dimen/margin_small"
+			android:src="@drawable/blue_square"/>
+
+		<ImageButton
+			android:id="@+id/magenta"
+			android:layout_width="@dimen/text_input_height"
+			android:layout_height="@dimen/text_input_height"
+			android:background="?attr/selectableItemBackground"
+			android:clickable="true"
+			android:enabled="false"
+			android:padding="@dimen/margin_small"
+			android:src="@drawable/magenta_square"/>
+
+		<ImageButton
+			android:id="@+id/grey"
+			android:layout_width="@dimen/text_input_height"
+			android:layout_height="@dimen/text_input_height"
+			android:background="?attr/selectableItemBackground"
+			android:clickable="true"
+			android:enabled="false"
+			android:padding="@dimen/margin_small"
+			android:src="@drawable/grey_square"/>
+
+		<ImageButton
+			android:id="@+id/black"
+			android:layout_width="@dimen/text_input_height"
+			android:layout_height="@dimen/text_input_height"
+			android:background="?attr/selectableItemBackground"
+			android:clickable="true"
+			android:enabled="false"
+			android:padding="@dimen/margin_small"
+			android:src="@drawable/black_square"/>
+
+	</LinearLayout>
+
+	<LinearLayout
 		android:id="@+id/input_layout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"

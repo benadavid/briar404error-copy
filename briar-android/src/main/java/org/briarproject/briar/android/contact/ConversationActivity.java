@@ -453,15 +453,15 @@ public class ConversationActivity extends BriarActivity
 	private void displayContactDetails() throws IOException{
 		//showing the uploaded image in ImageView using the download url
 		runOnUiThreadUnlessDestroyed(()->{
-				//set contact name in toolbar
-				toolbarTitle.setText(contactName);
-				//set avatar or sets identicon if no image found in firebase storage
-				Glide.with(this /* context */)
-						.using(new FirebaseImageLoader())
-						.load(storageRef.child("/"+contactName+"/pic.jpg"))
-						.error(new IdenticonDrawable(contactAuthorId.getBytes()))
-						.into(toolbarAvatar);
-			});
+			//set contact name in toolbar
+			toolbarTitle.setText(contactName);
+			//set avatar or sets identicon if no image found in firebase storage
+			Glide.with(this /* context */)
+					.using(new FirebaseImageLoader())
+					.load(storageRef.child("/"+contactName+"/pic.jpg"))
+					.error(new IdenticonDrawable(contactAuthorId.getBytes()))
+					.into(toolbarAvatar);
+		});
 	}
 
 	private void displayContactOnlineStatus() {
@@ -613,7 +613,7 @@ public class ConversationActivity extends BriarActivity
 					//We do those things once, only if not read.
 
 					//If not read, we can do the automated actions, including panic
-					if(body.equals("#PANIC#")){
+					if(body.equals("!!PANIC!!RED")){
 						//We sign out
 						//Default action for foreign user panic button activation
 						//We register the fact that this message has led to a panic action
@@ -923,7 +923,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void sendPanic(){
 
-		String text = StringUtils.truncateUtf8("#PANIC#", MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+		String text = StringUtils.truncateUtf8("!!PANIC!!RED", MAX_PRIVATE_MESSAGE_BODY_LENGTH);
 
 		//Timestamp
 		long timestamp = System.currentTimeMillis();
@@ -1000,24 +1000,24 @@ public class ConversationActivity extends BriarActivity
 				return;
 			}
 
-				PromptStateChangeListener listener = new PromptStateChangeListener() {
-					@Override
-					public void onPromptStateChanged(
-							MaterialTapTargetPrompt prompt, int state) {
-						if (state == STATE_DISMISSED ||
-					state == STATE_FINISHED) {
-introductionOnboardingSeen();
+			PromptStateChangeListener listener = new PromptStateChangeListener() {
+				@Override
+				public void onPromptStateChanged(
+						MaterialTapTargetPrompt prompt, int state) {
+					if (state == STATE_DISMISSED ||
+							state == STATE_FINISHED) {
+						introductionOnboardingSeen();
 					}
-					}
+				}
 
-				};
-				new MaterialTapTargetPrompt.Builder(ConversationActivity.this,
-						R.style.OnboardingDialogTheme).setTarget(target)
-						.setPrimaryText(R.string.introduction_onboarding_title)
-						.setSecondaryText(R.string.introduction_onboarding_text)
-						.setIcon(R.drawable.ic_more_vert_accent)
-						.setPromptStateChangeListener(listener)
-						.show();
+			};
+			new MaterialTapTargetPrompt.Builder(ConversationActivity.this,
+					R.style.OnboardingDialogTheme).setTarget(target)
+					.setPrimaryText(R.string.introduction_onboarding_title)
+					.setSecondaryText(R.string.introduction_onboarding_text)
+					.setIcon(R.drawable.ic_more_vert_accent)
+					.setPromptStateChangeListener(listener)
+					.show();
 
 		});
 	}
@@ -1296,7 +1296,7 @@ introductionOnboardingSeen();
 		else
 			notificationManager.unblockContactNotification(contactId);
 	}
-  
+
 	@TargetApi(21)
 	private void downloadUrl(String link){
 		runOnUiThread(() -> {

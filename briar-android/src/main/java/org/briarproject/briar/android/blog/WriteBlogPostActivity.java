@@ -127,7 +127,7 @@ public class WriteBlogPostActivity extends BriarActivity
 	}
 
 	private void enableOrDisablePublishButton() {
-		input.setSendButtonEnabled(input.getText().length() > 0);
+		input.setSendButtonEnabled(input.getBlogText().length() > 0);
 	}
 
 	@Override
