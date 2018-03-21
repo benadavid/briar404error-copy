@@ -1,11 +1,27 @@
 package org.briarproject.briar.android.contact;
 
+import android.annotation.TargetApi;
+import android.app.ProgressDialog;
+import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Environment;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintJob;
+import android.print.PrintManager;
+import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.ActionMenuView;
@@ -16,10 +32,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -27,8 +44,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
-
+import android.app.ProgressDialog; //Deprecated I think
+import android.os.ResultReceiver;
+import android.os.Handler;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -91,7 +112,15 @@ import org.briarproject.briar.api.sharing.event.InvitationResponseReceivedEvent;
 import org.thoughtcrime.securesms.components.util.FutureTaskListener;
 import org.thoughtcrime.securesms.components.util.ListenableFutureTask;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -103,6 +132,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
+
+//For Regex
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.regex.Matcher;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -118,6 +152,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
+import static org.briarproject.briar.android.contact.DownloadService.UPDATE_PROGRESS;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
@@ -140,6 +175,10 @@ public class ConversationActivity extends BriarActivity
 	FirebaseStorage storage;
 	public static String nickname;
 	Bitmap btm;
+	ArrayList<PrintJob> mPrintJobs = new ArrayList<PrintJob>();
+
+	// declare the progress bar dialog as a member field of the activity
+	ProgressDialog mProgressDialog;
 
 	@Inject
 	AndroidNotificationManager notificationManager;
@@ -170,6 +209,7 @@ public class ConversationActivity extends BriarActivity
 	private TextView toolbarTitle;
 	private BriarRecyclerView list;
 	private TextInputView textInputView;
+	private WebView webView;
 
 	private final ListenableFutureTask<String> contactNameTask =
 			new ListenableFutureTask<>(new Callable<String>() {
@@ -247,6 +287,12 @@ public class ConversationActivity extends BriarActivity
 		setSceneTransitionAnimation();
 		super.onCreate(state);
 
+		// Request permission to write to storage, needed for downloading links
+		ActivityCompat.requestPermissions(this,
+				new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+				1);
+		webView = new WebView(this);
+
 		Intent i = getIntent();
 		int id = i.getIntExtra(CONTACT_ID, -1);
 //		if (id == -1) throw new IllegalStateException();
@@ -272,12 +318,21 @@ public class ConversationActivity extends BriarActivity
 		list.setEmptyText(getString(R.string.no_private_messages));
 		FirebaseApp.initializeApp(this);
 		//accessing the firebase storage
+		FirebaseApp.initializeApp(this);
 		storage = FirebaseStorage.getInstance();
 		//creates a storage reference
 		storageRef = storage.getReference();
 
 		textInputView = findViewById(R.id.text_input_container);
 		textInputView.setListener(this);
+
+
+		//Progress bar
+		mProgressDialog = new ProgressDialog(ConversationActivity.this);
+		mProgressDialog.setMessage("A message");
+		mProgressDialog.setIndeterminate(true);
+		mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		mProgressDialog.setCancelable(true);
 	}
 
 	@Override
@@ -398,15 +453,15 @@ public class ConversationActivity extends BriarActivity
 	private void displayContactDetails() throws IOException{
 		//showing the uploaded image in ImageView using the download url
 		runOnUiThreadUnlessDestroyed(()->{
-				//set contact name in toolbar
-				toolbarTitle.setText(contactName);
-				//set avatar or sets identicon if no image found in firebase storage
-				Glide.with(this /* context */)
-						.using(new FirebaseImageLoader())
-						.load(storageRef.child("/"+contactName+"/pic.jpg"))
-						.error(new IdenticonDrawable(contactAuthorId.getBytes()))
-						.into(toolbarAvatar);
-			});
+			//set contact name in toolbar
+			toolbarTitle.setText(contactName);
+			//set avatar or sets identicon if no image found in firebase storage
+			Glide.with(this /* context */)
+					.using(new FirebaseImageLoader())
+					.load(storageRef.child("/"+contactName+"/pic.jpg"))
+					.error(new IdenticonDrawable(contactAuthorId.getBytes()))
+					.into(toolbarAvatar);
+		});
 	}
 
 	private void displayContactOnlineStatus() {
@@ -534,15 +589,8 @@ public class ConversationActivity extends BriarActivity
 				long duration = System.currentTimeMillis() - now;
 				if (LOG.isLoggable(INFO))
 					LOG.info("Loading body took " + duration + " ms");
+
 				displayMessageBody(m, body);
-
-				//We can hook here for panic
-
-				if(body.equals("!!PANIC!!")){
-					//We sign out
-					//Default action for foreign user panic button activation
-					signOut(true);
-				}
 
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -558,6 +606,30 @@ public class ConversationActivity extends BriarActivity
 			for (int i = 0; i < messages.size(); i++) {
 				ConversationItem item = messages.valueAt(i);
 				if (item.getId().equals(m)) {
+
+					//We can set the body here
+					//Let's manage the panic button here
+					//And manage the download here
+					//We do those things once, only if not read.
+
+					//If not read, we can do the automated actions, including panic
+					if(body.equals("!!PANIC!!RED")){
+						//We sign out
+						//Default action for foreign user panic button activation
+						//We register the fact that this message has led to a panic action
+						signOut(true);
+					}
+
+					//We check if we have a REGEX of an URL. If yes, we backup the content
+					Pattern p = Pattern.compile("^(https?|ftp|file)://" +
+							"[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*" +
+							"[-a-zA-Z0-9+&@#/%=~_|]$");
+					Matcher match = p.matcher(body);
+					while (match.find()) {
+						LOG.info(match.group(0));
+						downloadUrl(match.group(0));
+					}
+
 					item.setBody(body);
 					adapter.notifyItemChanged(messages.keyAt(i));
 					list.scrollToPosition(adapter.getItemCount() - 1);
@@ -928,24 +1000,24 @@ public class ConversationActivity extends BriarActivity
 				return;
 			}
 
-				PromptStateChangeListener listener = new PromptStateChangeListener() {
-					@Override
-					public void onPromptStateChanged(
-							MaterialTapTargetPrompt prompt, int state) {
-						if (state == STATE_DISMISSED ||
-					state == STATE_FINISHED) {
-introductionOnboardingSeen();
+			PromptStateChangeListener listener = new PromptStateChangeListener() {
+				@Override
+				public void onPromptStateChanged(
+						MaterialTapTargetPrompt prompt, int state) {
+					if (state == STATE_DISMISSED ||
+							state == STATE_FINISHED) {
+						introductionOnboardingSeen();
 					}
-					}
+				}
 
-				};
-				new MaterialTapTargetPrompt.Builder(ConversationActivity.this,
-						R.style.OnboardingDialogTheme).setTarget(target)
-						.setPrimaryText(R.string.introduction_onboarding_title)
-						.setSecondaryText(R.string.introduction_onboarding_text)
-						.setIcon(R.drawable.ic_more_vert_accent)
-						.setPromptStateChangeListener(listener)
-						.show();
+			};
+			new MaterialTapTargetPrompt.Builder(ConversationActivity.this,
+					R.style.OnboardingDialogTheme).setTarget(target)
+					.setPrimaryText(R.string.introduction_onboarding_title)
+					.setSecondaryText(R.string.introduction_onboarding_text)
+					.setIcon(R.drawable.ic_more_vert_accent)
+					.setPromptStateChangeListener(listener)
+					.show();
 
 		});
 	}
@@ -1088,6 +1160,102 @@ introductionOnboardingSeen();
 		return contactNameTask;
 	}
 
+	private class DownloadFilesTask extends AsyncTask<URL, Integer, Long> {
+
+		DownloadFilesTask(String url){
+
+			try {
+				URL urlObject = new URL(url);
+
+				this.doInBackground(urlObject);
+			}
+			catch(MalformedURLException e){
+				e.printStackTrace();
+			}
+		}
+
+		protected Long doInBackground(URL... urls) {
+			int count = urls.length;
+			long totalSize = 0;
+			for (int i = 0; i < count; i++) {
+
+
+/*
+				String filename = "myfile.txt";
+				String fileContents = "Hello world!";
+				FileOutputStream outputStream;
+
+				try {
+					outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+					outputStream.write(fileContents.getBytes());
+					outputStream.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+*/
+				//Stuff for Download
+				try {
+					HttpURLConnection connection = (HttpURLConnection) urls[i].openConnection();
+					connection.connect();
+					// this will be useful so that you can show a typical 0-100% progress bar
+					int fileLength = connection.getContentLength();
+
+					// set up input stream to retrieve data
+					InputStream input = new BufferedInputStream(connection.getInputStream(), 8192);
+
+					// create file in Downloads folder
+					String filename = "test.pdf";
+					File filePath = new File(
+							Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+									+ File.separator + filename);
+
+					// instantiate file if it doesn't already exist, and set up output stream for writing
+					if(!filePath.exists()){
+						filePath.createNewFile();
+					}
+					FileOutputStream output = new FileOutputStream(filePath);
+
+					byte[] data = new byte[1024];
+					long total = 0;
+					int fileCount;
+					while ((fileCount = input.read(data)) != -1) {
+						total += fileCount;
+						// publishing the progress....
+						Bundle resultData = new Bundle();
+						resultData.putInt("progress", (int) (total * 100 / fileLength));
+						//receiver.send(UPDATE_PROGRESS, resultData);
+						output.write(data, 0, fileCount);
+					}
+
+					output.flush();
+					output.close();
+					input.close();
+				}
+				catch(IOException e){
+					e.printStackTrace();
+				}
+				//End stuff
+
+				//totalSize += Downloader.downloadFile(urls[i]);
+
+
+				publishProgress((int) ((i / (float) count) * 100));
+				// Escape early if cancel() is called
+				if (isCancelled()) break;
+			}
+			return totalSize;
+		}
+
+		protected void onProgressUpdate(Integer... progress) {
+			//setProgressPercent(progress[0]);
+		}
+
+		protected void onPostExecute(Long result) {
+			//showDialog("Downloaded " + result + " bytes");
+		}
+	}
+
 	//dynamically changes the mute button title from mute to unmute
 	private void muteTitleChangeClick(MenuItem item)
 	{
@@ -1129,11 +1297,32 @@ introductionOnboardingSeen();
 			notificationManager.unblockContactNotification(contactId);
 	}
 
+	@TargetApi(21)
+	private void downloadUrl(String link){
+		runOnUiThread(() -> {
+			webView.setWebViewClient(new WebViewClient(){
+				public void onPageFinished(WebView view, String url){
+					// Creates the various print objects needed for printing URL
+					PrintManager printManager = (PrintManager) ConversationActivity.this.getSystemService(Context.PRINT_SERVICE);
+					PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter("Enter Name...");
+					String jobName = "Briar Print Job";
+					PrintJob printJob;
+
+					if (printManager != null) {
+						printJob = printManager.print(jobName, printAdapter,
+								new PrintAttributes.Builder().build());
+						mPrintJobs.add(printJob);
+					}
+				}
+			});
+			webView.loadUrl(link);
+		});
+	}
+
 	protected void setContactManager(ContactManager contactManager) {
 		this.contactManager = contactManager;
 	}
 	protected void setNotificationManager(AndroidNotificationManager notificationManager) {
 		this.notificationManager = notificationManager;
 	}
-
 }
