@@ -17,6 +17,7 @@
 		android:textColor="@color/briar_text_primary"
 		android:textIsSelectable="true"
 		android:textSize="@dimen/text_size_medium"
+		android:autoLink="web"
 		tools:text="Short message"/>
 
 	<TextView
