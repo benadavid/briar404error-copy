@@ -167,6 +167,10 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		return text;
 	}
 
+	public String getBlogText() {
+		return ui.editText.getText().toString();
+	}
+
 	public void setHint(@StringRes int res) {
 		ui.editText.setHint(res);
 	}

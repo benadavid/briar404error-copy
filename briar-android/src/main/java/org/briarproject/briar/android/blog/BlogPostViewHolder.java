@@ -118,43 +118,42 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 
 		// post body
 		Spanned bodyText = getSpanned(item.getBody());
-		body.setText(bodyText);
 
+		AndDown converter = new AndDown();
+		colour = bodyText.toString().substring((bodyText.toString().length() -3), (bodyText.toString().length()));
+
+		switch (colour) {
+			case "RED":
+				body.setTextColor(Color.RED);
+				break;
+			case "YLW":
+				body.setTextColor(Color.YELLOW);
+				break;
+			case "GRN":
+				body.setTextColor(Color.GREEN);
+				break;
+			case "CYN":
+				body.setTextColor(Color.CYAN);
+				break;
+			case "BLU":
+				body.setTextColor(Color.BLUE);
+				break;
+			case "MGN":
+				body.setTextColor(Color.MAGENTA);
+				break;
+			case "GRY":
+				body.setTextColor(Color.GRAY);
+				break;
+			case "BLK":
+				body.setTextColor(Color.BLACK);
+				break;
+			case "NCL":
+				body.setTextColor(Color.BLACK);
+				break;
+			default:
+				break;
+		}
 		if (fullText) {
-			colour = bodyText.toString().substring((bodyText.toString().length() -3), (bodyText.toString().length()));
-
-			switch (colour) {
-				case "RED":
-					body.setTextColor(Color.RED);
-					break;
-				case "YLW":
-					body.setTextColor(Color.YELLOW);
-					break;
-				case "GRN":
-					body.setTextColor(Color.GREEN);
-					break;
-				case "CYN":
-					body.setTextColor(Color.CYAN);
-					break;
-				case "BLU":
-					body.setTextColor(Color.BLUE);
-					break;
-				case "MGN":
-					body.setTextColor(Color.MAGENTA);
-					break;
-				case "GRY":
-					body.setTextColor(Color.GRAY);
-					break;
-				case "BLK":
-					body.setTextColor(Color.BLACK);
-					break;
-				case "NCL":
-					body.setTextColor(Color.BLACK);
-					break;
-				default:
-					break;
-			}
-			AndDown converter = new AndDown();
 			//Remove the last 9 characters (colour characters) from the message. For some reason blog posts have the colour code then NCLNCL.
 			String HTMLText = converter.markdownToHtml(bodyText.toString().substring(0, (bodyText.toString().length() -3)));
 			CharSequence HTMLString = Html.fromHtml(HTMLText);
@@ -163,9 +162,11 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 			makeLinksClickable(body);
 		} else {
 			body.setTextIsSelectable(false);
-			if (bodyText.length() > TEASER_LENGTH)
+			if (bodyText.length() > TEASER_LENGTH + 3) //+3 is required because last 3 characters are reserved for colour indicator
 				bodyText = getTeaser(ctx, bodyText);
-			body.setText(bodyText);
+			String HTMLText = converter.markdownToHtml(bodyText.toString().substring(0, (bodyText.toString().length() -3)));
+			CharSequence HTMLString = Html.fromHtml(HTMLText);
+			body.setText(HTMLString);
 		}
 
 		// reblog button
