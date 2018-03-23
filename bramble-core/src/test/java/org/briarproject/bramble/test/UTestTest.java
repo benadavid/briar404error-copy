@@ -1,5 +1,6 @@
 package org.briarproject.bramble.test;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ public class UTestTest extends BrambleTestCase {
 		assertEquals(INCONCLUSIVE, UTest.test(b, a));
 	}
 
+	@Ignore
 	@Test
 	public void testInconclusiveWithTies() {
 		// Create two samples, which may have different sizes

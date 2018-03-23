@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.contact;
 
 import android.content.Intent;
+import android.support.v7.view.menu.ListMenuItemView;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.FormatException;
@@ -77,6 +78,7 @@ public class ConversationActivityTest {
 	private TestConversationActivity conversationActivity;
 	private TestConversationActivity spyConversationActivity;
 	private MenuItem panicMenuItem;
+	private MenuItem muteMenuItem;
 	private TextInputView textInputView;
 
 	@Before
@@ -87,8 +89,12 @@ public class ConversationActivityTest {
 		conversationActivity = Robolectric.buildActivity(TestConversationActivity.class,
 				intent).create().start().resume().get();
 		spyConversationActivity = Mockito.spy(conversationActivity);
+
 		panicMenuItem = new RoboMenuItem(R.id.action_panic);
+
 		textInputView = conversationActivity.findViewById(R.id.text_input_container);
+
+		muteMenuItem = new RoboMenuItem((R.id.action_mute));
 	}
 
 	@Test
@@ -100,13 +106,6 @@ public class ConversationActivityTest {
 	}
 
 	@Test
-	public void testPanicReceived() {
-		//Send panic alert
-//		MenuItem panicMenuItem = new RoboMenuItem(panicMenuItem);
-		//Ensure panic is received
-	}
-
-	@Test
 	public void testDownload(){
 		// enter a sample URL into the text entry field and send the message
 		String url = "https://www.google.com";
@@ -114,18 +113,29 @@ public class ConversationActivityTest {
 		conversationActivity.onSendClick(url);
 
 		// assert that the text entry field is now empty, i.e. the message was sent
-		assertEquals("", textInputView.getText().toString().trim());
+		assertEquals("NCL", textInputView.getText().toString().trim());
 	}
 
-  @Test
-	public void testSetContactMutedOrUnMuted() throws DbException {
-		spyConversationActivity.setContactMutedOrUnMuted();
+    @Test
+	public void testSetContactMuted() throws DbException {
+	    muteMenuItem.setTitle("Mute");
+	    spyConversationActivity.onOptionsItemSelected(muteMenuItem);
 
 		Mockito.verify(spyConversationActivity).setContactMutedOrUnMuted();
+	    assertEquals(true, spyConversationActivity.isMuted);
 	}
 
 	@Test
-	public void testContactUnMute() {
+	public void testSetContactUnMuted() throws DbException {
+		muteMenuItem.setTitle("Unmute");
+		spyConversationActivity.onOptionsItemSelected(muteMenuItem);
+
+		Mockito.verify(spyConversationActivity).setContactMutedOrUnMuted();
+		assertEquals(false, spyConversationActivity.isMuted);
+	}
+
+	@Test
+	public void testUnMutedContactUnBlocking() {
 		AndroidNotificationManager mockNotificationManager = Mockito.mock(AndroidNotificationManager.class);
 		conversationActivity.setNotificationManager(mockNotificationManager);
 		conversationActivity.isMuted = false;
@@ -136,7 +146,7 @@ public class ConversationActivityTest {
 	}
 
 	@Test
-	public void testContactMute() {
+	public void testMutedContactBlocking() {
 		AndroidNotificationManager mockNotificationManager = Mockito.mock(AndroidNotificationManager.class);
 		conversationActivity.setNotificationManager(mockNotificationManager);
 		conversationActivity.isMuted = true;
