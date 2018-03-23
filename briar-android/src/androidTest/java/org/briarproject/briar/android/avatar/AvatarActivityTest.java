@@ -5,6 +5,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.view.View;
 
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.userprofile.AvatarActivity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
