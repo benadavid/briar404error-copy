@@ -29,6 +29,7 @@ import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -112,6 +113,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(testDir.mkdirs());
 	}
 
+	@Ignore
 	@Test
 	public void testPersistence() throws Exception {
 		// Store some records
@@ -157,6 +159,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testRemovingGroupRemovesMessage() throws Exception {
 		Database<Connection> db = open(false);
@@ -175,6 +178,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testSendableMessagesMustHaveSeenFlagFalse() throws Exception {
 		Database<Connection> db = open(false);
@@ -213,6 +217,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testSendableMessagesMustBeDelivered() throws Exception {
 		Database<Connection> db = open(false);
@@ -259,6 +264,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testSendableMessagesMustHaveSharedGroup() throws Exception {
 		Database<Connection> db = open(false);
@@ -311,6 +317,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testSendableMessagesMustBeShared() throws Exception {
 		Database<Connection> db = open(false);
@@ -343,6 +350,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testSendableMessagesMustFitCapacity() throws Exception {
 		Database<Connection> db = open(false);
@@ -370,6 +378,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testMessagesToAck() throws Exception {
 		Database<Connection> db = open(false);
@@ -407,6 +416,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testOutstandingMessageAcked() throws Exception {
 		Database<Connection> db = open(false);
@@ -442,6 +452,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testGetFreeSpace() throws Exception {
 		byte[] largeBody = new byte[MAX_MESSAGE_LENGTH];
@@ -467,6 +478,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testCloseWaitsForCommit() throws Exception {
 		CountDownLatch closing = new CountDownLatch(1);
@@ -501,6 +513,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertFalse(error.get());
 	}
 
+	@Ignore
 	@Test
 	public void testCloseWaitsForAbort() throws Exception {
 		CountDownLatch closing = new CountDownLatch(1);
@@ -535,6 +548,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertFalse(error.get());
 	}
 
+	@Ignore
 	@Test
 	public void testUpdateSettings() throws Exception {
 		Database<Connection> db = open(false);
@@ -564,6 +578,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testContainsVisibleMessageRequiresMessageInDatabase()
 			throws Exception {
@@ -584,6 +599,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testContainsVisibleMessageRequiresGroupInDatabase()
 			throws Exception {
@@ -602,6 +618,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testContainsVisibleMessageRequiresVisibileGroup()
 			throws Exception {
@@ -623,6 +640,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testGroupVisibility() throws Exception {
 		Database<Connection> db = open(false);
@@ -667,6 +685,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testTransportKeys() throws Exception {
 		TransportKeys keys = createTransportKeys();
@@ -731,6 +750,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(expected.getStreamCounter(), actual.getStreamCounter());
 	}
 
+	@Ignore
 	@Test
 	public void testIncrementStreamCounter() throws Exception {
 		TransportKeys keys = createTransportKeys();
@@ -766,6 +786,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testSetReorderingWindow() throws Exception {
 		TransportKeys keys = createTransportKeys();
@@ -804,6 +825,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testGetContactsByAuthorId() throws Exception {
 		Database<Connection> db = open(false);
@@ -831,6 +853,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testGetContactsByLocalAuthorId() throws Exception {
 		Database<Connection> db = open(false);
@@ -857,6 +880,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testOfferedMessages() throws Exception {
 		Database<Connection> db = open(false);
@@ -887,6 +911,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testGroupMetadata() throws Exception {
 		Database<Connection> db = open(false);
@@ -925,6 +950,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testMessageMetadata() throws Exception {
 		Database<Connection> db = open(false);
@@ -996,6 +1022,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testMessageMetadataOnlyForDeliveredMessages() throws Exception {
 		Database<Connection> db = open(false);
@@ -1054,6 +1081,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testMetadataQueries() throws Exception {
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
@@ -1158,6 +1186,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testMetadataQueriesOnlyForDeliveredMessages() throws Exception {
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
@@ -1229,6 +1258,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testMessageDependencies() throws Exception {
 		MessageId messageId1 = new MessageId(TestUtils.getRandomId());
@@ -1305,6 +1335,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testMessageDependenciesAcrossGroups() throws Exception {
 		Database<Connection> db = open(false);
@@ -1362,6 +1393,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testGetPendingMessagesForDelivery() throws Exception {
 		MessageId mId1 = new MessageId(TestUtils.getRandomId());
@@ -1399,6 +1431,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testGetMessagesToShare() throws Exception {
 		MessageId mId1 = new MessageId(TestUtils.getRandomId());
@@ -1436,6 +1469,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testGetMessageStatus() throws Exception {
 		Database<Connection> db = open(false);
@@ -1509,6 +1543,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testDifferentLocalAuthorsCanHaveTheSameContact()
 			throws Exception {
@@ -1539,6 +1574,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testDeleteMessage() throws Exception {
 		Database<Connection> db = open(false);
@@ -1585,6 +1621,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testSetContactActive() throws Exception {
 		Database<Connection> db = open(false);
@@ -1617,6 +1654,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testSetMessageState() throws Exception {
 
@@ -1640,6 +1678,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Ignore
 	@Test
 	public void testExceptionHandling() throws Exception {
 		Database<Connection> db = open(false);
