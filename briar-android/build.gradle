@@ -41,12 +41,12 @@ dependencies {
 	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.1.0'
 	implementation 'com.firebaseui:firebase-ui-storage:2.3.0'
 	implementation 'com.google.firebase:firebase-storage:11.0.4'
-	implementation 'com.google.firebase:firebase-auth:11.0.4'
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
 	compile 'com.squareup.picasso:picasso:2.5.2'
 	compile 'com.github.amlcurran.showcaseview:library:5.4.3'
 	compile 'com.commonsware.cwac:anddown:0.4.0'
+	compile 'com.google.firebase:firebase-messaging:11.0.4'
 	compileOnly 'javax.annotation:jsr250-api:1.0'
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
