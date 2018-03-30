@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
+import org.briarproject.briar.android.userprofile.AvatarActivity;
 import static org.junit.Assert.*;
 
 /**

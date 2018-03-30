@@ -415,6 +415,10 @@ public class ConversationActivity extends BriarActivity
 				//dynamically changes title whether trying to mute or unmute
 				muteTitleChangeClick(item);
 				return true;
+			case R.id.action_delete_conversation:
+				//asks if user really wants to delete conversation history
+				askToDeleteConversation();
+				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();
 				return true;
@@ -1324,5 +1328,23 @@ public class ConversationActivity extends BriarActivity
 	}
 	protected void setNotificationManager(AndroidNotificationManager notificationManager) {
 		this.notificationManager = notificationManager;
+	}
+
+	//asks user if they want to delete conversation before doing so
+	private void askToDeleteConversation() {
+		DialogInterface.OnClickListener okListener =
+				(dialog, which) -> deleteConversation();
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(ConversationActivity.this,
+						R.style.BriarDialogTheme);
+		builder.setTitle(getString(R.string.dialog_title_delete_conversation));
+		builder.setMessage(getString(R.string.dialog_message_delete_conversation));
+		builder.setNegativeButton(R.string.delete, okListener);
+		builder.setPositiveButton(R.string.cancel, null);
+		builder.show();
+	}
+
+	private void deleteConversation() {
+
 	}
 }
