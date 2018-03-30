@@ -20,7 +20,7 @@
 	<item
 		android:id="@+id/action_mute"
 		android:icon="@drawable/introduction_white"
-		android:title=" "
+		android:title="Mute Contact"
 		android:enabled="true"
 		app:showAsAction="never"/>
 

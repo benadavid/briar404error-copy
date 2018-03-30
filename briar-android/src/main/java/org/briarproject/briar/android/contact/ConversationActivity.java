@@ -56,6 +56,8 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
+import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
@@ -124,6 +126,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -202,6 +205,7 @@ public class ConversationActivity extends BriarActivity
 
 	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
 
+	protected final DatabaseComponent db = null;
 	private ConversationAdapter adapter;
 	private Toolbar toolbar;
 	private CircleImageView toolbarAvatar;
@@ -1346,5 +1350,28 @@ public class ConversationActivity extends BriarActivity
 
 	private void deleteConversation() {
 
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				Collection<MessageId> Ids = messagingManager.getMessageHeaderIds(contactId);
+				//MessageId[] DeleteMessageIdArray;
+				Iterator MessageDeleter = Ids.iterator();
+
+				while(MessageDeleter.hasNext()){
+					MessageId id = (MessageId) MessageDeleter.next();
+					messagingManager.DeleteMessage(id);
+					MessageDeleter.remove();
+				}
+
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Getting messages to delete took " + duration + " ms");
+
+			} catch (NoSuchContactException e) {
+				finishOnUiThread();
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		});
 	}
 }
