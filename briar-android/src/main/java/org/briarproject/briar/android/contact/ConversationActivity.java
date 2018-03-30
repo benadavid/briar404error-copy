@@ -1373,5 +1373,8 @@ public class ConversationActivity extends BriarActivity
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
+
+		finish();
+		startActivity(getIntent());
 	}
 }
