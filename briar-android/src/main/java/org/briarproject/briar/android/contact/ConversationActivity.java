@@ -464,18 +464,21 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
+	/**
+	 * Displays the dots for online/offline mode
+	 */
 	private void displayContactOnlineStatus() {
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (connectionRegistry.isConnected(contactId)) {
 				toolbarStatus.setImageDrawable(ContextCompat
 						.getDrawable(ConversationActivity.this,
-								R.drawable.contact_online));
+								R.drawable.contact_online));//Online green dot
 				toolbarStatus
 						.setContentDescription(getString(R.string.online));
 			} else {
 				toolbarStatus.setImageDrawable(ContextCompat
 						.getDrawable(ConversationActivity.this,
-								R.drawable.contact_offline));
+								R.drawable.contact_offline));//Offline grey dot
 				toolbarStatus
 						.setContentDescription(getString(R.string.offline));
 			}
@@ -1159,7 +1162,7 @@ public class ConversationActivity extends BriarActivity
 			runOnDbThread(contactNameTask);
 		return contactNameTask;
 	}
-
+/*
 	private class DownloadFilesTask extends AsyncTask<URL, Integer, Long> {
 
 		DownloadFilesTask(String url){
@@ -1180,20 +1183,7 @@ public class ConversationActivity extends BriarActivity
 			for (int i = 0; i < count; i++) {
 
 
-/*
-				String filename = "myfile.txt";
-				String fileContents = "Hello world!";
-				FileOutputStream outputStream;
 
-				try {
-					outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
-					outputStream.write(fileContents.getBytes());
-					outputStream.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-*/
 				//Stuff for Download
 				try {
 					HttpURLConnection connection = (HttpURLConnection) urls[i].openConnection();
@@ -1254,7 +1244,7 @@ public class ConversationActivity extends BriarActivity
 		protected void onPostExecute(Long result) {
 			//showDialog("Downloaded " + result + " bytes");
 		}
-	}
+	}*/
 
 	//dynamically changes the mute button title from mute to unmute
 	private void muteTitleChangeClick(MenuItem item)
