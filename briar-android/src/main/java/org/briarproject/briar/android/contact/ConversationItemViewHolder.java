@@ -19,6 +19,8 @@ import org.w3c.dom.Text;
 
 import android.graphics.Color;
 
+import static android.view.View.GONE;
+
 @UiThread
 @NotNullByDefault
 class ConversationItemViewHolder extends ViewHolder {
@@ -38,6 +40,7 @@ class ConversationItemViewHolder extends ViewHolder {
 	@CallSuper
 	void bind(ConversationItem item) {
 		if (item.getBody() == null) {
+			layout.setVisibility(GONE);
 			text.setText("\u2026");
 		} else {
 			//Get the colour value from the message
@@ -85,10 +88,10 @@ class ConversationItemViewHolder extends ViewHolder {
 			CharSequence HTMLString = Html.fromHtml(HTMLText);
 			text.setText(HTMLString);
 
+			long timestamp = item.getTime();
+			time.setText(UiUtils.formatDate(time.getContext(), timestamp));
 		}
 
-		long timestamp = item.getTime();
-		time.setText(UiUtils.formatDate(time.getContext(), timestamp));
 	}
 
 }
