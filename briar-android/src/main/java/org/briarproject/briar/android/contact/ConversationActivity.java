@@ -598,7 +598,9 @@ public class ConversationActivity extends BriarActivity
 				if (LOG.isLoggable(INFO))
 					LOG.info("Loading body took " + duration + " ms");
 
-				displayMessageBody(m, body);
+				if (body.length() > 3) { //we dont want to display empty text boxes
+					displayMessageBody(m, body);
+				}
 
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);

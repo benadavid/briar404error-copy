@@ -41,7 +41,7 @@ class ConversationItemViewHolder extends ViewHolder {
 	void bind(ConversationItem item) {
 		if (item.getBody() == null) {
 			layout.setVisibility(GONE);
-		} else if (item.getBody().equals("")) {
+		} else if (item.getBody().substring(0, (item.getBody().length() -3)).equals("")) {
 			layout.setVisibility(GONE);
 		} else {
 			//Get the colour value from the message
@@ -88,10 +88,9 @@ class ConversationItemViewHolder extends ViewHolder {
 			String HTMLText = converter.markdownToHtml(item.getBody().substring(0, (item.getBody().length() -3)));
 			CharSequence HTMLString = Html.fromHtml(HTMLText);
 			text.setText(HTMLString);
-
-			long timestamp = item.getTime();
-			time.setText(UiUtils.formatDate(time.getContext(), timestamp));
 		}
+		long timestamp = item.getTime();
+		time.setText(UiUtils.formatDate(time.getContext(), timestamp));
 
 	}
 
