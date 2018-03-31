@@ -946,6 +946,9 @@ public class ConversationActivity extends BriarActivity
 			createMessage(text, timestamp);
 		}
 		lastAction = "PANIC";
+
+		finish();
+		startActivity(getIntent());
 	}
 
 	private void removeContact() {

@@ -162,6 +162,9 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	}
 
 	public String getText() {
+		if (ui.editText.getText().equals("")){
+			return null;
+		}
 		String text = ((ui.editText.getText()).append(colour)).toString();
 		colour = "NCL";
 		return text;

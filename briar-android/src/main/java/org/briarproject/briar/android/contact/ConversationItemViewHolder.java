@@ -41,7 +41,8 @@ class ConversationItemViewHolder extends ViewHolder {
 	void bind(ConversationItem item) {
 		if (item.getBody() == null) {
 			layout.setVisibility(GONE);
-			text.setText("\u2026");
+		} else if (item.getBody().equals("")) {
+			layout.setVisibility(GONE);
 		} else {
 			//Get the colour value from the message
 			colour = item.getBody().substring((item.getBody().length() -3), (item.getBody().length()));
