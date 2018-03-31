@@ -27,6 +27,16 @@ import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
+import com.firebase.ui.storage.images.*;
+import com.google.android.gms.tasks.*;
+import com.google.android.gms.tasks.*;
+import com.google.firebase.*;
+import com.google.firebase.storage.*;
+import com.google.firebase.storage.*;
+import com.google.firebase.*;
+import com.google.firebase.storage.*;
+import com.google.firebase.storage.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -160,9 +170,19 @@ class MessagingManagerImpl extends ConversationClientImpl
 		return getContactGroup(contact).getId();
 	}
 
+
+	/**
+	 * Gets the private messages from the database
+	 * @param c
+	 * @return
+	 * @throws DbException
+	 */
 	@Override
 	public Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException {
+
+
+		/*
 		Map<MessageId, BdfDictionary> metadata;
 		Collection<MessageStatus> statuses;
 		GroupId g;
@@ -177,7 +197,11 @@ class MessagingManagerImpl extends ConversationClientImpl
 		} finally {
 			db.endTransaction(txn);
 		}
+		*/
+
 		Collection<PrivateMessageHeader> headers = new ArrayList<>();
+
+		/*
 		for (MessageStatus s : statuses) {
 			MessageId id = s.getMessageId();
 			BdfDictionary meta = metadata.get(id);
@@ -193,6 +217,17 @@ class MessagingManagerImpl extends ConversationClientImpl
 				throw new DbException(e);
 			}
 		}
+		*/
+
+		//We get the unique ID
+		int contactIdNumber = c.getInt();
+		//What is above might not work, since we are not local anymore
+
+		//We need to get all the messages for this unique ID, with as receiver
+		// the actual user unique ID
+
+
+
 		return headers;
 	}
 

@@ -5,6 +5,9 @@ allprojects {
 		jcenter()
 		mavenLocal()
 		google()
+		/*maven{
+			url "https://maven.google.com" // Google's Maven repository
+		}*/
 	}
 }
 
@@ -52,3 +55,6 @@ task createJavaLangInvokeJar(type: Zip) {
 	}
 	include '**/*'
 }
+
+
+//apply from: 'com.android.tools.build.gradle'
