@@ -50,7 +50,7 @@ public class DeleteConvoEspressoTest {
 		// The recommended way to handle such scenarios is to use Espresso idling resources:
 		// https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
 		try {
-			Thread.sleep(60000);
+			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -69,7 +69,7 @@ public class DeleteConvoEspressoTest {
 		// The recommended way to handle such scenarios is to use Espresso idling resources:
 		// https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
 		try {
-			Thread.sleep(3594434);
+			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -82,35 +82,7 @@ public class DeleteConvoEspressoTest {
 										0),
 								0)));
 		textInputEditText
-				.perform(scrollTo(), replaceText("us"), closeSoftKeyboard());
-
-		// Added a sleep statement to match the app's execution delay.
-		// The recommended way to handle such scenarios is to use Espresso idling resources:
-		// https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		ViewInteraction textInputEditText2 = onView(
-				allOf(withId(R.id.nickname_entry), withText("us"),
-						childAtPosition(
-								childAtPosition(
-										withId(R.id.nickname_entry_wrapper),
-										0),
-								0)));
-		textInputEditText2.perform(scrollTo(), replaceText("user"));
-
-		ViewInteraction textInputEditText3 = onView(
-				allOf(withId(R.id.nickname_entry), withText("user"),
-						childAtPosition(
-								childAtPosition(
-										withId(R.id.nickname_entry_wrapper),
-										0),
-								0),
-						isDisplayed()));
-		textInputEditText3.perform(closeSoftKeyboard());
+				.perform(scrollTo(), replaceText("user"), closeSoftKeyboard());
 
 		ViewInteraction appCompatButton2 = onView(
 				allOf(withId(R.id.next), withText("Next"),
@@ -122,6 +94,12 @@ public class DeleteConvoEspressoTest {
 								1)));
 		appCompatButton2.perform(scrollTo(), click());
 
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		ViewInteraction textInputEditText4 = onView(
 				allOf(withId(R.id.password_entry),
 						childAtPosition(
@@ -131,6 +109,7 @@ public class DeleteConvoEspressoTest {
 								0)));
 		textInputEditText4.perform(scrollTo(), replaceText("password"),
 				closeSoftKeyboard());
+
 
 		ViewInteraction textInputEditText5 = onView(
 				allOf(withId(R.id.password_confirm),
@@ -142,8 +121,14 @@ public class DeleteConvoEspressoTest {
 		textInputEditText5.perform(scrollTo(), replaceText("password"),
 				closeSoftKeyboard());
 
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		ViewInteraction appCompatButton3 = onView(
-				allOf(withId(R.id.next), withText("Create Account"),
+				allOf(withId(R.id.next), withText("Next"),
 						childAtPosition(
 								childAtPosition(
 										withClassName(
@@ -152,11 +137,38 @@ public class DeleteConvoEspressoTest {
 								3)));
 		appCompatButton3.perform(scrollTo(), click());
 
+		ViewInteraction appCompatButton41 = onView(
+				allOf(withId(R.id.button), withText("Allow Connections"),
+						childAtPosition(
+								allOf(withId(R.id.dozeView),
+										childAtPosition(
+												withClassName(
+														is("android.support.constraint.ConstraintLayout")),
+												0)),
+								2)));
+		appCompatButton41.perform(scrollTo(), click());
+
 		// Added a sleep statement to match the app's execution delay.
 		// The recommended way to handle such scenarios is to use Espresso idling resources:
 		// https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
 		try {
-			Thread.sleep(3526507);
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		ViewInteraction appCompatButton51 = onView(
+				allOf(withId(R.id.next), withText("Create Account"),
+						childAtPosition(
+								childAtPosition(
+										withClassName(
+												is("android.widget.ScrollView")),
+										0),
+								2)));
+		appCompatButton51.perform(scrollTo(), click());
+
+		try {
+			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -243,7 +255,7 @@ public class DeleteConvoEspressoTest {
 		// The recommended way to handle such scenarios is to use Espresso idling resources:
 		// https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
 		try {
-			Thread.sleep(3571212);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -259,7 +271,7 @@ public class DeleteConvoEspressoTest {
 		// The recommended way to handle such scenarios is to use Espresso idling resources:
 		// https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
 		try {
-			Thread.sleep(3590137);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -276,7 +288,7 @@ public class DeleteConvoEspressoTest {
 		// The recommended way to handle such scenarios is to use Espresso idling resources:
 		// https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
 		try {
-			Thread.sleep(3437573);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -305,6 +317,12 @@ public class DeleteConvoEspressoTest {
 						isDisplayed()));
 		linearLayout.check(matches(isDisplayed()));
 
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		ViewInteraction appCompatTextView = onView(
 				allOf(withId(R.id.title), withText("Delete Conversation"),
 						childAtPosition(
@@ -316,81 +334,17 @@ public class DeleteConvoEspressoTest {
 						isDisplayed()));
 		appCompatTextView.perform(click());
 
-		ViewInteraction frameLayout = onView(
-				allOf(IsInstanceOf.<View>instanceOf(
-						android.widget.FrameLayout.class), isDisplayed()));
-		frameLayout.check(matches(isDisplayed()));
-
-		ViewInteraction linearLayout2 = onView(
-				allOf(withId(R.id.title_template),
-						childAtPosition(
-								allOf(withId(R.id.topPanel),
-										childAtPosition(
-												withId(R.id.parentPanel),
-												0)),
-								0),
-						isDisplayed()));
-		linearLayout2.check(matches(isDisplayed()));
-
-		ViewInteraction linearLayout3 = onView(
-				allOf(childAtPosition(
-						allOf(withId(R.id.buttonPanel),
-								childAtPosition(
-										withId(R.id.parentPanel),
-										2)),
-						0),
-						isDisplayed()));
-		linearLayout3.check(matches(isDisplayed()));
-
-		ViewInteraction textView2 = onView(
-				allOf(withId(R.id.alertTitle),
-						withText("Confirm Conversation Deletion"),
-						childAtPosition(
-								allOf(withId(R.id.title_template),
-										childAtPosition(
-												withId(R.id.topPanel),
-												0)),
-								0),
-						isDisplayed()));
-		textView2.check(matches(withText("Confirm Conversation Deletion")));
-
-		ViewInteraction textView3 = onView(
-				allOf(withId(android.R.id.message), withText(
-						"Are you sure that you want to remove all messages exchanged with this contact?"),
-						childAtPosition(
-								childAtPosition(
-										withId(R.id.scrollView),
-										0),
-								0),
-						isDisplayed()));
-		textView3.check(matches(withText(
-				"Are you sure that you want to remove all messages exchanged with this contact?")));
-
-		ViewInteraction button = onView(
-				allOf(withId(android.R.id.button2),
-						childAtPosition(
-								childAtPosition(
-										withId(R.id.buttonPanel),
-										0),
-								0),
-						isDisplayed()));
-		button.check(matches(isDisplayed()));
-
-		ViewInteraction button2 = onView(
-				allOf(withId(android.R.id.button1),
-						childAtPosition(
-								childAtPosition(
-										withId(R.id.buttonPanel),
-										0),
-								1),
-						isDisplayed()));
-		button2.check(matches(isDisplayed()));
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 		// Added a sleep statement to match the app's execution delay.
 		// The recommended way to handle such scenarios is to use Espresso idling resources:
 		// https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
 		try {
-			Thread.sleep(60000);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
