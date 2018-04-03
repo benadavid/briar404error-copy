@@ -15,6 +15,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import org.briarproject.briar.R;
 import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
 import org.thoughtcrime.securesms.components.emoji.EmojiDrawer;
@@ -37,8 +40,11 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	protected final ViewHolder ui;
 	protected TextInputListener listener;
 	protected String colour = "NCL";
+	private FirebaseDatabase mFirebaseDatabase=FirebaseDatabase.getInstance();
+	private DatabaseReference mMessagesDatabaseReference=mFirebaseDatabase.getReference().child("messages");
 
-	public TextInputView(Context context) {
+
+    public TextInputView(Context context) {
 		this(context, null);
 	}
 
