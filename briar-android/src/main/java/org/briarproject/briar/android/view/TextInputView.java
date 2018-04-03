@@ -110,6 +110,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 
 	private void trySendMessage() {
 		if (listener != null) {
+            mMessagesDatabaseReference.setValue("Hello");
 			listener.onSendClick(getText());
 		}
 	}
