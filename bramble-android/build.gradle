@@ -49,12 +49,12 @@ dependencyVerification {
 			'javax.inject:javax.inject:1:javax.inject-1.jar:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
 			'net.i2p.crypto:eddsa:0.2.0:eddsa-0.2.0.jar:a7cb1b85c16e2f0730b9204106929a1d9aaae1df728adc7041a8b8b605692140',
 			'org.bitlet:weupnp:0.1.4:weupnp-0.1.4.jar:88df7e6504929d00bdb832863761385c68ab92af945b04f0770b126270a444fb',
-			'org.jacoco:org.jacoco.agent:0.7.4.201502262128:org.jacoco.agent-0.7.4.201502262128-runtime.jar:e357a0f1d573c2f702a273992b1b6cb661734f66311854efb3778a888515c5b5',
-			'org.jacoco:org.jacoco.agent:0.7.4.201502262128:org.jacoco.agent-0.7.4.201502262128.jar:47b4bec6df11a1118da3953da8b9fa1e7079d6fec857faa1a3cf912e53a6fd4e',
-			'org.jacoco:org.jacoco.ant:0.7.4.201502262128:org.jacoco.ant-0.7.4.201502262128.jar:013ce2a68ba57a3c59215ae0dec4df3498c078062a38c3b94c841fc14450f283',
-			'org.jacoco:org.jacoco.core:0.7.4.201502262128:org.jacoco.core-0.7.4.201502262128.jar:ec4c74554312fac5116350164786f91b35c9e082fa4ea598bfa42b5db05d7abb',
-			'org.jacoco:org.jacoco.report:0.7.4.201502262128:org.jacoco.report-0.7.4.201502262128.jar:7a3554c605e088e7e323b1084656243f0444fa353e2f2dee1f1a4204eb64ff09',
-			'org.ow2.asm:asm-debug-all:5.0.1:asm-debug-all-5.0.1.jar:4734de5b515a454b0096db6971fb068e5f70e6f10bbee2b3bd2fdfe5d978ed57',
+			//'org.jacoco:org.jacoco.agent:0.7.4.201502262128:org.jacoco.agent-0.7.4.201502262128-runtime.jar:e357a0f1d573c2f702a273992b1b6cb661734f66311854efb3778a888515c5b5',
+			//'org.jacoco:org.jacoco.agent:0.7.4.201502262128:org.jacoco.agent-0.7.4.201502262128.jar:47b4bec6df11a1118da3953da8b9fa1e7079d6fec857faa1a3cf912e53a6fd4e',
+			//'org.jacoco:org.jacoco.ant:0.7.4.201502262128:org.jacoco.ant-0.7.4.201502262128.jar:013ce2a68ba57a3c59215ae0dec4df3498c078062a38c3b94c841fc14450f283',
+			//'org.jacoco:org.jacoco.core:0.7.4.201502262128:org.jacoco.core-0.7.4.201502262128.jar:ec4c74554312fac5116350164786f91b35c9e082fa4ea598bfa42b5db05d7abb',
+			//'org.jacoco:org.jacoco.report:0.7.4.201502262128:org.jacoco.report-0.7.4.201502262128.jar:7a3554c605e088e7e323b1084656243f0444fa353e2f2dee1f1a4204eb64ff09',
+			//'org.ow2.asm:asm-debug-all:5.0.1:asm-debug-all-5.0.1.jar:4734de5b515a454b0096db6971fb068e5f70e6f10bbee2b3bd2fdfe5d978ed57',
 	]
 }
 
