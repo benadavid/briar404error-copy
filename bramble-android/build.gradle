@@ -6,8 +6,8 @@ apply plugin: 'witness'
 apply plugin: 'de.undercouch.download'
 
 android {
-	compileSdkVersion 27
-	buildToolsVersion '27.0.3'
+	compileSdkVersion 26
+	buildToolsVersion '26.0.2'
 
 	defaultConfig {
 		minSdkVersion 14
@@ -29,10 +29,9 @@ android {
 
 dependencies {
 	implementation project(path: ':bramble-core', configuration: 'default')
-	implementation fileTree(dir: 'libs', include: '*.jar')
-
+	implementation fileTree(include: '*.jar', dir: 'libs')
+	implementation 'com.google.firebase:firebase-database:11.0.4'
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
-
 	compileOnly 'javax.annotation:jsr250-api:1.0'
 }
 
@@ -98,3 +97,7 @@ project.afterEvaluate {
 		preBuild.dependsOn.add(verifyBinary(key, value))
 	}
 }
+
+//apply plugin: 'com.google.gms.google-services'
+
+apply plugin: 'com.google.gms.google-services'

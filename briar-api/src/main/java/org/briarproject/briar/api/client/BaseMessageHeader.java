@@ -10,10 +10,14 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public abstract class BaseMessageHeader {
 
-	private final MessageId id;
-	private final GroupId groupId;
-	private final long timestamp;
-	private final boolean local, sent, seen, read;
+	private MessageId id;
+	private GroupId groupId;
+	protected long timestamp;
+	protected boolean local, sent, seen, read;
+
+	public BaseMessageHeader(){
+
+	}
 
 	public BaseMessageHeader(MessageId id, GroupId groupId, long timestamp,
 			boolean local, boolean sent, boolean seen, boolean read) {

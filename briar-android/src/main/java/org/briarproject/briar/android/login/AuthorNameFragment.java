@@ -8,6 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -74,6 +77,13 @@ public class AuthorNameFragment extends SetupFragment {
 
 	@Override
 	public void onClick(View view) {
+
+		FirebaseDatabase database = FirebaseDatabase.getInstance();
+		DatabaseReference myRef = database.getReference("pseudo");
+
+		//We send a copy of the pseudo (author name) in the database
+		myRef.setValue(authorNameInput.getText().toString());
+
 		setupController.setAuthorName(authorNameInput.getText().toString());
 	}
 

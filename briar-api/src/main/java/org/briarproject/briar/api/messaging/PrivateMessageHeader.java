@@ -11,6 +11,10 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class PrivateMessageHeader extends BaseMessageHeader {
 
+	public PrivateMessageHeader(){
+		super();
+	}
+
 	public PrivateMessageHeader(MessageId id, GroupId groupId, long timestamp,
 			boolean local, boolean read, boolean sent, boolean seen) {
 

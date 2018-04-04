@@ -27,6 +27,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,17 +40,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
-import android.app.ProgressDialog; //Deprecated I think
-import android.os.ResultReceiver;
-import android.os.Handler;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -120,7 +117,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -549,6 +545,40 @@ public class ConversationActivity extends BriarActivity
 		int size =
 				headers.size() + introductions.size() + invitations.size();
 		List<ConversationItem> items = new ArrayList<>(size);
+
+		//Here we load the private messages. We can try to decouple everything
+		//by reading the Firebase database here
+
+		FirebaseDatabase database = FirebaseDatabase.getInstance();
+		DatabaseReference myRef = database.getReference("pseudo");
+
+
+
+
+		// Read from the database
+		myRef.addValueEventListener(new com.google.firebase.database.ValueEventListener() {
+			//@Override
+			public void onDataChange(DataSnapshot dataSnapshot) {
+				// This method is called once with the initial value and again
+				// whenever data at this location is updated.
+				String value = dataSnapshot.getValue(String.class);
+				LOG.info("Value is: " + value);
+
+				//We need to get the messages. If the contact doesn't exists, let's create it
+
+
+
+			}
+
+			//@Override
+			public void onCancelled(DatabaseError error) {
+				// Failed to read value
+				LOG.log(WARNING, error.toException().toString(), error.toException());
+			}
+		});
+
+
+
 		for (PrivateMessageHeader h : headers) {
 			ConversationItem item = ConversationItem.from(h);
 			String body = bodyCache.get(h.getId());
