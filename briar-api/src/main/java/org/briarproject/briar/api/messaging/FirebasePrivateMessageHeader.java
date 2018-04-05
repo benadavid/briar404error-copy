@@ -23,4 +23,12 @@ public class FirebasePrivateMessageHeader extends PrivateMessageHeader {
 
 	}
 
+	public String getSender(){
+		return sender;
+	}
+
+	public String getReceiver(){
+		return receiver;
+	}
+
 }
