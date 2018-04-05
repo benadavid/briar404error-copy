@@ -567,7 +567,6 @@ public class ConversationActivity extends BriarActivity
 				//We need to get the messages. If the contact doesn't exists, let's create it
 
 
-
 			}
 
 			//@Override
