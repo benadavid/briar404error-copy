@@ -23,8 +23,8 @@ public class BriarDatabaseAdapter extends BriarDatabase{
 		loadContacts();
 	}
 
-	public addContact(String contact){
-		this.contacts[contact] = contact;
+	public void addContact(String contact){
+		//this.contacts.put(contact, value);
 	}
 
 	private void loadContacts(){
