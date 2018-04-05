@@ -99,7 +99,6 @@ public class BriarDatabaseAdapter extends BriarDatabase{
 			@Override
 			public void onDataChange(DataSnapshot dataSnapshot) {
 
-
 				//We change the data for the other user, i.e. the receiver
 				HashMap<String, ArrayList<FirebasePrivateMessageHeader>>
 						otherUserContacts = dataSnapshot.getValue(HashMap.class);
@@ -124,8 +123,6 @@ public class BriarDatabaseAdapter extends BriarDatabase{
 				currentConversation.add(otherUserMessage);
 
 				otherUser.setValue(otherUserContacts);
-
-
 
 				//String value = dataSnapshot.getValue(String.class);
 				//Log.d(TAG, "Value is: " + value);

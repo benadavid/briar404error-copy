@@ -74,6 +74,7 @@ import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.BriarDatabaseAdapter;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
@@ -95,6 +96,7 @@ import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
+import org.briarproject.briar.api.messaging.FirebasePrivateMessageHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
@@ -579,12 +581,21 @@ public class ConversationActivity extends BriarActivity
 
 
 		for (PrivateMessageHeader h : headers) {
+
+
+			//ConversationItem item = new FirebaseConversationItem(h.getBody(),
+			//		h.getTimestamp(), h.isRead());
+
+
+
 			ConversationItem item = ConversationItem.from(h);
 			String body = bodyCache.get(h.getId());
 			if (body == null) loadMessageBody(h.getId());
 			else item.setBody(body);
 			items.add(item);
+
 		}
+
 		for (IntroductionMessage m : introductions) {
 			ConversationItem item;
 			if (m instanceof IntroductionRequest) {
@@ -902,6 +913,18 @@ public class ConversationActivity extends BriarActivity
 			// Performing foreign user panic responses
 			//signOut(true);
 		}
+		*/
+
+		/*
+		FirebasePrivateMessageHeader message = new FirebasePrivateMessageHeader(
+				test,contactName,timestamp,true,false,false,false);
+
+		message.setBody(body);
+
+		BriarDatabaseAdapter firebaseDatabaseAccess =
+				new BriarDatabaseAdapter(test);
+
+		firebaseDatabaseAccess.addMessage(contactName,message);
 		*/
 
 		//Thing to encrypt communications. Apparently, we can send functions as a parameter, like in JavaScript

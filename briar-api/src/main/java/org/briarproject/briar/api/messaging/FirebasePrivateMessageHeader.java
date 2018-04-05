@@ -20,7 +20,6 @@ public class FirebasePrivateMessageHeader extends PrivateMessageHeader {
 		this.sent = sent;
 		this.seen = seen;
 		this.read = read;
-
 	}
 
 	public String getSender(){

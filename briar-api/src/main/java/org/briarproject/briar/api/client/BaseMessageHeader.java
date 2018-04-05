@@ -15,6 +15,8 @@ public abstract class BaseMessageHeader {
 	protected long timestamp;
 	protected boolean local, sent, seen, read;
 
+	protected String body;
+
 	public BaseMessageHeader(){
 
 	}
@@ -57,6 +59,14 @@ public abstract class BaseMessageHeader {
 
 	public boolean isRead() {
 		return read;
+	}
+
+	//Added for Firebase migration
+	public String getBody() { return body; }
+
+	//Added for Firebase migration
+	public void setBody(String body){
+		this.body = body;
 	}
 
 }

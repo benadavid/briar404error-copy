@@ -35,10 +35,14 @@ import static org.briarproject.briar.android.contact.ConversationRequestItem.Req
 abstract class ConversationItem {
 
 	protected @Nullable String body;
-	private final MessageId id;
-	private final GroupId groupId;
-	private final long time;
-	private boolean read;
+	protected MessageId id;
+	protected GroupId groupId;
+	protected long time;
+	protected boolean read;
+
+	ConversationItem(){
+
+	}
 
 	ConversationItem(MessageId id, GroupId groupId, @Nullable String body,
 			long time, boolean read) {
