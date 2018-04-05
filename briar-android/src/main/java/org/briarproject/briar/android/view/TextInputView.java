@@ -18,6 +18,9 @@ import android.view.inputmethod.InputMethodManager;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.briar.R;
 import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
 import org.thoughtcrime.securesms.components.emoji.EmojiDrawer;
@@ -26,12 +29,15 @@ import org.thoughtcrime.securesms.components.emoji.EmojiEditText;
 import org.thoughtcrime.securesms.components.emoji.EmojiToggle;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.view.KeyEvent.KEYCODE_BACK;
 import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
+import static org.briarproject.briar.android.contact.ConversationActivity.nickname2;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.nickname1;
 
 @UiThread
 public class TextInputView extends KeyboardAwareLinearLayout
@@ -41,8 +47,9 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	protected TextInputListener listener;
 	protected String colour = "NCL";
 	private FirebaseDatabase mFirebaseDatabase=FirebaseDatabase.getInstance();
-	private DatabaseReference mMessagesDatabaseReference=mFirebaseDatabase.getReference().child("messages");
-
+	private DatabaseReference mMessagesDatabaseReference=mFirebaseDatabase.getReference().child(myName+"_"+friendName);
+	public static String friendName = nickname2;
+    public static String myName=nickname1;
 
     public TextInputView(Context context) {
 		this(context, null);
@@ -110,7 +117,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 
 	private void trySendMessage() {
 		if (listener != null) {
-            mMessagesDatabaseReference.setValue("Hello");
+            mMessagesDatabaseReference.setValue(getText());
 			listener.onSendClick(getText());
 		}
 	}
@@ -118,6 +125,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	@Override
 	public void setVisibility(int visibility) {
 		if (visibility == GONE && isKeyboardOpen()) {
+
 			onKeyboardClose();
 		}
 		super.setVisibility(visibility);

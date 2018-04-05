@@ -38,6 +38,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.TorConstants;
@@ -112,11 +114,16 @@ public class NavDrawerActivity extends BriarActivity implements
 	String path;
 	public final static String APP_PATH_SD_CARD="/DesiredSubfolderName/";
 	public final static String APP_THUMBNAIL_PATH_SD_CARD="thumbnails";
+    private static LocalAuthor author;
+    public static String nickname1;
 
 	private List<Transport> transports;
 	private BaseAdapter transportsAdapter;
 	//Firebase storage object
 	private StorageReference mStorageRef;
+
+    @Inject
+    volatile IdentityManager identityManager;
 
 	@Override
 	protected void onNewIntent(Intent intent) {
@@ -210,6 +217,20 @@ public class NavDrawerActivity extends BriarActivity implements
 		if (getIntent() != null) {
 			onNewIntent(getIntent());
 		}
+
+        //retrieve local user nickname
+        runOnDbThread(() -> {
+
+            // Load the local pseudonym
+            try {
+                author = identityManager.getLocalAuthor();
+                nickname1 = author.getName();
+                ;
+            } catch (DbException e) {
+                return;
+            }
+
+        });
 
 		//Firebase storage object initalized
 		mStorageRef = FirebaseStorage.getInstance().getReference();

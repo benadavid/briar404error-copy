@@ -174,7 +174,9 @@ public class ConversationActivity extends BriarActivity
 	StorageReference storageRef,imageRef;
 	FirebaseStorage storage;
 	public static String nickname;
-	Bitmap btm;
+    public static String nickname2;
+
+    Bitmap btm;
 	ArrayList<PrintJob> mPrintJobs = new ArrayList<PrintJob>();
 
 	// declare the progress bar dialog as a member field of the activity
@@ -333,6 +335,22 @@ public class ConversationActivity extends BriarActivity
 		mProgressDialog.setIndeterminate(true);
 		mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		mProgressDialog.setCancelable(true);
+
+		//get friend's author name
+        runOnDbThread(() -> {
+            try {
+                long now = System.currentTimeMillis();
+                    Contact contact = contactManager.getContact(contactId);
+                    contactName = contact.getAuthor().getName();
+                    contactAuthorId = contact.getAuthor().getId();
+
+                    isMuted = contact.isMuted();
+                    nickname2=contactName;
+
+            } catch (DbException e) {
+                if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+            }
+        });
 	}
 
 	@Override
