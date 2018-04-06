@@ -234,10 +234,10 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public void DeleteMessage(MessageId m) throws DbException {
+	public void removeMessage(MessageId m) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
-			db.deleteMessage(txn, m);
+			db.removeMessage(txn, m);
 			db.commitTransaction(txn);
 		} catch (DbException e) {
 			e.printStackTrace();
@@ -245,5 +245,6 @@ class MessagingManagerImpl extends ConversationClientImpl
 			db.endTransaction(txn);
 		}
 	}
+
 
 }

@@ -598,9 +598,7 @@ public class ConversationActivity extends BriarActivity
 				if (LOG.isLoggable(INFO))
 					LOG.info("Loading body took " + duration + " ms");
 
-				if (body.length() > 3) { //we dont want to display empty text boxes
 					displayMessageBody(m, body);
-				}
 
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -624,6 +622,13 @@ public class ConversationActivity extends BriarActivity
 
 					//If not read, we can do the automated actions, including panic
 					if(body.equals("!!PANIC!!RED")){
+						//We sign out
+						//Default action for foreign user panic button activation
+						//We register the fact that this message has led to a panic action
+						signOut(true);
+					}
+
+					if(body.equals("YES")){
 						//We sign out
 						//Default action for foreign user panic button activation
 						//We register the fact that this message has led to a panic action
@@ -1359,12 +1364,11 @@ public class ConversationActivity extends BriarActivity
 			try {
 				long now = System.currentTimeMillis();
 				Collection<MessageId> Ids = messagingManager.getMessageHeaderIds(contactId);
-				//MessageId[] DeleteMessageIdArray;
 				Iterator MessageDeleter = Ids.iterator();
 
 				while(MessageDeleter.hasNext()){
 					MessageId id = (MessageId) MessageDeleter.next();
-					messagingManager.DeleteMessage(id);
+					messagingManager.removeMessage(id);
 					MessageDeleter.remove();
 				}
 

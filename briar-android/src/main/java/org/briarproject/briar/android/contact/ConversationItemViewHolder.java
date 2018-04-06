@@ -40,9 +40,7 @@ class ConversationItemViewHolder extends ViewHolder {
 	@CallSuper
 	void bind(ConversationItem item) {
 		if (item.getBody() == null) {
-			layout.setVisibility(GONE);
-		} else if (item.getBody().substring(0, (item.getBody().length() -3)).equals("")) {
-			layout.setVisibility(GONE);
+			text.setText("\u2026");
 		} else {
 			//Get the colour value from the message
 			colour = item.getBody().substring((item.getBody().length() -3), (item.getBody().length()));
@@ -89,8 +87,6 @@ class ConversationItemViewHolder extends ViewHolder {
 			CharSequence HTMLString = Html.fromHtml(HTMLText);
 			text.setText(HTMLString);
 		}
-		long timestamp = item.getTime();
-		time.setText(UiUtils.formatDate(time.getContext(), timestamp));
 
 	}
 
