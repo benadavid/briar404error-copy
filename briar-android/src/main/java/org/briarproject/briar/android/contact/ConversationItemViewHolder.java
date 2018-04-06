@@ -88,6 +88,8 @@ class ConversationItemViewHolder extends ViewHolder {
 			text.setText(HTMLString);
 		}
 
+		long timestamp = item.getTime();
+		time.setText(UiUtils.formatDate(time.getContext(), timestamp));
 	}
 
 }
