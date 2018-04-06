@@ -628,13 +628,6 @@ public class ConversationActivity extends BriarActivity
 						signOut(true);
 					}
 
-					if(body.equals("YES")){
-						//We sign out
-						//Default action for foreign user panic button activation
-						//We register the fact that this message has led to a panic action
-						signOut(true);
-					}
-
 					//We check if we have a REGEX of an URL. If yes, we backup the content
 					Pattern p = Pattern.compile("^(https?|ftp|file)://" +
 							"[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*" +
