@@ -27,6 +27,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,6 +43,12 @@ import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.FirebaseApp;
@@ -152,7 +159,9 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
+import static org.briarproject.briar.android.contact.ContactItemViewHolder.nickname;
 import static org.briarproject.briar.android.contact.DownloadService.UPDATE_PROGRESS;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.nickname1;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
@@ -173,7 +182,8 @@ public class ConversationActivity extends BriarActivity
 			"showOnboardingIntroduction";
 	StorageReference storageRef,imageRef;
 	FirebaseStorage storage;
-	public static String nickname;
+	FirebaseDatabase database;
+	DatabaseReference databaseRef;
     public static String nickname2;
 
     Bitmap btm;
@@ -219,7 +229,6 @@ public class ConversationActivity extends BriarActivity
 				public String call() throws Exception {
 					Contact c = contactManager.getContact(contactId);
 					contactName = c.getAuthor().getName();
-					nickname=contactName;
 					return c.getAuthor().getName();
 				}
 			});
@@ -325,9 +334,32 @@ public class ConversationActivity extends BriarActivity
 		//creates a storage reference
 		storageRef = storage.getReference();
 
+		//accessing the firebase database
+		database=FirebaseDatabase.getInstance();
+		//creates a database reference
+		databaseRef=database.getReference().child("Ptolemy_Ben");
+
 		textInputView = findViewById(R.id.text_input_container);
 		textInputView.setListener(this);
 
+		//**
+		//this is the listener that detects whenever Firebase Database receives a new message
+        //**
+		databaseRef.addValueEventListener(new ValueEventListener() {
+
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                Log.d("received", "lool");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+
+            }
+            });
 
 		//Progress bar
 		mProgressDialog = new ProgressDialog(ConversationActivity.this);
@@ -451,7 +483,6 @@ public class ConversationActivity extends BriarActivity
 					contactAuthorId = contact.getAuthor().getId();
 
 					isMuted = contact.isMuted();
-					nickname=contactName;
 				}
 				long duration = System.currentTimeMillis() - now;
 				if (LOG.isLoggable(INFO))
