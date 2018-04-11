@@ -36,6 +36,7 @@ import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.view.KeyEvent.KEYCODE_BACK;
 import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
+import static org.briarproject.briar.android.contact.ContactItemViewHolder.nickname;
 import static org.briarproject.briar.android.contact.ConversationActivity.nickname2;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.nickname1;
 
@@ -48,7 +49,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	protected String colour = "NCL";
 	private FirebaseDatabase mFirebaseDatabase=FirebaseDatabase.getInstance();
 	private DatabaseReference mMessagesDatabaseReference=mFirebaseDatabase.getReference().child(myName+"_"+friendName);
-	public static String friendName = nickname2;
+	public static String friendName = nickname;
     public static String myName=nickname1;
 
     public TextInputView(Context context) {

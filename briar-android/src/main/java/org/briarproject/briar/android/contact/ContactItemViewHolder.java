@@ -51,6 +51,7 @@ public class ContactItemViewHolder<I extends ContactItem>
 		//creates a storage reference
 		storageRef = storage.getReference();
 		Author author = item.getContact().getAuthor();
+		nickname=author.getName();
 		//set avatar or sets identicon if no image found in firebase storage
 		Glide.with(avatar.getContext() /* context */)
 				.using(new FirebaseImageLoader())
