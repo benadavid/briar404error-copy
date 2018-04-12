@@ -44,9 +44,13 @@ public interface MessagingManager extends ConversationClient {
 	Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException;
 
+	Collection<MessageId> getMessageHeaderIds(ContactId c)
+			throws DbException;
+
 	/**
 	 * Returns the body of the private message with the given ID.
 	 */
 	String getMessageBody(MessageId m) throws DbException;
 
+	void removeMessage(MessageId m) throws DbException;
 }
