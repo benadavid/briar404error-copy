@@ -351,7 +351,8 @@ public class ConversationActivity extends BriarActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                Log.d("received", "lool");
+                //to check whether we receive a message
+                Log.d("firebase received", "true");
             }
 
             @Override

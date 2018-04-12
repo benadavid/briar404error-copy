@@ -160,6 +160,7 @@
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity"/>
 		</activity>
+		<activity android:name=".android.contact.Chat" />
 		<activity
 			android:name=".android.sharing.BlogInvitationActivity"
 			android:label="@string/blogs_sharing_invitations_title"

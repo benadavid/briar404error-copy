@@ -116,7 +116,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		OnContactClickListener<ContactListItem> onContactClickListener =
 				(view, item) -> {
 					Intent i = new Intent(getActivity(),
-							ConversationActivity.class);
+							Chat.class);
 					ContactId contactId = item.getContact().getId();
 					i.putExtra(CONTACT_ID, contactId.getInt());
 
