@@ -15,6 +15,7 @@ public class Contact {
 	private final AuthorId localAuthorId;
 	private final boolean verified, active;
 	private boolean muted;
+	private boolean messagesDeleted;
 
 	public Contact(ContactId id, Author author, AuthorId localAuthorId,
 			boolean verified, boolean active) {
@@ -25,6 +26,10 @@ public class Contact {
 		this.active = active;
 		this.muted = false;
 	}
+
+	public void setMessagesDeleted(boolean value){ this.messagesDeleted = value; }
+
+	public boolean getMessagesDeleted() { return messagesDeleted; }
 
 	public void setMuted(boolean muted) {
 		this.muted = muted;

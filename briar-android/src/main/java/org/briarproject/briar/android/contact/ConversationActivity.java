@@ -849,6 +849,13 @@ public class ConversationActivity extends BriarActivity
 			createMessage(text, timestamp);
 		}
 
+		try {
+			Contact c = contactManager.getContact(contactId);
+			//c.setMessagesDeleted(false);
+		} catch (DbException e) {
+			e.printStackTrace();
+		}
+
 		//Reset the text field
 		textInputView.setText("");
 	}
@@ -892,6 +899,7 @@ public class ConversationActivity extends BriarActivity
 			} catch (FormatException e) {throw new RuntimeException(e);
 			}
 		});
+
 	}
 
 	private void storeMessage(PrivateMessage m, String body) {
@@ -1375,6 +1383,17 @@ public class ConversationActivity extends BriarActivity
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
+
+		try {
+			Contact c = contactManager.getContact(contactId);
+			System.out.println("CCCCC " + c);
+			System.out.println("QQQQQ1 " + c.getMessagesDeleted());
+			c.setMessagesDeleted(true);
+			System.out.println("QQQQQ2 " + c.getMessagesDeleted());
+		} catch (DbException e) {
+			e.printStackTrace();
+		}
+
 
 		finish();
 		startActivity(getIntent());
