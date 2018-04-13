@@ -34,6 +34,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -421,6 +422,13 @@ public class ConversationActivity extends BriarActivity
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	/*
+		TODO: hook up to back end
+	 */
+	public void onCheckboxClicked(View view){
+
 	}
 
 	private void loadContactDetailsAndMessages() {

@@ -19,11 +19,24 @@
 			android:id="@+id/text"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:autoLink="web"
 			android:textColor="@color/briar_text_primary_inverse"
 			android:textIsSelectable="true"
 			android:textSize="@dimen/text_size_medium"
-			android:autoLink="web"
 			tools:text="This is a long long long message that spans over several lines.\n\nIt ends here."/>
+
+		<CheckBox
+			android:id="@+id/pinOutgoingCheckBox"
+			android:layout_width="wrap_content"
+			android:layout_height="18dp"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentStart="true"
+			android:layout_below="@+id/text"
+			android:layout_gravity="start"
+			android:buttonTint="@android:color/white"
+			android:text="Pinned"
+			android:textColor="@android:color/white"
+			android:onClick="onCheckboxClicked"/>
 
 		<TextView
 			android:id="@+id/time"
@@ -31,7 +44,7 @@
 			android:layout_height="wrap_content"
 			android:layout_alignParentLeft="true"
 			android:layout_alignParentStart="true"
-			android:layout_below="@+id/text"
+			android:layout_below="@+id/pinOutgoingCheckBox"
 			android:layout_marginTop="@dimen/message_bubble_timestamp_margin"
 			android:maxLines="1"
 			android:textColor="@color/private_message_date_inverse"
