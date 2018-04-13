@@ -342,26 +342,6 @@ public class ConversationActivity extends BriarActivity
 		textInputView = findViewById(R.id.text_input_container);
 		textInputView.setListener(this);
 
-		//**
-		//this is the listener that detects whenever Firebase Database receives a new message
-        //**
-		databaseRef.addValueEventListener(new ValueEventListener() {
-
-
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                //to check whether we receive a message
-                Log.d("firebase received", "true");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-
-            }
-            });
-
 		//Progress bar
 		mProgressDialog = new ProgressDialog(ConversationActivity.this);
 		mProgressDialog.setMessage("A message");

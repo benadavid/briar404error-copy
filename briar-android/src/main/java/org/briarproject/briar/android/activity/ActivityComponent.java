@@ -3,6 +3,7 @@ package org.briarproject.briar.android.activity;
 import android.app.Activity;
 
 import org.briarproject.briar.android.AndroidComponent;
+import org.briarproject.briar.android.contact.Chat;
 import org.briarproject.briar.android.userprofile.AvatarActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.blog.BlogFragment;
@@ -94,6 +95,8 @@ public interface ActivityComponent {
 	void inject(TextInputView view);
 
 	void inject(AvatarActivity activity);
+
+	void inject(Chat activity);
 
 	void inject(UserProfileActivity activity);
 

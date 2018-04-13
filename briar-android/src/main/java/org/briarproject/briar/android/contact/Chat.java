@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.contact;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -19,13 +20,28 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.activity.ActivityComponent;
+import org.briarproject.briar.android.activity.BriarActivity;
+import org.thoughtcrime.securesms.components.util.ListenableFutureTask;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.annotation.Nullable;
+import javax.inject.Inject;
+
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.nickname1;
 
 
-public class Chat extends AppCompatActivity {
+public class Chat extends BriarActivity {
     LinearLayout layout;
     RelativeLayout layout_2;
     ImageView sendButton;
@@ -33,9 +49,35 @@ public class Chat extends AppCompatActivity {
     ScrollView scrollView;
     FirebaseDatabase database;
     DatabaseReference databaseRef1, databaseRef2;
+    public static final String CONTACT_ID = "briar.CONTACT_ID";
+    public static String friend_name;
+
+    private volatile ContactId contactId;
+    @Nullable
+    private volatile String contactName;
+    @Inject
+    volatile ContactManager contactManager;
+
+    private final ListenableFutureTask<String> contactNameTask =
+            new ListenableFutureTask<>(new Callable<String>() {
+                @Override
+                public String call() throws Exception {
+                    Contact c = contactManager.getContact(contactId);
+                    contactName = c.getAuthor().getName();
+                    friend_name=contactName;
+                    return c.getAuthor().getName();
+                }
+            });
+    private final AtomicBoolean contactNameTaskStarted =
+            new AtomicBoolean(false);
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void injectActivity(ActivityComponent component) {
+        component.inject(this);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.new_activity_conversation);
 
@@ -45,11 +87,30 @@ public class Chat extends AppCompatActivity {
         messageArea = (EditText)findViewById(R.id.messageArea);
         scrollView = (ScrollView)findViewById(R.id.scrollView);
 
+        Intent i = getIntent();
+        int id = i.getIntExtra(CONTACT_ID, -1);
+//		if (id == -1) throw new IllegalStateException();
+        contactId = new ContactId(id);
+
+        //get friend's author name
+        runOnDbThread(() -> {
+            try {
+                long now = System.currentTimeMillis();
+                Contact contact = contactManager.getContact(contactId);
+                contactName = contact.getAuthor().getName();
+
+                friend_name=contactName;
+
+            } catch (DbException e) {
+
+            }
+        });
+
         //accessing the firebase database
         database=FirebaseDatabase.getInstance();
         //creates a database references
-        databaseRef1=database.getReference().child("Ben_Ptolemy");
-        databaseRef2=database.getReference().child("Ptolemy_Ben");
+        databaseRef1=database.getReference().child(nickname1+"_"+friend_name);
+        databaseRef2=database.getReference().child(friend_name+"_"+nickname1);
 
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,7 +120,7 @@ public class Chat extends AppCompatActivity {
                 if(!messageText.equals("")){
                     Map<String, String> map = new HashMap<String, String>();
                     map.put("message", messageText);
-                    map.put("user", "Ben");
+                    map.put("user", nickname1);
                     databaseRef1.push().setValue(map);
                     databaseRef2.push().setValue(map);
                     messageArea.setText("");
@@ -74,11 +135,11 @@ public class Chat extends AppCompatActivity {
                 String message = map.get("message").toString();
                 String userName = map.get("user").toString();
 
-                if(userName.equals("Ben")){
+                if(userName.equals(nickname1)){
                     addMessageBox("You:-\n" + message, 1);
                 }
                 else{
-                    addMessageBox("Ptolemy" + ":-\n" + message, 2);
+                    addMessageBox(friend_name + ":-\n" + message, 2);
                 }
             }
 

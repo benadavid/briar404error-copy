@@ -47,6 +47,8 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.contact.Chat;
+import org.briarproject.briar.android.contact.ConversationActivity;
 import org.briarproject.briar.android.userprofile.UserProfileActivity;
 import org.briarproject.briar.android.blog.FeedFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
@@ -89,6 +91,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	public static final String INTENT_GROUPS = "intent_groups";
 	public static final String INTENT_FORUMS = "intent_forums";
 	public static final String INTENT_BLOGS = "intent_blogs";
+	public static Class button_clicked;
 
 	private static final Logger LOG =
 			Logger.getLogger(NavDrawerActivity.class.getName());
@@ -409,6 +412,11 @@ public class NavDrawerActivity extends BriarActivity implements
 		// TODO re-use fragments from the manager when possible (#606)
 		switch (fragmentId) {
 			case R.id.nav_btn_contacts:
+				button_clicked=ConversationActivity.class;
+				startFragment(ContactListFragment.newInstance());
+				break;
+			case R.id.nav_btn_wifi:
+				button_clicked=Chat.class;
 				startFragment(ContactListFragment.newInstance());
 				break;
 			case R.id.nav_btn_groups:
