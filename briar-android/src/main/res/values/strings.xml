@@ -420,5 +420,6 @@
 	<!-- Mute Contact -->
 	<string name="mute">Mute</string>
 	<string name="title_activity_user_profile">UserProfileActivity</string>
+	<string name="title_activity_conversation_pinned_messages">ConversationPinnedMessages</string>
 
 </resources>

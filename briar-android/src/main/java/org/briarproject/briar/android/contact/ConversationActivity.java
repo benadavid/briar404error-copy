@@ -416,6 +416,10 @@ public class ConversationActivity extends BriarActivity
 				//dynamically changes title whether trying to mute or unmute
 				muteTitleChangeClick(item);
 				return true;
+			case R.id.action_pin:
+				//launch activity to view pinned messages
+				launchViewPinnedMessages();
+				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();
 				return true;
@@ -1332,5 +1336,9 @@ public class ConversationActivity extends BriarActivity
 	}
 	protected void setNotificationManager(AndroidNotificationManager notificationManager) {
 		this.notificationManager = notificationManager;
+	}
+
+	public void launchViewPinnedMessages() {
+		startActivity(new Intent(ConversationActivity.this, ConversationPinnedMessages.class));
 	}
 }
