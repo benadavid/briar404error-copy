@@ -27,6 +27,7 @@ import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -35,6 +36,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
+import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_PINNED;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @Immutable
@@ -96,8 +98,9 @@ class MessagingManagerImpl extends ConversationClientImpl
 		long timestamp = meta.getLong("timestamp");
 		boolean local = meta.getBoolean("local");
 		boolean read = meta.getBoolean(MSG_KEY_READ);
+		boolean pinned = meta.getBoolean(MSG_KEY_PINNED);
 		PrivateMessageHeader header = new PrivateMessageHeader(
-				m.getId(), groupId, timestamp, local, read, false, false);
+				m.getId(), groupId, timestamp, local, read, false, false, pinned);
 		ContactId contactId = getContactId(txn, groupId);
 		PrivateMessageReceivedEvent event = new PrivateMessageReceivedEvent(
 				header, contactId, groupId);
@@ -116,6 +119,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 			meta.put("timestamp", m.getMessage().getTimestamp());
 			meta.put("local", true);
 			meta.put("read", true);
+			meta.put("pinned", false);
 			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
 			messageTracker.trackOutgoingMessage(txn, m.getMessage());
 			db.commitTransaction(txn);
@@ -186,9 +190,10 @@ class MessagingManagerImpl extends ConversationClientImpl
 				long timestamp = meta.getLong("timestamp");
 				boolean local = meta.getBoolean("local");
 				boolean read = meta.getBoolean("read");
+				boolean pinned = meta.getBoolean("pinned");
 				headers.add(
 						new PrivateMessageHeader(id, g, timestamp, local, read,
-								s.isSent(), s.isSeen()));
+								s.isSent(), s.isSeen(), pinned));
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}
@@ -203,6 +208,18 @@ class MessagingManagerImpl extends ConversationClientImpl
 			BdfList message = clientHelper.getMessageAsList(m);
 			if (message == null) throw new DbException();
 			return message.getString(0);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public boolean getMessagePinStatus(MessageId m) throws DbException {
+		try {
+			// 0: private message body
+			BdfDictionary message = clientHelper.getMessageMetadataAsDictionary(m);
+			if (message == null) throw new DbException();
+			return message.getBoolean(MSG_KEY_PINNED);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

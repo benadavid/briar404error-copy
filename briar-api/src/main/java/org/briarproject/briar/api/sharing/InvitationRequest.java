@@ -22,7 +22,7 @@ public class InvitationRequest<S extends Shareable> extends InvitationMessage {
 			boolean local, boolean sent, boolean seen, boolean read,
 			SessionId sessionId, S shareable, ContactId contactId,
 			@Nullable String message, boolean available, boolean canBeOpened) {
-		super(id, groupId, time, local, sent, seen, read, sessionId, contactId);
+		super(id, groupId, time, local, sent, seen, read, sessionId, contactId, false);
 		this.shareable = shareable;
 		this.message = message;
 		this.available = available;

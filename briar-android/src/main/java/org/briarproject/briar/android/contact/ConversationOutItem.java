@@ -11,11 +11,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotNullByDefault
 abstract class ConversationOutItem extends ConversationItem {
 
-	private boolean sent, seen;
+	private boolean sent;
+	private boolean seen;
 
 	ConversationOutItem(MessageId id, GroupId groupId, @Nullable String text,
-			long time, boolean sent, boolean seen) {
-		super(id, groupId, text, time, true);
+			long time, boolean sent, boolean seen, boolean pinned) {
+		super(id, groupId, text, time, true, false);
 
 		this.sent = sent;
 		this.seen = seen;

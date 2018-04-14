@@ -49,4 +49,5 @@ public interface MessagingManager extends ConversationClient {
 	 */
 	String getMessageBody(MessageId m) throws DbException;
 
+	boolean getMessagePinStatus(MessageId m) throws DbException;
 }

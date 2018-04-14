@@ -898,6 +898,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
+	int i = 0;
 	private void storeMessage(PrivateMessage m, String body) {
 		runOnDbThread(() -> {
 			try {
@@ -907,9 +908,14 @@ public class ConversationActivity extends BriarActivity
 				if (LOG.isLoggable(INFO))
 					LOG.info("Storing message took " + duration + " ms");
 				Message message = m.getMessage();
+				i++;
+				boolean pin = false;
+				if (i%3 == 0){
+					pin = true;
+				}
 				PrivateMessageHeader h = new PrivateMessageHeader(
 						message.getId(), message.getGroupId(),
-						message.getTimestamp(), true, false, false, false);
+						message.getTimestamp(), true, false, false, false, pin);
 				ConversationItem item = ConversationItem.from(h);
 				item.setBody(body);
 				bodyCache.put(message.getId(), body);
@@ -1059,6 +1065,34 @@ public class ConversationActivity extends BriarActivity
 				long duration = System.currentTimeMillis() - now;
 				if (LOG.isLoggable(INFO))
 					LOG.info("Marking read took " + duration + " ms");
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		});
+	}
+
+	private void markMessagePinned(GroupId g, MessageId m) {
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				messagingManager.setPinnedFlag(g, m, true);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Pinning message took " + duration + " ms");
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		});
+	}
+
+	private void markMessageUnpinned(GroupId g, MessageId m) {
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				messagingManager.setPinnedFlag(g, m, false);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Unpinning message took " + duration + " ms");
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -1339,6 +1373,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	public void launchViewPinnedMessages() {
-		startActivity(new Intent(ConversationActivity.this, ConversationPinnedMessages.class));
+		loadMessages();
+		//startActivity(new Intent(ConversationActivity.this, ConversationPinnedMessages.class));
 	}
 }

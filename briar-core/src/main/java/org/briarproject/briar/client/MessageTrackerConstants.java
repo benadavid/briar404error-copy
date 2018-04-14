@@ -8,5 +8,6 @@ public interface MessageTrackerConstants {
 	String GROUP_KEY_LATEST_MSG = "latestMessageTime";
 
 	String MSG_KEY_READ = "read";
+	String MSG_KEY_PINNED = "pinned";
 
 }

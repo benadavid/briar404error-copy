@@ -19,7 +19,7 @@ public class InvitationResponse extends InvitationMessage {
 			long time, boolean local, boolean sent, boolean seen,
 			boolean read, SessionId sessionId, GroupId shareableId,
 			ContactId contactId, boolean accept) {
-		super(id, groupId, time, local, sent, seen, read, sessionId, contactId);
+		super(id, groupId, time, local, sent, seen, read, sessionId, contactId, false);
 		this.shareableId = shareableId;
 		this.accept = accept;
 	}

@@ -20,7 +20,7 @@ class ConversationNoticeOutItem extends ConversationOutItem {
 	ConversationNoticeOutItem(MessageId id, GroupId groupId,
 			String text, @Nullable String msgText, long time,
 			boolean sent, boolean seen) {
-		super(id, groupId, text, time, sent, seen);
+		super(id, groupId, text, time, sent, seen, false);
 		this.msgText = msgText;
 	}
 

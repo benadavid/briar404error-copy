@@ -34,6 +34,9 @@ public interface ConversationManager {
 
 		void setReadFlag(GroupId g, MessageId m, boolean read)
 				throws DbException;
+
+		void setPinnedFlag(GroupId g, MessageId m, boolean pinned)
+				throws DbException;
 	}
 
 }

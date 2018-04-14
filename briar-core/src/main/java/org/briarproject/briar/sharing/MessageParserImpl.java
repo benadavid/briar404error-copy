@@ -20,6 +20,7 @@ import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_AVAILABLE_
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_INVITATION_ACCEPTED;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_MESSAGE_TYPE;
+import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_PINNED;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_READ;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_SHAREABLE_ID;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_TIMESTAMP;
@@ -70,8 +71,9 @@ abstract class MessageParserImpl<S extends Shareable>
 		boolean visible = meta.getBoolean(MSG_KEY_VISIBLE_IN_UI, false);
 		boolean available = meta.getBoolean(MSG_KEY_AVAILABLE_TO_ANSWER, false);
 		boolean accepted = meta.getBoolean(MSG_KEY_INVITATION_ACCEPTED, false);
+		boolean pinned = meta.getBoolean(MSG_KEY_PINNED, false);
 		return new MessageMetadata(type, shareableId, timestamp, local, read,
-				visible, available, accepted);
+				visible, available, accepted, pinned);
 	}
 
 	@Override
