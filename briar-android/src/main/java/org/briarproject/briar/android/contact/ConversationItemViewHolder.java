@@ -19,6 +19,8 @@ import org.w3c.dom.Text;
 
 import android.graphics.Color;
 
+import static android.view.View.GONE;
+
 @UiThread
 @NotNullByDefault
 class ConversationItemViewHolder extends ViewHolder {
@@ -84,7 +86,6 @@ class ConversationItemViewHolder extends ViewHolder {
 			String HTMLText = converter.markdownToHtml(item.getBody().substring(0, (item.getBody().length() -3)));
 			CharSequence HTMLString = Html.fromHtml(HTMLText);
 			text.setText(HTMLString);
-
 		}
 
 		long timestamp = item.getTime();

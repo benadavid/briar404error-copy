@@ -155,4 +155,6 @@ public class ConversationActivityTest {
 
 		Mockito.verify(mockNotificationManager).blockContactNotification(any(ContactId.class));
 	}
+
+
 }

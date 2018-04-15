@@ -20,7 +20,7 @@
 	<item
 		android:id="@+id/action_mute"
 		android:icon="@drawable/introduction_white"
-		android:title=" "
+		android:title="Mute Contact"
 		android:enabled="true"
 		app:showAsAction="never"/>
 
@@ -28,7 +28,12 @@
 		android:id="@+id/action_pin"
 		android:icon="@drawable/introduction_white"
 		android:title="View Pinned Messages"
-		android:enabled="true"
+		android:enabled="true"/>
+
+	<item
+		android:id="@+id/action_delete_conversation"
+		android:icon="@drawable/introduction_white"
+		android:title="@string/deleteConversation"
 		app:showAsAction="never"/>
 
 	<item

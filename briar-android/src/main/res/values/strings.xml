@@ -422,4 +422,11 @@
 	<string name="title_activity_user_profile">UserProfileActivity</string>
 	<string name="title_activity_conversation_pinned_messages">ConversationPinnedMessages</string>
 
+	<!-- Delete Conversation -->
+	<string name="deleteConversation">Delete Conversation</string>
+	<string name="dialog_title_delete_conversation">Confirm Conversation Deletion</string>
+	<string name="dialog_message_delete_conversation">Are you sure that you want to remove all messages exchanged with this contact?</string>
+
+
+
 </resources>

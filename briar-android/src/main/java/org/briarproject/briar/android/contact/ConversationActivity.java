@@ -57,6 +57,8 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
+import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
@@ -125,6 +127,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -203,6 +206,7 @@ public class ConversationActivity extends BriarActivity
 
 	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
 
+	protected final DatabaseComponent db = null;
 	private ConversationAdapter adapter;
 	private Toolbar toolbar;
 	private CircleImageView toolbarAvatar;
@@ -419,6 +423,9 @@ public class ConversationActivity extends BriarActivity
 			case R.id.action_pin:
 				//launch activity to view pinned messages
 				launchViewPinnedMessages();
+			case R.id.action_delete_conversation:
+				//asks if user really wants to delete conversation history
+				askToDeleteConversation();
 				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();
@@ -604,7 +611,7 @@ public class ConversationActivity extends BriarActivity
 				if (LOG.isLoggable(INFO))
 					LOG.info("Loading body took " + duration + " ms");
 
-				displayMessageBody(m, body);
+					displayMessageBody(m, body);
 
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -952,6 +959,9 @@ public class ConversationActivity extends BriarActivity
 			createMessage(text, timestamp);
 		}
 		lastAction = "PANIC";
+
+		finish();
+		startActivity(getIntent());
 	}
 
 	private void removeContact() {
@@ -1376,10 +1386,55 @@ public class ConversationActivity extends BriarActivity
 		this.notificationManager = notificationManager;
 	}
 
+
 	public void launchViewPinnedMessages() {
 		/**
 		 * TODO: make view only pinned message toggle
 		 */
-		startActivity(new Intent(ConversationActivity.this, ConversationPinnedMessages.class));
+		startActivity(new Intent(ConversationActivity.this,
+				ConversationPinnedMessages.class));
+	}
+
+	//asks user if they want to delete conversation before doing so
+	private void askToDeleteConversation() {
+		DialogInterface.OnClickListener okListener =
+				(dialog, which) -> deleteConversation();
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(ConversationActivity.this,
+						R.style.BriarDialogTheme);
+		builder.setTitle(getString(R.string.dialog_title_delete_conversation));
+		builder.setMessage(getString(R.string.dialog_message_delete_conversation));
+		builder.setNegativeButton(R.string.delete, okListener);
+		builder.setPositiveButton(R.string.cancel, null);
+		builder.show();
+	}
+
+	private void deleteConversation() {
+
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				Collection<MessageId> Ids = messagingManager.getMessageHeaderIds(contactId);
+				Iterator MessageDeleter = Ids.iterator();
+
+				while(MessageDeleter.hasNext()){
+					MessageId id = (MessageId) MessageDeleter.next();
+					messagingManager.removeMessage(id);
+					MessageDeleter.remove();
+				}
+
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Getting messages to delete took " + duration + " ms");
+
+			} catch (NoSuchContactException e) {
+				finishOnUiThread();
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		});
+
+		finish();
+		startActivity(getIntent());
 	}
 }
