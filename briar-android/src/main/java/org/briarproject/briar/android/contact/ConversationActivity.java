@@ -900,7 +900,6 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	int i = 0;
 	private void storeMessage(PrivateMessage m, String body) {
 		runOnDbThread(() -> {
 			try {
@@ -910,18 +909,10 @@ public class ConversationActivity extends BriarActivity
 				if (LOG.isLoggable(INFO))
 					LOG.info("Storing message took " + duration + " ms");
 				Message message = m.getMessage();
-				i++;
-				boolean pin = false;
-				if (i%3 == 0){
-					pin = true;
-				}
 				PrivateMessageHeader h = new PrivateMessageHeader(
 						message.getId(), message.getGroupId(),
 						message.getTimestamp(), true, false, false, false, false);
-				markMessagePinned(h.getGroupId(), h.getId());
-				System.out.println("BBBBBBBB " + h.isPinned());
 				ConversationItem item = ConversationItem.from(h);
-				System.out.println("CCCCCCCC " + item.isPinned());
 				item.setBody(body);
 				bodyCache.put(message.getId(), body);
 				addConversationItem(item);
@@ -1074,6 +1065,14 @@ public class ConversationActivity extends BriarActivity
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
+	}
+
+	private void togglePin(ConversationItem item) {
+		if (!item.isPinned()){
+			markMessagePinned(item.getGroupId(), item.getId());
+		} else if (item.isPinned()){
+			markMessageUnpinned(item.getGroupId(), item.getId());
+		}
 	}
 
 	private void markMessagePinned(GroupId g, MessageId m) {
@@ -1378,7 +1377,9 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	public void launchViewPinnedMessages() {
-		loadMessages();
-		//startActivity(new Intent(ConversationActivity.this, ConversationPinnedMessages.class));
+		/**
+		 * TODO: make view only pinned message toggle
+		 */
+		startActivity(new Intent(ConversationActivity.this, ConversationPinnedMessages.class));
 	}
 }
