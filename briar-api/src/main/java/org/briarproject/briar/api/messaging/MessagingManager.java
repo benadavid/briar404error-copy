@@ -48,6 +48,4 @@ public interface MessagingManager extends ConversationClient {
 	 * Returns the body of the private message with the given ID.
 	 */
 	String getMessageBody(MessageId m) throws DbException;
-
-	boolean getMessagePinStatus(MessageId m) throws DbException;
 }

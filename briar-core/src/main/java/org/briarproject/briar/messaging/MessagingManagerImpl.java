@@ -212,17 +212,4 @@ class MessagingManagerImpl extends ConversationClientImpl
 			throw new DbException(e);
 		}
 	}
-
-	@Override
-	public boolean getMessagePinStatus(MessageId m) throws DbException {
-		try {
-			// 0: private message body
-			BdfDictionary message = clientHelper.getMessageMetadataAsDictionary(m);
-			if (message == null) throw new DbException();
-			return message.getBoolean(MSG_KEY_PINNED);
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
-	}
-
 }

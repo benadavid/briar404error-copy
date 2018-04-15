@@ -76,9 +76,7 @@ abstract class ConversationItem {
 		return read;
 	}
 
-	public boolean isPinned() {
-		return pinned;
-	}
+	public boolean isPinned() { return pinned; }
 
 	public void setPinned(boolean pinned) {
 		this.pinned = pinned;

@@ -566,6 +566,8 @@ public class ConversationActivity extends BriarActivity
 			String body = bodyCache.get(h.getId());
 			if (body == null) loadMessageBody(h.getId());
 			else item.setBody(body);
+			boolean pinned = h.isPinned();
+			item.setPinned(pinned);
 			items.add(item);
 		}
 		for (IntroductionMessage m : introductions) {
@@ -915,8 +917,11 @@ public class ConversationActivity extends BriarActivity
 				}
 				PrivateMessageHeader h = new PrivateMessageHeader(
 						message.getId(), message.getGroupId(),
-						message.getTimestamp(), true, false, false, false, pin);
+						message.getTimestamp(), true, false, false, false, false);
+				markMessagePinned(h.getGroupId(), h.getId());
+				System.out.println("BBBBBBBB " + h.isPinned());
 				ConversationItem item = ConversationItem.from(h);
+				System.out.println("CCCCCCCC " + item.isPinned());
 				item.setBody(body);
 				bodyCache.put(message.getId(), body);
 				addConversationItem(item);

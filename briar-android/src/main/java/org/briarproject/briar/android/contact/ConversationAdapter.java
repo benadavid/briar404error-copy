@@ -58,6 +58,7 @@ class ConversationAdapter
 		if (item instanceof ConversationRequestItem) {
 			((ConversationRequestViewHolder) ui).bind(item, listener);
 		} else {
+			System.out.println("QQQQQQQQ " + item);
 			if (item.isPinned()){
 				System.out.println(item + " WAS PINNED AAAAAAAA");
 			}

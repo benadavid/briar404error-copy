@@ -167,12 +167,14 @@ class MessageTrackerImpl implements MessageTracker {
 			BdfDictionary old =
 					clientHelper.getMessageMetadataAsDictionary(txn, m);
 			boolean wasPinned = old.getBoolean(MSG_KEY_PINNED, false);
-
+			System.out.println("MESSAGE GETS HERE BY SOME VOODOO BLACK MAGIC " + pinned);
 			// if status changed
 			if (wasPinned != pinned) {
 				// mark individual message as pinned
 				BdfDictionary meta = new BdfDictionary();
-				meta.put(MSG_KEY_READ, pinned);
+				meta.put(MSG_KEY_PINNED, pinned);
+				boolean pin = meta.getBoolean("pinned");
+				System.out.println("DDDDDDD " + pin);
 				clientHelper.mergeMessageMetadata(txn, m, meta);
 			}
 			db.commitTransaction(txn);
