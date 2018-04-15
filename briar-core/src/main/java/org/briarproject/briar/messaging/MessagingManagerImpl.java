@@ -45,6 +45,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 		implements MessagingManager, Client, AddContactHook, RemoveContactHook {
 
 	private final ContactGroupFactory contactGroupFactory;
+	private boolean showOnlyPinnedMessages = false;
 
 	@Inject
 	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
@@ -165,6 +166,12 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
+	public void toggleShowOnlyPinnedMessages() {
+		if(showOnlyPinnedMessages){showOnlyPinnedMessages = false; }
+		else { showOnlyPinnedMessages = true; }
+	}
+
+	@Override
 	public Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException {
 		Map<MessageId, BdfDictionary> metadata;
@@ -191,9 +198,17 @@ class MessagingManagerImpl extends ConversationClientImpl
 				boolean local = meta.getBoolean("local");
 				boolean read = meta.getBoolean("read");
 				boolean pinned = meta.getBoolean("pinned");
-				headers.add(
-						new PrivateMessageHeader(id, g, timestamp, local, read,
-								s.isSent(), s.isSeen(), pinned));
+				if (showOnlyPinnedMessages == true){
+					if (pinned == true){
+						headers.add(
+								new PrivateMessageHeader(id, g, timestamp, local, read,
+										s.isSent(), s.isSeen(), pinned));
+					}
+				} else {
+					headers.add(
+							new PrivateMessageHeader(id, g, timestamp, local, read,
+									s.isSent(), s.isSeen(), pinned));
+				}
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}

@@ -38,6 +38,8 @@ public interface MessagingManager extends ConversationClient {
 	 */
 	GroupId getConversationId(ContactId c) throws DbException;
 
+	void toggleShowOnlyPinnedMessages();
+
 	/**
 	 * Returns the headers of all messages in the given private conversation.
 	 */

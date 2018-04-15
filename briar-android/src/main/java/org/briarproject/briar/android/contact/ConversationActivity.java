@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.contact;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.Manifest;
@@ -135,6 +136,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 //For Regex
@@ -377,6 +379,7 @@ public class ConversationActivity extends BriarActivity
 
 		//when closing activity, checks if contact will be muted or unmuted
 		muteOrUnMuteContact();
+
 	}
 
 	@Override
@@ -423,6 +426,7 @@ public class ConversationActivity extends BriarActivity
 			case R.id.action_pin:
 				//launch activity to view pinned messages
 				launchViewPinnedMessages();
+				return true;
 			case R.id.action_delete_conversation:
 				//asks if user really wants to delete conversation history
 				askToDeleteConversation();
@@ -501,6 +505,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
+	@SuppressLint("NewApi")
 	private void loadMessages() {
 		int revision = adapter.getRevision();
 		runOnDbThread(() -> {
@@ -1391,9 +1396,13 @@ public class ConversationActivity extends BriarActivity
 		/**
 		 * TODO: make view only pinned message toggle
 		 */
-		startActivity(new Intent(ConversationActivity.this,
-				ConversationPinnedMessages.class));
+		messagingManager.toggleShowOnlyPinnedMessages();
+
+		finish();
+		startActivity(getIntent());
+		//startActivity(new Intent(ConversationActivity.this,ConversationPinnedMessages.class));
 	}
+
 
 	//asks user if they want to delete conversation before doing so
 	private void askToDeleteConversation() {
