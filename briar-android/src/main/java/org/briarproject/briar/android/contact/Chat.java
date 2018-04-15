@@ -1,6 +1,9 @@
 package org.briarproject.briar.android.contact;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -40,6 +43,9 @@ import javax.inject.Inject;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.nickname1;
 
+import org.briarproject.bramble.api.db.DatabaseConfig;
+import android.location.LocationManager;
+
 
 public class Chat extends BriarActivity {
     LinearLayout layout;
@@ -52,11 +58,15 @@ public class Chat extends BriarActivity {
     public static final String CONTACT_ID = "briar.CONTACT_ID";
     public static String friend_name;
 
+    LocationManager mLocationManager;
+
     private volatile ContactId contactId;
     @Nullable
     private volatile String contactName;
     @Inject
     volatile ContactManager contactManager;
+    @Inject
+    protected DatabaseConfig databaseConfig;
 
     private final ListenableFutureTask<String> contactNameTask =
             new ListenableFutureTask<>(new Callable<String>() {
@@ -79,7 +89,8 @@ public class Chat extends BriarActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.new_activity_conversation);
+
+        mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         layout = (LinearLayout) findViewById(R.id.layout1);
         layout_2 = (RelativeLayout)findViewById(R.id.layout2);
@@ -135,6 +146,22 @@ public class Chat extends BriarActivity {
                 String message = map.get("message").toString();
                 String userName = map.get("user").toString();
 
+                if(message.equals(databaseConfig.getLocationWord())) {
+                    Location currentLocation = getLastBestLocation();
+                    String currentLocationMessage = "My current location is: /n" +
+                            "Latitude " + currentLocation.getLatitude() + "/n" +
+                            "Longitude " + currentLocation.getLongitude() + "/n" +
+                            "at time " + currentLocation.getTime() + "/n" +
+                            "using location provider " + currentLocation.getProvider();
+
+                    Map<String, String> locationMessageMap = new HashMap<String, String>();
+                    map.put("message", currentLocationMessage);
+                    map.put("user", nickname1);
+
+                    databaseRef1.push().setValue(locationMessageMap);
+                    databaseRef2.push().setValue(locationMessageMap);
+                }
+
                 if(userName.equals(nickname1)){
                     addMessageBox("You:-\n" + message, 1);
                 }
@@ -183,5 +210,26 @@ public class Chat extends BriarActivity {
         textView.setLayoutParams(lp2);
         layout.addView(textView);
         scrollView.fullScroll(View.FOCUS_DOWN);
+    }
+
+    private Location getLastBestLocation() {
+        @SuppressLint("MissingPermission") Location locationGPS = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        @SuppressLint("MissingPermission") Location locationNet = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+        long GPSLocationTime = 0;
+        if (null != locationGPS) { GPSLocationTime = locationGPS.getTime(); }
+
+        long NetLocationTime = 0;
+
+        if (null != locationNet) {
+            NetLocationTime = locationNet.getTime();
+        }
+
+        if ( 0 < GPSLocationTime - NetLocationTime ) {
+            return locationGPS;
+        }
+        else {
+            return locationNet;
+        }
     }
 }
