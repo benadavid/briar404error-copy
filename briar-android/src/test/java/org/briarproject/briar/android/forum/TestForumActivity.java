@@ -2,6 +2,8 @@ package org.briarproject.briar.android.forum;
 
 import android.os.Bundle;
 
+import com.google.firebase.FirebaseApp;
+
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -33,6 +35,7 @@ public class TestForumActivity extends ForumActivity {
 
 	@Override
 	public void onCreate(@Nullable Bundle state) {
+		FirebaseApp.initializeApp(this);
 		setTheme(R.style.BriarTheme_NoActionBar);
 		super.onCreate(state);
 	}

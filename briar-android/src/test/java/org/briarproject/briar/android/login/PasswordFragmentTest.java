@@ -35,6 +35,7 @@ public class PasswordFragmentTest {
 	private PasswordFragment passwordFragment = new PasswordFragment();
 	private EditText passwordEntry;
 	private EditText passwordConfirmation;
+	private EditText locationWordEntry;
 	private TextInputLayout passwordConfirmationWrapper;
 	private StrengthMeter strengthMeter;
 	private Button createAccountButton;
@@ -50,6 +51,7 @@ public class PasswordFragmentTest {
 		View v = passwordFragment.getView();
 		passwordEntry = v.findViewById(R.id.password_entry);
 		passwordConfirmation = v.findViewById(R.id.password_confirm);
+		locationWordEntry = v.findViewById(R.id.location_word_entry);
 		passwordConfirmationWrapper =
 				v.findViewById(R.id.password_confirm_wrapper);
 		strengthMeter = v.findViewById(R.id.strength_meter);
@@ -67,6 +69,7 @@ public class PasswordFragmentTest {
 
 		passwordEntry.setText(safePass);
 		passwordConfirmation.setText(safePass);
+		locationWordEntry.setText("really.smart.location.word");
 		// Confirm that the create account button is clickable
 		assertEquals(createAccountButton.isEnabled(), true);
 		createAccountButton.performClick();
@@ -105,6 +108,7 @@ public class PasswordFragmentTest {
 		// Button enabled
 		passwordEntry.setText("really.safe.pass");
 		passwordConfirmation.setText("really.safe.pass");
+		locationWordEntry.setText("really.smart.location.word");
 		// Confirm that the password mismatch error message is not visible
 		assertNotEquals(passwordConfirmationWrapper.getError(),
 				passwordFragment.getString(R.string.passwords_do_not_match));

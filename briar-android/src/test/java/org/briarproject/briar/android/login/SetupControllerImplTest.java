@@ -37,6 +37,7 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 
 	private final String authorName = getRandomString(MAX_AUTHOR_NAME_LENGTH);
 	private final String password = "some.strong.pass";
+	private final String locationWord = "some.location.word";
 	private final String encryptedHex = "010203";
 	private final byte[] encryptedBytes = new byte[] {1, 2, 3};
 	private final SecretKey key = getSecretKey();
@@ -56,6 +57,7 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 			will(returnValue(key));
 			// Attach the author name and database key to the database config
 			oneOf(databaseConfig).setLocalAuthorName(authorName);
+			oneOf(databaseConfig).setLocationWord(locationWord);
 			oneOf(databaseConfig).setEncryptionKey(key);
 			// Encrypt the key with the password
 			oneOf(crypto).encryptWithPassword(key.getBytes(), password);
@@ -74,6 +76,7 @@ public class SetupControllerImplTest extends BrambleMockTestCase {
 		AtomicBoolean called = new AtomicBoolean(false);
 		s.setAuthorName(authorName);
 		s.setPassword(password);
+		s.setLocationWord(locationWord);
 		s.createAccount(result -> called.set(true));
 		assertTrue(called.get());
 	}
