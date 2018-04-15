@@ -578,8 +578,6 @@ public class ConversationActivity extends BriarActivity
 			String body = bodyCache.get(h.getId());
 			if (body == null) loadMessageBody(h.getId());
 			else item.setBody(body);
-			boolean pinned = h.isPinned();
-			item.setPinned(pinned);
 			items.add(item);
 		}
 		for (IntroductionMessage m : introductions) {
@@ -1082,10 +1080,12 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void togglePin(ConversationItem item) {
+	protected void togglePin(ConversationItem item) {
 		if (!item.isPinned()){
+			item.setPinned(true);
 			markMessagePinned(item.getGroupId(), item.getId());
 		} else if (item.isPinned()){
+			item.setPinned(false);
 			markMessageUnpinned(item.getGroupId(), item.getId());
 		}
 	}
