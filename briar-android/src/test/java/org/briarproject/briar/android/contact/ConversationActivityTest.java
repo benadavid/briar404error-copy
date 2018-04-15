@@ -81,7 +81,7 @@ public class ConversationActivityTest {
 	private MenuItem muteMenuItem;
 	private TextInputView textInputView;
 
-	//@Before
+	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
 		Intent intent = new Intent();
@@ -97,7 +97,7 @@ public class ConversationActivityTest {
 		muteMenuItem = new RoboMenuItem((R.id.action_mute));
 	}
 
-	//@Test
+	@Test
 	public void testPanicSent() {
 		//Send panic alert
 		conversationActivity.onOptionsItemSelected(panicMenuItem);
@@ -105,7 +105,7 @@ public class ConversationActivityTest {
 		Assert.assertEquals("PANIC", conversationActivity.lastAction);
 	}
 
-	//@Test
+	@Test
 	public void testDownload(){
 		// enter a sample URL into the text entry field and send the message
 		String url = "https://www.google.com";
@@ -116,7 +116,7 @@ public class ConversationActivityTest {
 		assertEquals("NCL", textInputView.getText().toString().trim());
 	}
 
-    //@Test
+    @Test
 	public void testSetContactMuted() throws DbException {
 	    muteMenuItem.setTitle("Mute");
 	    spyConversationActivity.onOptionsItemSelected(muteMenuItem);
@@ -125,7 +125,7 @@ public class ConversationActivityTest {
 	    assertEquals(true, spyConversationActivity.isMuted);
 	}
 
-	//@Test
+	@Test
 	public void testSetContactUnMuted() throws DbException {
 		muteMenuItem.setTitle("Unmute");
 		spyConversationActivity.onOptionsItemSelected(muteMenuItem);
@@ -134,7 +134,7 @@ public class ConversationActivityTest {
 		assertEquals(false, spyConversationActivity.isMuted);
 	}
 
-	//@Test
+	@Test
 	public void testUnMutedContactUnBlocking() {
 		AndroidNotificationManager mockNotificationManager = Mockito.mock(AndroidNotificationManager.class);
 		conversationActivity.setNotificationManager(mockNotificationManager);
@@ -145,7 +145,7 @@ public class ConversationActivityTest {
 		Mockito.verify(mockNotificationManager).unblockContactNotification(any(ContactId.class));
 	}
 
-	//@Test
+	@Test
 	public void testMutedContactBlocking() {
 		AndroidNotificationManager mockNotificationManager = Mockito.mock(AndroidNotificationManager.class);
 		conversationActivity.setNotificationManager(mockNotificationManager);
