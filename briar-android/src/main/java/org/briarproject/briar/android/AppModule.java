@@ -90,6 +90,7 @@ public class AppModule {
 
 			private volatile SecretKey key;
 			private volatile String nickname;
+			private volatile String locationWord;
 
 			@Override
 			public boolean databaseExists() {
@@ -114,9 +115,20 @@ public class AppModule {
 			}
 
 			@Override
+			public void setLocationWord(String locationWord) {
+				this.locationWord = locationWord;
+			}
+
+			@Override
 			@Nullable
 			public String getLocalAuthorName() {
 				return nickname;
+			}
+
+			@Override
+			@Nullable
+			public String getLocationWord() {
+				return locationWord;
 			}
 
 			@Override

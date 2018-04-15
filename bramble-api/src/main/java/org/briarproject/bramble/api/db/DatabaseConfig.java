@@ -21,8 +21,13 @@ public interface DatabaseConfig {
 
 	void setLocalAuthorName(String nickname);
 
+	void setLocationWord(String locationWord);
+
 	@Nullable
 	String getLocalAuthorName();
+
+	@Nullable
+	public String getLocationWord();
 
 	long getMaxSize();
 }

@@ -75,7 +75,8 @@ import static org.mockito.Mockito.verify;
 		packageName = "org.briarproject.briar")
 public class ConversationActivityTest {
 
-	private TestConversationActivity conversationActivity;
+	private TestConversationActivity
+			conversationActivity;
 	private TestConversationActivity spyConversationActivity;
 	private MenuItem panicMenuItem;
 	private MenuItem muteMenuItem;

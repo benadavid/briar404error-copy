@@ -169,6 +169,8 @@ import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVAT
 import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_DISMISSED;
 import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_FINISHED;
 
+import org.briarproject.bramble.api.db.DatabaseConfig;
+
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ConversationActivity extends BriarActivity
@@ -254,6 +256,8 @@ public class ConversationActivity extends BriarActivity
 	volatile BlogSharingManager blogSharingManager;
 	@Inject
 	volatile GroupInvitationManager groupInvitationManager;
+	@Inject
+	protected DatabaseConfig databaseConfig;
 
 	public ContactManager getContactManager() {
 		return contactManager;
