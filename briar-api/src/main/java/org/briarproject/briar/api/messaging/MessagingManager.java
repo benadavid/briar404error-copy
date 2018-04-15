@@ -53,4 +53,6 @@ public interface MessagingManager extends ConversationClient {
 	String getMessageBody(MessageId m) throws DbException;
 
 	void removeMessage(MessageId m) throws DbException;
+
+	void updateContact(ContactId c) throws DbException;
 }

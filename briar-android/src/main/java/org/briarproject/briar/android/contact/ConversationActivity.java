@@ -1372,6 +1372,7 @@ public class ConversationActivity extends BriarActivity
 					messagingManager.removeMessage(id);
 					MessageDeleter.remove();
 				}
+				messagingManager.updateContact(contactId);
 
 				long duration = System.currentTimeMillis() - now;
 				if (LOG.isLoggable(INFO))
@@ -1383,16 +1384,6 @@ public class ConversationActivity extends BriarActivity
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
-
-		try {
-			Contact c = contactManager.getContact(contactId);
-			System.out.println("CCCCC " + c);
-			System.out.println("QQQQQ1 " + c.getMessagesDeleted());
-			c.setMessagesDeleted(true);
-			System.out.println("QQQQQ2 " + c.getMessagesDeleted());
-		} catch (DbException e) {
-			e.printStackTrace();
-		}
 
 
 		finish();

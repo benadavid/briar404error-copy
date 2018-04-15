@@ -32,6 +32,9 @@ public interface ConversationManager {
 		GroupCount getGroupCount(Transaction txn, ContactId c)
 				throws DbException;
 
+		void setGroupCount(Transaction txn, ContactId contactId)
+				throws DbException;
+
 		void setReadFlag(GroupId g, MessageId m, boolean read)
 				throws DbException;
 	}

@@ -41,10 +41,8 @@ class ContactListItemViewHolder extends ContactItemViewHolder<ContactListItem> {
 		} else {
 			unread.setVisibility(View.INVISIBLE);
 		}
-		System.out.println("AAAAA " + item.getContact().getMessagesDeleted());
-		System.out.println("BBBBB " + item.getContact());
 		// date of last message
-		if (item.isEmpty() || (item.getContact().getMessagesDeleted() == true)) {
+		if (item.isEmpty()) {
 			date.setText(R.string.date_no_private_messages);
 		} else {
 			long timestamp = item.getTimestamp();
