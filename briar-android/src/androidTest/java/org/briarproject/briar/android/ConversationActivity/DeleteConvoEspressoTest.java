@@ -358,6 +358,18 @@ public class DeleteConvoEspressoTest {
 								2)));
 		appCompatButton7.perform(scrollTo(), click());
 
+		//checks if messages are deleted and displays default lack of conversation message
+		ViewInteraction textView2 = onView(allOf(withId(R.id.emptyView),
+				withText("This is the conversation view.  There seems to be a lack of conversation.  " +
+						"Just tap the input field at the bottom to start a conversation."),
+						childAtPosition(
+								childAtPosition(
+										withId(R.id.conversationView),
+										0),
+								0),
+						isDisplayed()));
+		textView2.check(matches(withText("This is the conversation view.  There seems to be a lack of conversation.  " +
+				"Just tap the input field at the bottom to start a conversation.")));
 	}
 
 	private static Matcher<View> childAtPosition(
