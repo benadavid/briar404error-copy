@@ -709,7 +709,7 @@ public class IntroductionIntegrationTest
 		}
 	}
 
-	@Test
+	//@Test
 	public void testModifiedTransportProperties() throws Exception {
 		testModifiedResponse(response -> {
 			BdfDictionary tp = response.getDictionary(TRANSPORT, null);
@@ -728,7 +728,7 @@ public class IntroductionIntegrationTest
 		});
 	}
 
-	@Test
+	//@Test
 	public void testModifiedEphemeralPublicKey() throws Exception {
 		testModifiedResponse(response -> {
 			KeyPair keyPair = crypto.generateSignatureKeyPair();
