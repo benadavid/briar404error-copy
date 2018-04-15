@@ -287,10 +287,12 @@ public class TestDataCreatorImpl implements TestDataCreator {
 				.createPrivateMessage(groupId, timestamp, body);
 
 		boolean local = random.nextBoolean();
+		boolean pinned = random.nextBoolean();
 		BdfDictionary meta = new BdfDictionary();
 		meta.put("timestamp", timestamp);
 		meta.put("local", local);
 		meta.put("read", local);  // all local messages are read
+		meta.put("pinned", pinned);
 
 		Transaction txn = db.startTransaction(false);
 		try {
