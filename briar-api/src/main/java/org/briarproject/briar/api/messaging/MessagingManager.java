@@ -60,4 +60,6 @@ public interface MessagingManager extends ConversationClient {
 	 * Removes the message with the given ID from the database.
 	 */
 	void removeMessage(MessageId m) throws DbException;
+
+	void updateContactListForDeletedConversation(ContactId c) throws DbException;
 }

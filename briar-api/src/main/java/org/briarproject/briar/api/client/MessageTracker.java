@@ -53,6 +53,9 @@ public interface MessageTracker {
 	 */
 	void storeMessageId(GroupId g, MessageId m) throws DbException;
 
+	void resetGroupCount(Transaction txn, GroupId g)
+			throws DbException;
+
 	/**
 	 * Marks a message as read or unread and updates the group count.
 	 */
