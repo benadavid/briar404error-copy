@@ -15,9 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
@@ -36,9 +33,6 @@ import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.view.KeyEvent.KEYCODE_BACK;
 import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
-import static org.briarproject.briar.android.contact.ContactItemViewHolder.nickname;
-import static org.briarproject.briar.android.contact.ConversationActivity.nickname2;
-import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.nickname1;
 
 @UiThread
 public class TextInputView extends KeyboardAwareLinearLayout
@@ -47,10 +41,6 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	protected final ViewHolder ui;
 	protected TextInputListener listener;
 	protected String colour = "NCL";
-	private FirebaseDatabase mFirebaseDatabase=FirebaseDatabase.getInstance();
-	private DatabaseReference mMessagesDatabaseReference=mFirebaseDatabase.getReference().child(myName+"_"+friendName);
-	public static String friendName = nickname;
-    public static String myName=nickname1;
 
     public TextInputView(Context context) {
 		this(context, null);
@@ -118,7 +108,6 @@ public class TextInputView extends KeyboardAwareLinearLayout
 
 	private void trySendMessage() {
 		if (listener != null) {
-            mMessagesDatabaseReference.setValue(getText());
 			listener.onSendClick(getText());
 		}
 	}

@@ -47,8 +47,8 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.contact.Chat;
 import org.briarproject.briar.android.contact.ConversationActivity;
+import org.briarproject.briar.android.contact.WifiConversation;
 import org.briarproject.briar.android.userprofile.UserProfileActivity;
 import org.briarproject.briar.android.blog.FeedFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
@@ -260,6 +260,9 @@ public class NavDrawerActivity extends BriarActivity implements
 			        imgButton.setImageDrawable(roundedBitmapDrawable);
 			        }
 		//********* end of load pic
+
+		//on first launch, clicking on a contact right away launches the normal chat
+		button_clicked=ConversationActivity.class;
 	}
 
 	//************
@@ -416,7 +419,7 @@ public class NavDrawerActivity extends BriarActivity implements
 				startFragment(ContactListFragment.newInstance());
 				break;
 			case R.id.nav_btn_wifi:
-				button_clicked=Chat.class;
+				button_clicked=WifiConversation.class;
 				startFragment(ContactListFragment.newInstance());
 				break;
 			case R.id.nav_btn_groups:
