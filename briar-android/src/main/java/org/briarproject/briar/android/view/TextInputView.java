@@ -14,11 +14,13 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.contact.ConversationPinnedMessages;
 import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
 import org.thoughtcrime.securesms.components.emoji.EmojiDrawer;
 import org.thoughtcrime.securesms.components.emoji.EmojiDrawer.EmojiEventListener;
@@ -41,6 +43,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	protected final ViewHolder ui;
 	protected TextInputListener listener;
 	protected String colour = "NCL";
+	public boolean pinned = false;
 
     public TextInputView(Context context) {
 		this(context, null);
@@ -102,8 +105,18 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		ui.Magenta.setOnClickListener(v -> MagentaText());
 		ui.Grey.setOnClickListener(v -> GreyText());
 		ui.Black.setOnClickListener(v -> BlackText());
+		ui.Pinned.setOnClickListener(v -> TogglePin());
 		ui.sendButton.setOnClickListener(v -> trySendMessage());
 		ui.emojiDrawer.setEmojiEventListener(this);
+	}
+
+	private void TogglePin() {
+		if(ui.Pinned.isChecked()){
+			pinned = true;
+		}
+		if(!ui.Pinned.isChecked()){
+			pinned = false;
+		}
 	}
 
 	private void trySendMessage() {
@@ -245,6 +258,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 		final View Magenta;
 		final View Grey;
 		final View Black;
+		final CheckBox Pinned;
 
 		private ViewHolder() {
 			emojiToggle = findViewById(R.id.emoji_toggle);
@@ -260,6 +274,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 			Magenta = findViewById(R.id.magenta);
 			Grey = findViewById(R.id.grey);
 			Black = findViewById(R.id.black);
+			Pinned = findViewById(R.id.pin);
 		}
 	}
 

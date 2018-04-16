@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.contact;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.Manifest;
@@ -25,12 +26,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -122,6 +125,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 //For Regex
@@ -204,6 +208,7 @@ public class ConversationActivity extends BriarActivity
 	private BriarRecyclerView list;
 	private TextInputView textInputView;
 	private WebView webView;
+	private SparseBooleanArray pinnedStateArray = new SparseBooleanArray();
 
 	private final ListenableFutureTask<String> contactNameTask =
 			new ListenableFutureTask<>(new Callable<String>() {
@@ -380,6 +385,7 @@ public class ConversationActivity extends BriarActivity
 
 		//when closing activity, checks if contact will be muted or unmuted
 		muteOrUnMuteContact();
+
 	}
 
 	@Override
@@ -423,6 +429,10 @@ public class ConversationActivity extends BriarActivity
 				//dynamically changes title whether trying to mute or unmute
 				muteTitleChangeClick(item);
 				return true;
+			case R.id.action_pin:
+				//launch activity to view pinned messages
+				launchViewPinnedMessages();
+				return true;
 			case R.id.action_delete_conversation:
 				//asks if user really wants to delete conversation history
 				askToDeleteConversation();
@@ -433,6 +443,12 @@ public class ConversationActivity extends BriarActivity
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	/*
+		TODO: hook up to back end
+	 */
+	public void onCheckboxClicked(View view){
 	}
 
 	private void loadContactDetailsAndMessages() {
@@ -493,6 +509,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
+	@SuppressLint("NewApi")
 	private void loadMessages() {
 		int revision = adapter.getRevision();
 		runOnDbThread(() -> {
@@ -909,11 +926,16 @@ public class ConversationActivity extends BriarActivity
 				Message message = m.getMessage();
 				PrivateMessageHeader h = new PrivateMessageHeader(
 						message.getId(), message.getGroupId(),
-						message.getTimestamp(), true, false, false, false);
+						message.getTimestamp(), true, false, false, false, false);
 				ConversationItem item = ConversationItem.from(h);
+				if (textInputView.pinned){
+					togglePin(item);
+				}
 				item.setBody(body);
 				bodyCache.put(message.getId(), body);
-				addConversationItem(item);
+				if (!(messagingManager.getShowOnlyPinnedMessages() && !textInputView.pinned)) {
+					addConversationItem(item);
+				}
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -1062,6 +1084,44 @@ public class ConversationActivity extends BriarActivity
 				long duration = System.currentTimeMillis() - now;
 				if (LOG.isLoggable(INFO))
 					LOG.info("Marking read took " + duration + " ms");
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		});
+	}
+
+	protected void togglePin(ConversationItem item) {
+		if (!item.isPinned()){
+			item.setPinned(true);
+			markMessagePinned(item.getGroupId(), item.getId());
+		} else if (item.isPinned()){
+			item.setPinned(false);
+			markMessageUnpinned(item.getGroupId(), item.getId());
+		}
+	}
+
+	private void markMessagePinned(GroupId g, MessageId m) {
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				messagingManager.setPinnedFlag(g, m, true);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Pinning message took " + duration + " ms");
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		});
+	}
+
+	private void markMessageUnpinned(GroupId g, MessageId m) {
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				messagingManager.setPinnedFlag(g, m, false);
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Unpinning message took " + duration + " ms");
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
@@ -1340,6 +1400,18 @@ public class ConversationActivity extends BriarActivity
 	protected void setNotificationManager(AndroidNotificationManager notificationManager) {
 		this.notificationManager = notificationManager;
 	}
+
+
+	public void launchViewPinnedMessages() {
+		/**
+		 * TODO: make view only pinned message toggle
+		 */
+		messagingManager.toggleShowOnlyPinnedMessages();
+
+		finish();
+		startActivity(getIntent());
+	}
+
 
 	//asks user if they want to delete conversation before doing so
 	private void askToDeleteConversation() {

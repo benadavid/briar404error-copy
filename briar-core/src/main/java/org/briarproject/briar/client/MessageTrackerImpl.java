@@ -21,6 +21,7 @@ import static org.briarproject.briar.client.MessageTrackerConstants.GROUP_KEY_LA
 import static org.briarproject.briar.client.MessageTrackerConstants.GROUP_KEY_MSG_COUNT;
 import static org.briarproject.briar.client.MessageTrackerConstants.GROUP_KEY_STORED_MESSAGE_ID;
 import static org.briarproject.briar.client.MessageTrackerConstants.GROUP_KEY_UNREAD_COUNT;
+import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_PINNED;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @Immutable
@@ -171,5 +172,31 @@ class MessageTrackerImpl implements MessageTracker {
 			db.endTransaction(txn);
 		}
 	}
+
+	@Override
+	public void setPinnedFlag(GroupId g, MessageId m, boolean pinned)
+			throws DbException {
+		Transaction txn = db.startTransaction(false);
+		try {
+			// check current read status of message
+			BdfDictionary old =
+					clientHelper.getMessageMetadataAsDictionary(txn, m);
+			boolean wasPinned = old.getBoolean(MSG_KEY_PINNED, false);
+			// if status changed
+			if (wasPinned != pinned) {
+				// mark individual message as pinned
+				BdfDictionary meta = new BdfDictionary();
+				meta.put(MSG_KEY_PINNED, pinned);
+				clientHelper.mergeMessageMetadata(txn, m, meta);
+			}
+			db.commitTransaction(txn);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+
 
 }

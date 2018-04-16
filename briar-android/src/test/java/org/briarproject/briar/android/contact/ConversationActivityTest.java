@@ -50,6 +50,8 @@ import org.robolectric.annotation.Config;
 import org.robolectric.fakes.RoboMenuItem;
 import org.briarproject.bramble.contact.ContactManagerImpl;
 
+import static junit.framework.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 
@@ -63,8 +65,10 @@ import static java.util.logging.Level.INFO;
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyByte;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by Gibran on 2018-02-11.
@@ -155,6 +159,28 @@ public class ConversationActivityTest {
 		conversationActivity.muteOrUnMuteContact();
 
 		Mockito.verify(mockNotificationManager).blockContactNotification(any(ContactId.class));
+	}
+
+	@Test
+	public void testPinAndUnpinMessage() {
+		//mock the conversationItem object
+		ConversationItem mockConversationItem = Mockito.mock(ConversationItem.class);
+		//call the method under test
+		conversationActivity.togglePin(mockConversationItem);
+		//verify that the pinned status is set to true
+		Mockito.verify(mockConversationItem).setPinned(true);
+		//stub the return
+		when(mockConversationItem.isPinned()).thenReturn(true);
+		//assert the message is marked as pinned
+		assertEquals(true, mockConversationItem.isPinned());
+		//unpin the message
+		conversationActivity.togglePin(mockConversationItem);
+		//make sure the pin is set to false
+		Mockito.verify(mockConversationItem).setPinned(false);
+		//stub the return
+		when(mockConversationItem.isPinned()).thenReturn(false);
+		//assert the message is marked as unpinned
+		assertEquals(false, mockConversationItem.isPinned());
 	}
 
 

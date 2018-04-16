@@ -16,7 +16,7 @@
 
 		<ImageButton
 			android:id="@+id/none"
-			android:layout_width="@dimen/text_input_height"
+			android:layout_width="38dp"
 			android:layout_height="@dimen/text_input_height"
 			android:background="?attr/selectableItemBackground"
 			android:clickable="true"
@@ -26,7 +26,7 @@
 
 		<ImageButton
 			android:id="@+id/red"
-			android:layout_width="@dimen/text_input_height"
+			android:layout_width="38dp"
 			android:layout_height="@dimen/text_input_height"
 			android:background="?attr/selectableItemBackground"
 			android:clickable="true"
@@ -36,7 +36,7 @@
 
 		<ImageButton
 			android:id="@+id/yellow"
-			android:layout_width="@dimen/text_input_height"
+			android:layout_width="38dp"
 			android:layout_height="@dimen/text_input_height"
 			android:background="?attr/selectableItemBackground"
 			android:clickable="true"
@@ -46,7 +46,7 @@
 
 		<ImageButton
 			android:id="@+id/green"
-			android:layout_width="@dimen/text_input_height"
+			android:layout_width="38dp"
 			android:layout_height="@dimen/text_input_height"
 			android:background="?attr/selectableItemBackground"
 			android:clickable="true"
@@ -56,7 +56,7 @@
 
 		<ImageButton
 			android:id="@+id/cyan"
-			android:layout_width="@dimen/text_input_height"
+			android:layout_width="38dp"
 			android:layout_height="@dimen/text_input_height"
 			android:background="?attr/selectableItemBackground"
 			android:clickable="true"
@@ -66,7 +66,7 @@
 
 		<ImageButton
 			android:id="@+id/blue"
-			android:layout_width="@dimen/text_input_height"
+			android:layout_width="38dp"
 			android:layout_height="@dimen/text_input_height"
 			android:background="?attr/selectableItemBackground"
 			android:clickable="true"
@@ -76,7 +76,7 @@
 
 		<ImageButton
 			android:id="@+id/magenta"
-			android:layout_width="@dimen/text_input_height"
+			android:layout_width="38dp"
 			android:layout_height="@dimen/text_input_height"
 			android:background="?attr/selectableItemBackground"
 			android:clickable="true"
@@ -86,7 +86,7 @@
 
 		<ImageButton
 			android:id="@+id/grey"
-			android:layout_width="@dimen/text_input_height"
+			android:layout_width="38dp"
 			android:layout_height="@dimen/text_input_height"
 			android:background="?attr/selectableItemBackground"
 			android:clickable="true"
@@ -96,13 +96,23 @@
 
 		<ImageButton
 			android:id="@+id/black"
-			android:layout_width="@dimen/text_input_height"
+			android:layout_width="38dp"
 			android:layout_height="@dimen/text_input_height"
 			android:background="?attr/selectableItemBackground"
 			android:clickable="true"
 			android:enabled="false"
 			android:padding="@dimen/margin_small"
 			android:src="@drawable/black_square"/>
+
+		<CheckBox
+			android:id="@+id/pin"
+			android:layout_width="38dp"
+			android:layout_height="42dp"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentStart="true"
+			android:layout_gravity="start"
+			android:buttonTint="@android:color/holo_blue_bright"
+			android:onClick="onCheckboxClicked"/>
 
 	</LinearLayout>
 

@@ -18,9 +18,9 @@ public class InvitationMessage extends BaseMessageHeader {
 
 	public InvitationMessage(MessageId id, GroupId groupId, long time,
 			boolean local, boolean sent, boolean seen, boolean read,
-			SessionId sessionId, ContactId contactId) {
+			SessionId sessionId, ContactId contactId, boolean pinned) {
 
-		super(id, groupId, time, local, sent, seen, read);
+		super(id, groupId, time, local, sent, seen, read, pinned);
 		this.sessionId = sessionId;
 		this.contactId = contactId;
 	}

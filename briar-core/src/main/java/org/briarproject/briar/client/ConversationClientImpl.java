@@ -51,4 +51,10 @@ public abstract class ConversationClientImpl extends BdfIncomingMessageHook
 			throws DbException {
 		messageTracker.setReadFlag(g, m, read);
 	}
+
+	@Override
+	public void setPinnedFlag(GroupId g, MessageId m, boolean pinned)
+			throws DbException {
+		messageTracker.setPinnedFlag(g, m, pinned);
+	}
 }

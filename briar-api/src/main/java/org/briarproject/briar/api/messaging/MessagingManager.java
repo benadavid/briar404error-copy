@@ -38,11 +38,15 @@ public interface MessagingManager extends ConversationClient {
 	 */
 	GroupId getConversationId(ContactId c) throws DbException;
 
+	void toggleShowOnlyPinnedMessages();
+
 	/**
 	 * Returns the headers of all messages in the given private conversation.
 	 */
 	Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException;
+
+	boolean getShowOnlyPinnedMessages();
 
 	Collection<MessageId> getMessageHeaderIds(ContactId c)
 			throws DbException;
@@ -52,6 +56,9 @@ public interface MessagingManager extends ConversationClient {
 	 */
 	String getMessageBody(MessageId m) throws DbException;
 
+	/**
+	 * Removes the message with the given ID from the database.
+	 */
 	void removeMessage(MessageId m) throws DbException;
 
 	void updateContactListForDeletedConversation(ContactId c) throws DbException;

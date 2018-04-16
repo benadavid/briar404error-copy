@@ -420,6 +420,7 @@
 	<!-- Mute Contact -->
 	<string name="mute">Mute</string>
 	<string name="title_activity_user_profile">UserProfileActivity</string>
+	<string name="title_activity_conversation_pinned_messages">ConversationPinnedMessages</string>
 
 	<!-- Delete Conversation -->
 	<string name="deleteConversation">Delete Conversation</string>

@@ -25,6 +25,13 @@
 		app:showAsAction="never"/>
 
 	<item
+		android:id="@+id/action_pin"
+		android:icon="@drawable/introduction_white"
+		android:title="View Pinned Messages"
+		android:enabled="true"
+		app:showAsAction="never"/>
+
+	<item
 		android:id="@+id/action_delete_conversation"
 		android:icon="@drawable/introduction_white"
 		android:title="@string/deleteConversation"
