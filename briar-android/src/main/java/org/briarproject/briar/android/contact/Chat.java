@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -15,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.Manifest;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -91,6 +93,11 @@ public class Chat extends BriarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.new_activity_conversation);
 
+        // Request permission to write to storage, needed for downloading links-+6
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                1);
+
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         layout = (LinearLayout) findViewById(R.id.layout1);
@@ -149,15 +156,15 @@ public class Chat extends BriarActivity {
 
                 if(message.equals(databaseConfig.getLocationWord())) {
                     Location currentLocation = getLastBestLocation();
-                    String currentLocationMessage = "My current location is: /n" +
-                            "Latitude " + currentLocation.getLatitude() + "/n" +
-                            "Longitude " + currentLocation.getLongitude() + "/n" +
-                            "at time " + currentLocation.getTime() + "/n" +
-                            "using location provider " + currentLocation.getProvider();
+                    String currentLocationMessage = "My current location is: \n" +
+                            "Latitude " + currentLocation.getLatitude() + "\n" +
+                            "Longitude " + currentLocation.getLongitude() + "\n" +
+                            "at time " + currentLocation.getTime() + "\n" +
+                            "with location data from my " + currentLocation.getProvider() + " source.";
 
                     Map<String, String> locationMessageMap = new HashMap<String, String>();
-                    map.put("message", currentLocationMessage);
-                    map.put("user", nickname1);
+                    locationMessageMap.put("message", currentLocationMessage);
+                    locationMessageMap.put("user", nickname1);
 
                     databaseRef1.push().setValue(locationMessageMap);
                     databaseRef2.push().setValue(locationMessageMap);
