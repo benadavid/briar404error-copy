@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.UiThread;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +52,7 @@ class ConversationAdapter
 				throw new IllegalArgumentException("Unknown ConversationItem");
 		}
 	}
+
 
 	@Override
 	public void onBindViewHolder(ConversationItemViewHolder ui, int position) {

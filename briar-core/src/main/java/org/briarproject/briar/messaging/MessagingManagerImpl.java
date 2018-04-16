@@ -217,6 +217,9 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
+	public boolean getShowOnlyPinnedMessages() { return showOnlyPinnedMessages; }
+
+	@Override
 	public Collection<MessageId> getMessageHeaderIds(ContactId c)
 			throws DbException {
 		Map<MessageId, BdfDictionary> metadata;

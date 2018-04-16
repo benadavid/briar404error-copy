@@ -46,6 +46,8 @@ public interface MessagingManager extends ConversationClient {
 	Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException;
 
+	boolean getShowOnlyPinnedMessages();
+
 	Collection<MessageId> getMessageHeaderIds(ContactId c)
 			throws DbException;
 

@@ -29,6 +29,7 @@ import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -217,6 +218,7 @@ public class ConversationActivity extends BriarActivity
 	private BriarRecyclerView list;
 	private TextInputView textInputView;
 	private WebView webView;
+	private SparseBooleanArray pinnedStateArray = new SparseBooleanArray();
 
 	private final ListenableFutureTask<String> contactNameTask =
 			new ListenableFutureTask<>(new Callable<String>() {
@@ -443,7 +445,6 @@ public class ConversationActivity extends BriarActivity
 		TODO: hook up to back end
 	 */
 	public void onCheckboxClicked(View view){
-
 	}
 
 	private void loadContactDetailsAndMessages() {
@@ -923,9 +924,14 @@ public class ConversationActivity extends BriarActivity
 						message.getId(), message.getGroupId(),
 						message.getTimestamp(), true, false, false, false, false);
 				ConversationItem item = ConversationItem.from(h);
+				if (textInputView.pinned){
+					togglePin(item);
+				}
 				item.setBody(body);
 				bodyCache.put(message.getId(), body);
-				addConversationItem(item);
+				if (!(messagingManager.getShowOnlyPinnedMessages() && !textInputView.pinned)) {
+					addConversationItem(item);
+				}
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
