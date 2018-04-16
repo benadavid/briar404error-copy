@@ -47,7 +47,9 @@ jobs:
   include:
     - stage: clean
       script: ./gradlew clean
+    - stage: build
+      script: ./gradlew build  
     - stage: unittest
       script: ./gradlew test check -PdisablePreDex --stacktrace
-    - stage: instrumentedtestandbuild
-      script: ./gradlew build connectedCheck
+    - stage: instrumentedtest
+      script: ./gradlew connectedCheck

@@ -3,6 +3,7 @@ package org.briarproject.briar.android.activity;
 import android.app.Activity;
 
 import org.briarproject.briar.android.AndroidComponent;
+import org.briarproject.briar.android.contact.WifiConversation;
 import org.briarproject.briar.android.userprofile.AvatarActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.blog.BlogFragment;
@@ -69,6 +70,7 @@ import org.briarproject.briar.android.sharing.ShareForumMessageFragment;
 import org.briarproject.briar.android.sharing.SharingModule;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.userprofile.UserProfileActivity;
+import org.briarproject.briar.android.view.TextInputView;
 
 import dagger.Component;
 
@@ -90,7 +92,11 @@ public interface ActivityComponent {
 
 	void inject(NavDrawerActivity activity);
 
+	void inject(TextInputView view);
+
 	void inject(AvatarActivity activity);
+
+	void inject(WifiConversation activity);
 
 	void inject(UserProfileActivity activity);
 

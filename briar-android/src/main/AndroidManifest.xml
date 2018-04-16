@@ -5,6 +5,8 @@
 	<uses-feature android:name="android.hardware.bluetooth"/>
 	<uses-feature android:name="android.hardware.camera"/>
 
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 	<uses-permission android:name="android.permission.BLUETOOTH"/>
@@ -160,6 +162,7 @@
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity"/>
 		</activity>
+		<activity android:name=".android.contact.WifiConversation" />
 		<activity
 			android:name=".android.sharing.BlogInvitationActivity"
 			android:label="@string/blogs_sharing_invitations_title"

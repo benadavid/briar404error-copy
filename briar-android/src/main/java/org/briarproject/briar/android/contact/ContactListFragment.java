@@ -62,6 +62,7 @@ import static android.support.v4.view.ViewCompat.getTransitionName;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.contact.ConversationActivity.CONTACT_ID;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.button_clicked;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -116,7 +117,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		OnContactClickListener<ContactListItem> onContactClickListener =
 				(view, item) -> {
 					Intent i = new Intent(getActivity(),
-							ConversationActivity.class);
+							button_clicked);
 					ContactId contactId = item.getContact().getId();
 					i.putExtra(CONTACT_ID, contactId.getInt());
 

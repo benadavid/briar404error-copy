@@ -21,7 +21,7 @@ public class SetupControllerImpl extends PasswordControllerImpl
 		implements SetupController {
 
 	@Nullable
-	private String authorName, password;
+	private String authorName, password, locationWord;
 	@Nullable
 	private SetupActivity setupActivity;
 
@@ -51,6 +51,11 @@ public class SetupControllerImpl extends PasswordControllerImpl
 		this.authorName = authorName;
 		if (setupActivity == null) throw new IllegalStateException();
 		setupActivity.showPasswordFragment();
+	}
+
+	@Override
+	public void setLocationWord(String locationWord) {
+		this.locationWord = locationWord;
 	}
 
 	@Override
@@ -84,10 +89,11 @@ public class SetupControllerImpl extends PasswordControllerImpl
 
 	@Override
 	public void createAccount(ResultHandler<Void> resultHandler) {
-		if (authorName == null || password == null)
+		if (authorName == null || password == null || locationWord == null)
 			throw new IllegalStateException();
 		cryptoExecutor.execute(() -> {
 			databaseConfig.setLocalAuthorName(authorName);
+			databaseConfig.setLocationWord(locationWord);
 			SecretKey key = crypto.generateSecretKey();
 			databaseConfig.setEncryptionKey(key);
 			String hex = encryptDatabaseKey(key, password);

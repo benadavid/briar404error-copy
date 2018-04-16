@@ -31,6 +31,7 @@ public class TestConversationActivity extends ConversationActivity {
 
 	@Override
 	public void onCreate(@Nullable Bundle state) {
+		FirebaseApp.initializeApp(this);
 		setTheme(R.style.BriarTheme_NoActionBar);
 		super.onCreate(state);
 	}

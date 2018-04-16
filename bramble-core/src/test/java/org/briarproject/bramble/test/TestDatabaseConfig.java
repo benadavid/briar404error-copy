@@ -46,7 +46,17 @@ public class TestDatabaseConfig implements DatabaseConfig {
 	}
 
 	@Override
+	public void setLocationWord(String locationWord) {
+
+	}
+
+	@Override
 	public String getLocalAuthorName() {
+		return null;
+	}
+
+	@Override
+	public String getLocationWord() {
 		return null;
 	}
 

@@ -38,6 +38,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.TorConstants;
@@ -45,6 +47,8 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.contact.ConversationActivity;
+import org.briarproject.briar.android.contact.WifiConversation;
 import org.briarproject.briar.android.userprofile.UserProfileActivity;
 import org.briarproject.briar.android.blog.FeedFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
@@ -87,6 +91,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	public static final String INTENT_GROUPS = "intent_groups";
 	public static final String INTENT_FORUMS = "intent_forums";
 	public static final String INTENT_BLOGS = "intent_blogs";
+	public static Class button_clicked;
 
 	private static final Logger LOG =
 			Logger.getLogger(NavDrawerActivity.class.getName());
@@ -112,11 +117,16 @@ public class NavDrawerActivity extends BriarActivity implements
 	String path;
 	public final static String APP_PATH_SD_CARD="/DesiredSubfolderName/";
 	public final static String APP_THUMBNAIL_PATH_SD_CARD="thumbnails";
+    private static LocalAuthor author;
+    public static String nickname1;
 
 	private List<Transport> transports;
 	private BaseAdapter transportsAdapter;
 	//Firebase storage object
 	private StorageReference mStorageRef;
+
+    @Inject
+    volatile IdentityManager identityManager;
 
 	@Override
 	protected void onNewIntent(Intent intent) {
@@ -211,6 +221,20 @@ public class NavDrawerActivity extends BriarActivity implements
 			onNewIntent(getIntent());
 		}
 
+        //retrieve local user nickname
+        runOnDbThread(() -> {
+
+            // Load the local pseudonym
+            try {
+                author = identityManager.getLocalAuthor();
+                nickname1 = author.getName();
+                ;
+            } catch (DbException e) {
+                return;
+            }
+
+        });
+
 		//Firebase storage object initalized
 		mStorageRef = FirebaseStorage.getInstance().getReference();
 
@@ -236,6 +260,9 @@ public class NavDrawerActivity extends BriarActivity implements
 			        imgButton.setImageDrawable(roundedBitmapDrawable);
 			        }
 		//********* end of load pic
+
+		//on first launch, clicking on a contact right away launches the normal chat
+		button_clicked=ConversationActivity.class;
 	}
 
 	//************
@@ -388,6 +415,11 @@ public class NavDrawerActivity extends BriarActivity implements
 		// TODO re-use fragments from the manager when possible (#606)
 		switch (fragmentId) {
 			case R.id.nav_btn_contacts:
+				button_clicked=ConversationActivity.class;
+				startFragment(ContactListFragment.newInstance());
+				break;
+			case R.id.nav_btn_wifi:
+				button_clicked=WifiConversation.class;
 				startFragment(ContactListFragment.newInstance());
 				break;
 			case R.id.nav_btn_groups:

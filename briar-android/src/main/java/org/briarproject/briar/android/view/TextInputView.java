@@ -15,6 +15,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.briar.R;
 import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
 import org.thoughtcrime.securesms.components.emoji.EmojiDrawer;
@@ -23,6 +26,7 @@ import org.thoughtcrime.securesms.components.emoji.EmojiEditText;
 import org.thoughtcrime.securesms.components.emoji.EmojiToggle;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
@@ -38,7 +42,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	protected TextInputListener listener;
 	protected String colour = "NCL";
 
-	public TextInputView(Context context) {
+    public TextInputView(Context context) {
 		this(context, null);
 	}
 
@@ -111,6 +115,7 @@ public class TextInputView extends KeyboardAwareLinearLayout
 	@Override
 	public void setVisibility(int visibility) {
 		if (visibility == GONE && isKeyboardOpen()) {
+
 			onKeyboardClose();
 		}
 		super.setVisibility(visibility);

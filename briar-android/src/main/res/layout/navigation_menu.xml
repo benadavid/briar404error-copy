@@ -30,7 +30,7 @@
 				android:layout_gravity="right"
 				android:background="@drawable/round_button"
 				android:scaleType="fitXY"
-				app:srcCompat="@android:drawable/ic_menu_gallery"/>
+				app:srcCompat="@android:drawable/ic_menu_gallery" />
 		</android.support.design.widget.NavigationView>
 
 		<include

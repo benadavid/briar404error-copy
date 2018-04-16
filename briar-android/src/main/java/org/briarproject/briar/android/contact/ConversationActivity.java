@@ -23,6 +23,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -141,6 +142,9 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
+import static org.briarproject.briar.android.contact.ContactItemViewHolder.nickname;
+import static org.briarproject.briar.android.contact.DownloadService.UPDATE_PROGRESS;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.nickname1;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
@@ -161,8 +165,9 @@ public class ConversationActivity extends BriarActivity
 			"showOnboardingIntroduction";
 	StorageReference storageRef,imageRef;
 	FirebaseStorage storage;
-	public static String nickname;
-	Bitmap btm;
+    public static String nickname2;
+
+    Bitmap btm;
 	ArrayList<PrintJob> mPrintJobs = new ArrayList<PrintJob>();
 
 	// declare the progress bar dialog as a member field of the activity
@@ -206,7 +211,6 @@ public class ConversationActivity extends BriarActivity
 				public String call() throws Exception {
 					Contact c = contactManager.getContact(contactId);
 					contactName = c.getAuthor().getName();
-					nickname=contactName;
 					return c.getAuthor().getName();
 				}
 			});
@@ -315,13 +319,28 @@ public class ConversationActivity extends BriarActivity
 		textInputView = findViewById(R.id.text_input_container);
 		textInputView.setListener(this);
 
-
 		//Progress bar
 		mProgressDialog = new ProgressDialog(ConversationActivity.this);
 		mProgressDialog.setMessage("A message");
 		mProgressDialog.setIndeterminate(true);
 		mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		mProgressDialog.setCancelable(true);
+
+		//get friend's author name
+        runOnDbThread(() -> {
+            try {
+                long now = System.currentTimeMillis();
+                    Contact contact = contactManager.getContact(contactId);
+                    contactName = contact.getAuthor().getName();
+                    contactAuthorId = contact.getAuthor().getId();
+
+                    isMuted = contact.isMuted();
+                    nickname2=contactName;
+
+            } catch (DbException e) {
+                if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+            }
+        });
 	}
 
 	@Override
@@ -426,7 +445,6 @@ public class ConversationActivity extends BriarActivity
 					contactAuthorId = contact.getAuthor().getId();
 
 					isMuted = contact.isMuted();
-					nickname=contactName;
 				}
 				long duration = System.currentTimeMillis() - now;
 				if (LOG.isLoggable(INFO))

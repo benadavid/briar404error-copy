@@ -12,6 +12,8 @@ public interface SetupController {
 
 	void setAuthorName(String authorName);
 
+	void setLocationWord(String locationWord);
+
 	void setPassword(String password);
 
 	float estimatePasswordStrength(String password);

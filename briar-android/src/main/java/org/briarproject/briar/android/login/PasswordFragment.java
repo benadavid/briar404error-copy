@@ -23,8 +23,10 @@ public class PasswordFragment extends SetupFragment {
 
 	private TextInputLayout passwordEntryWrapper;
 	private TextInputLayout passwordConfirmationWrapper;
+	private TextInputLayout locationWordEntryWrapper;
 	private TextInputEditText passwordEntry;
 	private TextInputEditText passwordConfirmation;
+	private TextInputEditText locationWordEntry;
 	private StrengthMeter strengthMeter;
 	private Button nextButton;
 	private ProgressBar progressBar;
@@ -46,11 +48,14 @@ public class PasswordFragment extends SetupFragment {
 		passwordConfirmationWrapper =
 				v.findViewById(R.id.password_confirm_wrapper);
 		passwordConfirmation = v.findViewById(R.id.password_confirm);
+		locationWordEntryWrapper = v.findViewById(R.id.location_word_entry_wrapper);
+		locationWordEntry = v.findViewById(R.id.location_word_entry);
 		nextButton = v.findViewById(R.id.next);
 		progressBar = v.findViewById(R.id.progress);
 
 		passwordEntry.addTextChangedListener(this);
 		passwordConfirmation.addTextChangedListener(this);
+		locationWordEntry.addTextChangedListener(this);
 		nextButton.setOnClickListener(this);
 
 		return v;
@@ -80,6 +85,9 @@ public class PasswordFragment extends SetupFragment {
 	public void onTextChanged(CharSequence authorName, int i, int i1, int i2) {
 		String password1 = passwordEntry.getText().toString();
 		String password2 = passwordConfirmation.getText().toString();
+		String locationWord = locationWordEntry.getText().toString();
+		System.out.println(locationWord);
+
 		boolean passwordsMatch = password1.equals(password2);
 
 		strengthMeter
@@ -87,6 +95,7 @@ public class PasswordFragment extends SetupFragment {
 		float strength = setupController.estimatePasswordStrength(password1);
 		strengthMeter.setStrength(strength);
 		boolean strongEnough = strength >= QUITE_WEAK;
+		boolean locationWordValid = locationWord.length() > 8;
 
 		UiUtils.setError(passwordEntryWrapper,
 				getString(R.string.password_too_weak),
@@ -94,8 +103,11 @@ public class PasswordFragment extends SetupFragment {
 		UiUtils.setError(passwordConfirmationWrapper,
 				getString(R.string.passwords_do_not_match),
 				password2.length() > 0 && !passwordsMatch);
+		UiUtils.setError(locationWordEntryWrapper,
+				"Location word must be longer than 8 characters",
+				locationWord.length() > 0 && !locationWordValid);
 
-		boolean enabled = passwordsMatch && strongEnough;
+		boolean enabled = passwordsMatch && strongEnough && locationWordValid;
 		nextButton.setEnabled(enabled);
 		passwordConfirmation.setOnEditorActionListener(enabled ? this : null);
 	}
@@ -107,7 +119,9 @@ public class PasswordFragment extends SetupFragment {
 			progressBar.setVisibility(VISIBLE);
 		}
 		String password = passwordEntry.getText().toString();
+		String locationWord = locationWordEntry.getText().toString();
 		setupController.setPassword(password);
+		setupController.setLocationWord(locationWord);
 		setupController.showDozeOrCreateAccount();
 	}
 
