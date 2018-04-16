@@ -43,7 +43,7 @@ public abstract class ConversationClientImpl extends BdfIncomingMessageHook
 			throws DbException {
 		Contact contact = db.getContact(txn, contactId);
 		GroupId groupId = getContactGroup(contact).getId();
-		messageTracker.setGroupCount(txn, groupId);
+		messageTracker.resetGroupCount(txn, groupId);
 	}
 
 	@Override

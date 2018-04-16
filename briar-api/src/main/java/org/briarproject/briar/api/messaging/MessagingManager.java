@@ -54,5 +54,5 @@ public interface MessagingManager extends ConversationClient {
 
 	void removeMessage(MessageId m) throws DbException;
 
-	void updateContact(ContactId c) throws DbException;
+	void updateContactListForDeletedConversation(ContactId c) throws DbException;
 }

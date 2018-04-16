@@ -53,7 +53,7 @@ public interface MessageTracker {
 	 */
 	void storeMessageId(GroupId g, MessageId m) throws DbException;
 
-	void setGroupCount(Transaction txn, GroupId g)
+	void resetGroupCount(Transaction txn, GroupId g)
 			throws DbException;
 
 	/**

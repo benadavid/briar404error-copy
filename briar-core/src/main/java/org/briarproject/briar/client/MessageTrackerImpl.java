@@ -112,7 +112,7 @@ class MessageTrackerImpl implements MessageTracker {
 	}
 
 	@Override
-	public void setGroupCount(Transaction txn, GroupId g)
+	public void resetGroupCount(Transaction txn, GroupId g)
 			throws DbException {
 		try {
 			BdfDictionary d = BdfDictionary.of(

@@ -247,12 +247,12 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public void updateContact(ContactId c) throws DbException {
+	public void updateContactListForDeletedConversation(ContactId c) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		GroupId g;
 		try {
 			g = getContactGroup(db.getContact(txn, c)).getId();
-			messageTracker.setGroupCount(txn, g);
+			messageTracker.resetGroupCount(txn, g);
 			db.commitTransaction(txn);
 		} catch (DbException e) {
 			e.printStackTrace();
