@@ -89,6 +89,7 @@ public class Chat extends BriarActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.new_activity_conversation);
 
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
