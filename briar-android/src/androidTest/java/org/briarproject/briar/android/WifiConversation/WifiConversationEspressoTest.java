@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.WifiConversation;
 
 
+import android.support.test.espresso.Espresso;
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -8,8 +9,10 @@ import android.test.suitebuilder.annotation.LargeTest;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.LinearLayout;
 
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.contact.WifiConversation;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -19,6 +22,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
+import static android.support.test.espresso.intent.Intents.intended;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
@@ -344,7 +350,11 @@ public class WifiConversationEspressoTest {
 								0)));
 		recyclerView2.perform(actionOnItemAtPosition(0, click()));
 
-		//---> Assert Selecting a contact
+		//---> Assert that WifiConversation gets called after Selecting a contact
+
+
+        intended(hasComponent(WifiConversation.class.getName()));
+
 
 		// Added a sleep statement to match the app's execution delay.
 		// The recommended way to handle such scenarios is to use Espresso idling resources:
@@ -360,7 +370,7 @@ public class WifiConversationEspressoTest {
 						childAtPosition(
 								childAtPosition(
 										IsInstanceOf.<View>instanceOf(
-												android.widget.LinearLayout.class),
+												LinearLayout.class),
 										1),
 								1),
 						isDisplayed()));
