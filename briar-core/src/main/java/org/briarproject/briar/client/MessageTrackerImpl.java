@@ -112,6 +112,21 @@ class MessageTrackerImpl implements MessageTracker {
 		}
 	}
 
+	@Override
+	public void resetGroupCount(Transaction txn, GroupId g)
+			throws DbException {
+		try {
+			BdfDictionary d = BdfDictionary.of(
+					new BdfEntry(GROUP_KEY_MSG_COUNT, 0),
+					new BdfEntry(GROUP_KEY_UNREAD_COUNT, 0),
+					new BdfEntry(GROUP_KEY_LATEST_MSG, System.currentTimeMillis())
+			);
+			clientHelper.mergeGroupMetadata(txn, g, d);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
 	private void storeGroupCount(Transaction txn, GroupId g, GroupCount c)
 			throws DbException {
 		try {

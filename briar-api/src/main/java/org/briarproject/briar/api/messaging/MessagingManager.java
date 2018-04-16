@@ -46,6 +46,8 @@ public interface MessagingManager extends ConversationClient {
 	Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException;
 
+	boolean getShowOnlyPinnedMessages();
+
 	Collection<MessageId> getMessageHeaderIds(ContactId c)
 			throws DbException;
 
@@ -58,4 +60,6 @@ public interface MessagingManager extends ConversationClient {
 	 * Removes the message with the given ID from the database.
 	 */
 	void removeMessage(MessageId m) throws DbException;
+
+	void updateContactListForDeletedConversation(ContactId c) throws DbException;
 }

@@ -217,6 +217,9 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
+	public boolean getShowOnlyPinnedMessages() { return showOnlyPinnedMessages; }
+
+	@Override
 	public Collection<MessageId> getMessageHeaderIds(ContactId c)
 			throws DbException {
 		Map<MessageId, BdfDictionary> metadata;
@@ -258,6 +261,21 @@ class MessagingManagerImpl extends ConversationClientImpl
 		Transaction txn = db.startTransaction(false);
 		try {
 			db.removeMessage(txn, m);
+			db.commitTransaction(txn);
+		} catch (DbException e) {
+			e.printStackTrace();
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	@Override
+	public void updateContactListForDeletedConversation(ContactId c) throws DbException {
+		Transaction txn = db.startTransaction(false);
+		GroupId g;
+		try {
+			g = getContactGroup(db.getContact(txn, c)).getId();
+			messageTracker.resetGroupCount(txn, g);
 			db.commitTransaction(txn);
 		} catch (DbException e) {
 			e.printStackTrace();

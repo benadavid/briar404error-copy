@@ -20,13 +20,13 @@
 		android:autoLink="web"
 		tools:text="Short message"/>
 
-	<CheckBox
+	<!-- <CheckBox
 		android:id="@+id/pinIncomingCheckBox"
 		android:layout_width="wrap_content"
 		android:layout_height="18dp"
 		android:layout_gravity="right|end"
 		android:text="Pinned"
-		android:onClick="onCheckboxClicked"/>
+		android:onClick="onCheckboxClicked"/> -->
 
 	<TextView
 		android:id="@+id/time"
