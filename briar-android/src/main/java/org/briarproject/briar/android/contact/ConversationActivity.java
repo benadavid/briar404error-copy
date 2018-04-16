@@ -43,12 +43,6 @@ import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.FirebaseApp;
@@ -182,8 +176,6 @@ public class ConversationActivity extends BriarActivity
 			"showOnboardingIntroduction";
 	StorageReference storageRef,imageRef;
 	FirebaseStorage storage;
-	FirebaseDatabase database;
-	DatabaseReference databaseRef;
     public static String nickname2;
 
     Bitmap btm;
@@ -333,11 +325,6 @@ public class ConversationActivity extends BriarActivity
 		storage = FirebaseStorage.getInstance();
 		//creates a storage reference
 		storageRef = storage.getReference();
-
-		//accessing the firebase database
-		database=FirebaseDatabase.getInstance();
-		//creates a database reference
-		databaseRef=database.getReference().child("Ptolemy_Ben");
 
 		textInputView = findViewById(R.id.text_input_container);
 		textInputView.setListener(this);

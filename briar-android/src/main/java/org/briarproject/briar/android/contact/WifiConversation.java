@@ -47,7 +47,7 @@ import org.briarproject.bramble.api.db.DatabaseConfig;
 import android.location.LocationManager;
 
 
-public class Chat extends BriarActivity {
+public class WifiConversation extends BriarActivity {
     LinearLayout layout;
     RelativeLayout layout_2;
     ImageView sendButton;
@@ -194,7 +194,7 @@ public class Chat extends BriarActivity {
     }
 
     public void addMessageBox(String message, int type){
-        TextView textView = new TextView(Chat.this);
+        TextView textView = new TextView(WifiConversation.this);
         textView.setText(message);
 
         LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
