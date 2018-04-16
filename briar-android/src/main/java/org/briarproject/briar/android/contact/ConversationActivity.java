@@ -8,8 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,8 +15,6 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintJob;
 import android.print.PrintManager;
-import android.support.annotation.NonNull;
-import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -40,23 +36,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
-import android.app.ProgressDialog; //Deprecated I think
-import android.os.ResultReceiver;
-import android.os.Handler;
+
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
+import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
@@ -121,10 +111,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -136,7 +126,6 @@ import java.util.logging.Logger;
 
 //For Regex
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import java.util.regex.Matcher;
 
 import javax.annotation.Nullable;
@@ -206,6 +195,7 @@ public class ConversationActivity extends BriarActivity
 
 	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
 
+	protected final DatabaseComponent db = null;
 	private ConversationAdapter adapter;
 	private Toolbar toolbar;
 	private CircleImageView toolbarAvatar;
@@ -433,6 +423,10 @@ public class ConversationActivity extends BriarActivity
 				//dynamically changes title whether trying to mute or unmute
 				muteTitleChangeClick(item);
 				return true;
+			case R.id.action_delete_conversation:
+				//asks if user really wants to delete conversation history
+				askToDeleteConversation();
+				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();
 				return true;
@@ -607,7 +601,7 @@ public class ConversationActivity extends BriarActivity
 				if (LOG.isLoggable(INFO))
 					LOG.info("Loading body took " + duration + " ms");
 
-				displayMessageBody(m, body);
+					displayMessageBody(m, body);
 
 			} catch (DbException e) {
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
@@ -901,6 +895,7 @@ public class ConversationActivity extends BriarActivity
 			} catch (FormatException e) {throw new RuntimeException(e);
 			}
 		});
+
 	}
 
 	private void storeMessage(PrivateMessage m, String body) {
@@ -955,6 +950,9 @@ public class ConversationActivity extends BriarActivity
 			createMessage(text, timestamp);
 		}
 		lastAction = "PANIC";
+
+		finish();
+		startActivity(getIntent());
 	}
 
 	private void removeContact() {
@@ -1341,5 +1339,50 @@ public class ConversationActivity extends BriarActivity
 	}
 	protected void setNotificationManager(AndroidNotificationManager notificationManager) {
 		this.notificationManager = notificationManager;
+	}
+
+	//asks user if they want to delete conversation before doing so
+	private void askToDeleteConversation() {
+		DialogInterface.OnClickListener okListener =
+				(dialog, which) -> deleteConversation();
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(ConversationActivity.this,
+						R.style.BriarDialogTheme);
+		builder.setTitle(getString(R.string.dialog_title_delete_conversation));
+		builder.setMessage(getString(R.string.dialog_message_delete_conversation));
+		builder.setNegativeButton(R.string.delete, okListener);
+		builder.setPositiveButton(R.string.cancel, null);
+		builder.show();
+	}
+
+	private void deleteConversation() {
+
+		runOnDbThread(() -> {
+			try {
+				long now = System.currentTimeMillis();
+				Collection<MessageId> Ids = messagingManager.getMessageHeaderIds(contactId);
+				Iterator MessageDeleter = Ids.iterator();
+
+				while(MessageDeleter.hasNext()){
+					MessageId id = (MessageId) MessageDeleter.next();
+					messagingManager.removeMessage(id);
+					MessageDeleter.remove();
+				}
+				messagingManager.updateContactListForDeletedConversation(contactId);
+
+				long duration = System.currentTimeMillis() - now;
+				if (LOG.isLoggable(INFO))
+					LOG.info("Getting messages to delete took " + duration + " ms");
+
+			} catch (NoSuchContactException e) {
+				finishOnUiThread();
+			} catch (DbException e) {
+				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
+			}
+		});
+
+
+		finish();
+		startActivity(getIntent());
 	}
 }

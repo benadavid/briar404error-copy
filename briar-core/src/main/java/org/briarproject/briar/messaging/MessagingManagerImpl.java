@@ -197,6 +197,31 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
+	public Collection<MessageId> getMessageHeaderIds(ContactId c)
+			throws DbException {
+		Map<MessageId, BdfDictionary> metadata;
+		Collection<MessageStatus> statuses;
+		GroupId g;
+		Transaction txn = db.startTransaction(true);
+		try {
+			g = getContactGroup(db.getContact(txn, c)).getId();
+			metadata = clientHelper.getMessageMetadataAsDictionary(txn, g);
+			statuses = db.getMessageStatus(txn, c, g);
+			db.commitTransaction(txn);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		} finally {
+			db.endTransaction(txn);
+		}
+		Collection<MessageId> Ids = new ArrayList<>();
+		for (MessageStatus s : statuses) {
+			MessageId id = s.getMessageId();
+			Ids.add(id);
+		}
+		return Ids;
+	}
+
+	@Override
 	public String getMessageBody(MessageId m) throws DbException {
 		try {
 			// 0: private message body
@@ -207,5 +232,34 @@ class MessagingManagerImpl extends ConversationClientImpl
 			throw new DbException(e);
 		}
 	}
+
+	@Override
+	public void removeMessage(MessageId m) throws DbException {
+		Transaction txn = db.startTransaction(false);
+		try {
+			db.removeMessage(txn, m);
+			db.commitTransaction(txn);
+		} catch (DbException e) {
+			e.printStackTrace();
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
+	@Override
+	public void updateContactListForDeletedConversation(ContactId c) throws DbException {
+		Transaction txn = db.startTransaction(false);
+		GroupId g;
+		try {
+			g = getContactGroup(db.getContact(txn, c)).getId();
+			messageTracker.resetGroupCount(txn, g);
+			db.commitTransaction(txn);
+		} catch (DbException e) {
+			e.printStackTrace();
+		} finally {
+			db.endTransaction(txn);
+		}
+	}
+
 
 }

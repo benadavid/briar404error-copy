@@ -24,10 +24,13 @@ public class ContactListItem extends ContactItem {
 
 	void addMessage(ConversationItem message) {
 		empty = false;
-		if (message.getTime() > timestamp) timestamp = message.getTime();
+		if (message.getTime() > timestamp) {
+			timestamp = message.getTime();
+		}
 		if (!message.isRead())
 			unread++;
 	}
+
 
 	boolean isEmpty() {
 		return empty;

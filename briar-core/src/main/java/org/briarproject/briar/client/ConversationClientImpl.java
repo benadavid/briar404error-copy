@@ -39,6 +39,14 @@ public abstract class ConversationClientImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
+	public void setGroupCount(Transaction txn, ContactId contactId)
+			throws DbException {
+		Contact contact = db.getContact(txn, contactId);
+		GroupId groupId = getContactGroup(contact).getId();
+		messageTracker.resetGroupCount(txn, groupId);
+	}
+
+	@Override
 	public void setReadFlag(GroupId g, MessageId m, boolean read)
 			throws DbException {
 		messageTracker.setReadFlag(g, m, read);
