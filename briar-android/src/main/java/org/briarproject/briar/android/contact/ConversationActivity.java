@@ -1400,7 +1400,6 @@ public class ConversationActivity extends BriarActivity
 
 		finish();
 		startActivity(getIntent());
-		//startActivity(new Intent(ConversationActivity.this,ConversationPinnedMessages.class));
 	}
 
 

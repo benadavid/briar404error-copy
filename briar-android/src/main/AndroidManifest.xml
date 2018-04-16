@@ -341,11 +341,6 @@
 			android:label="@string/title_activity_user_profile"
 			android:theme="@style/BriarTheme.NoActionBar">
 		</activity>
-		<activity
-			android:name=".android.contact.ConversationPinnedMessages"
-			android:label="@string/title_activity_conversation_pinned_messages"
-			android:theme="@style/BriarTheme.NoActionBar">
-		</activity>
 	</application>
 
 </manifest>
