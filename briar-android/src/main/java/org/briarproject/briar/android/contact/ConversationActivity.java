@@ -834,13 +834,6 @@ public class ConversationActivity extends BriarActivity
 			createMessage(text, timestamp);
 		}
 
-		try {
-			Contact c = contactManager.getContact(contactId);
-			//c.setMessagesDeleted(false);
-		} catch (DbException e) {
-			e.printStackTrace();
-		}
-
 		//Reset the text field
 		textInputView.setText("");
 	}
