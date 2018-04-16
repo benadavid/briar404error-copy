@@ -13,7 +13,6 @@ public class ContactListItem extends ContactItem {
 	private boolean empty;
 	private long timestamp;
 	private int unread;
-	private boolean flag = false;
 
 	public ContactListItem(Contact contact, boolean connected,
 			GroupCount count) {
@@ -27,19 +26,11 @@ public class ContactListItem extends ContactItem {
 		empty = false;
 		if (message.getTime() > timestamp) {
 			timestamp = message.getTime();
-			//flag = false;
 		}
 		if (!message.isRead())
 			unread++;
-		if (flag == true){
-			empty = true;
-			this.unread = 0;
-		}
 	}
 
-	void deleteMessages () {
-		flag = true;
-	}
 
 	boolean isEmpty() {
 		return empty;
