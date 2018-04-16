@@ -8,8 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,8 +15,6 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintJob;
 import android.print.PrintManager;
-import android.support.annotation.NonNull;
-import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -39,17 +35,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
-import android.app.ProgressDialog; //Deprecated I think
-import android.os.ResultReceiver;
-import android.os.Handler;
+
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -57,7 +46,6 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseComponent;
-import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
@@ -122,7 +110,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -138,7 +125,6 @@ import java.util.logging.Logger;
 
 //For Regex
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import java.util.regex.Matcher;
 
 import javax.annotation.Nullable;
@@ -155,7 +141,6 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
-import static org.briarproject.briar.android.contact.DownloadService.UPDATE_PROGRESS;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
@@ -892,6 +877,7 @@ public class ConversationActivity extends BriarActivity
 			} catch (FormatException e) {throw new RuntimeException(e);
 			}
 		});
+
 	}
 
 	private void storeMessage(PrivateMessage m, String body) {
@@ -1364,6 +1350,7 @@ public class ConversationActivity extends BriarActivity
 					messagingManager.removeMessage(id);
 					MessageDeleter.remove();
 				}
+				messagingManager.updateContactListForDeletedConversation(contactId);
 
 				long duration = System.currentTimeMillis() - now;
 				if (LOG.isLoggable(INFO))
@@ -1375,6 +1362,7 @@ public class ConversationActivity extends BriarActivity
 				if (LOG.isLoggable(WARNING)) LOG.log(WARNING, e.toString(), e);
 			}
 		});
+
 
 		finish();
 		startActivity(getIntent());

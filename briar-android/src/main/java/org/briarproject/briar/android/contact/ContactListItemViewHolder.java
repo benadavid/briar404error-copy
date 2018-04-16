@@ -41,7 +41,6 @@ class ContactListItemViewHolder extends ContactItemViewHolder<ContactListItem> {
 		} else {
 			unread.setVisibility(View.INVISIBLE);
 		}
-
 		// date of last message
 		if (item.isEmpty()) {
 			date.setText(R.string.date_no_private_messages);
