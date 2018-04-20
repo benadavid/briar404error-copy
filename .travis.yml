@@ -51,11 +51,11 @@ before_script:
   
 jobs:
   include:
-    - stage: instrumentedtest
-      script: ./gradlew connectedCheck
     - stage: clean
       script: ./gradlew clean
     - stage: build
       script: ./gradlew build  
     - stage: unittest
       script: ./gradlew test check -PdisablePreDex --stacktrace
+    - stage: instrumentedtest
+      script: ./gradlew connectedCheck
