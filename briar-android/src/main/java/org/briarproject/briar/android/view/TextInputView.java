@@ -20,7 +20,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.contact.ConversationPinnedMessages;
 import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
 import org.thoughtcrime.securesms.components.emoji.EmojiDrawer;
 import org.thoughtcrime.securesms.components.emoji.EmojiDrawer.EmojiEventListener;
