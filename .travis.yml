@@ -57,5 +57,5 @@ jobs:
       script: ./gradlew build  
     - stage: unittest
       script: ./gradlew test check -PdisablePreDex --stacktrace
-    - stage: instrumentedtest
-      script: ./gradlew connectedCheck
+    #- stage: instrumentedtest
+    #  script: ./gradlew connectedCheck
